@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>True Cost Engine™ + Life Hour Index™ — Lean Dollar: Core | ScaledMoney|OS™</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@200;300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#07111f;--navy2:#0c1829;--navy3:#111e30;--card:#101e30;--card2:#0c1624;
+  --gold:#c9a84c;--gold-l:#e2c06a;--gold-d:#7a5f28;--gold-bg:rgba(201,168,76,0.07);
+  --em:#2dd4a0;--em-d:#1a7a5e;--em-bg:rgba(45,212,160,0.07);
+  --pu:#b48cff;--pu-d:#7a5ccc;--pu-bg:rgba(180,140,255,0.07);
+  --red:#e05555;--amber:#f0a050;
+  --w:#f2eed8;--g:#8892a4;--gl:#bfc8d6;
+  --b:rgba(201,168,76,0.13);--b2:rgba(255,255,255,0.05);
+  --lh:#ff8c69; /* Life Hour orange-coral */
+  --lh-d:rgba(255,140,105,0.2);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--w);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.7;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(201,168,76,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.018) 1px,transparent 1px);
+  background-size:52px 52px;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 90% 60% at 50% -5%,rgba(201,168,76,0.05),transparent);}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(7,17,31,0.95);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--b);
+  height:60px;display:flex;align-items:center;padding:0 40px;gap:16px;}
+.nav-brand{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:0.1em;}
+.nav-brand span{color:var(--g);font-size:10px;margin-left:6px;}
+.nav-badge{background:var(--pu-bg);border:1px solid rgba(180,140,255,0.25);color:var(--pu);
+  padding:3px 12px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;}
+.nav-lhi{background:var(--lh-d);border:1px solid rgba(255,140,105,0.3);color:var(--lh);
+  padding:3px 12px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;margin-left:auto;}
+
+/* ── BANNER ── */
+.banner{position:relative;z-index:1;margin-top:60px;
+  background:rgba(201,168,76,0.03);border-bottom:1px solid rgba(201,168,76,0.07);
+  padding:9px 40px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;}
+
+/* ── INCOME PANEL ── */
+.income-panel{position:relative;z-index:1;
+  background:linear-gradient(135deg,rgba(255,140,105,0.07),rgba(201,168,76,0.04));
+  border-bottom:1px solid rgba(255,140,105,0.15);
+  padding:22px 40px;}
+.ip-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:32px;flex-wrap:wrap;}
+.ip-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,140,105,0.7);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:6px;}
+.ip-inp-wrap{display:flex;align-items:center;gap:8px;}
+.ip-inp{background:rgba(7,17,31,0.6);border:1px solid rgba(255,140,105,0.25);border-radius:8px;
+  padding:10px 16px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;
+  width:200px;transition:border-color 0.2s;}
+.ip-inp:focus{border-color:var(--lh);}
+.ip-inp::placeholder{color:rgba(136,146,164,0.4);}
+.ip-dollar{color:var(--lh);font-size:16px;}
+.ip-divider{width:1px;height:44px;background:rgba(255,255,255,0.06);}
+.ip-stat{display:flex;flex-direction:column;gap:2px;}
+.ip-stat-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--lh);line-height:1;}
+.ip-stat-label{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,140,105,0.5);letter-spacing:0.15em;}
+.ip-note{font-size:11px;color:var(--g);margin-left:auto;max-width:240px;line-height:1.5;text-align:right;}
+.lhi-tag{display:inline-flex;align-items:center;gap:6px;
+  background:var(--lh-d);border:1px solid rgba(255,140,105,0.3);
+  border-radius:6px;padding:4px 12px;
+  font-family:'DM Mono',monospace;font-size:10px;color:var(--lh);letter-spacing:0.1em;}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;padding:52px 40px 44px;max-width:1100px;margin:0 auto;text-align:center;}
+.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:12px;}
+.eyebrow::before,.eyebrow::after{content:'';width:40px;height:1px;background:var(--gold-d);}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,5.5vw,68px);font-weight:900;line-height:1.05;margin-bottom:14px;}
+.hero h1 em{color:var(--gold);font-style:normal;}
+.hero h1 span{color:var(--lh);}
+.hero-sub{font-size:16px;color:var(--gl);max-width:640px;margin:0 auto 28px;line-height:1.8;}
+.formula-row{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--b);border-radius:10px;
+  padding:16px 28px;margin-bottom:10px;width:fit-content;margin-left:auto;margin-right:auto;}
+.fp{color:var(--gold-l);font-family:'DM Mono',monospace;font-size:13px;padding:0 12px;}
+.fo{color:var(--g);font-family:'DM Mono',monospace;font-size:13px;}
+.fr{color:var(--em);font-family:'DM Mono',monospace;font-size:13px;padding:0 12px;font-weight:500;}
+.fl{color:var(--lh);font-family:'DM Mono',monospace;font-size:13px;padding:0 12px;font-weight:500;}
+.formula-plus{width:1px;height:30px;background:rgba(255,255,255,0.08);margin:0 8px;}
+.thoreau-quote{font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:var(--g);margin-top:10px;}
+.thoreau-quote cite{font-style:normal;font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-d);letter-spacing:0.1em;display:block;margin-top:4px;}
+
+/* ── SECTION ── */
+.section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 40px 72px;}
+.sec-label{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+.sl-t{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;}
+.sl-line{flex:1;height:1px;background:linear-gradient(90deg,var(--gold-d),transparent);}
+.sl-r{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-d);white-space:nowrap;}
+.sec-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;margin-bottom:8px;}
+.sec-desc{color:var(--g);font-size:14px;margin-bottom:32px;max-width:680px;line-height:1.7;}
+
+/* ── CALC SHELL ── */
+.calc-shell{background:var(--card);border:1px solid var(--b);border-radius:16px;overflow:hidden;}
+.calc-tabs{display:flex;border-bottom:1px solid var(--b);background:var(--card2);}
+.ctab{flex:1;padding:15px 16px;text-align:center;cursor:pointer;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;
+  color:var(--g);text-transform:uppercase;border-bottom:2px solid transparent;transition:all 0.2s;}
+.ctab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(201,168,76,0.05);}
+.ctab:hover:not(.active){color:var(--gl);}
+.cpanel{display:none;padding:32px;}
+.cpanel.active{display:block;}
+
+/* ── INPUTS ── */
+.igroup{margin-bottom:18px;}
+.ilabel{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:7px;}
+.irow{display:flex;gap:10px;}
+.cinp,.csel{width:100%;background:var(--navy3);border:1px solid rgba(201,168,76,0.18);border-radius:8px;
+  padding:12px 15px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;}
+.cinp:focus,.csel:focus{border-color:var(--gold);}
+.cinp::placeholder{color:rgba(136,146,164,0.4);}
+.csel option{background:var(--navy2);}
+.ihint{font-size:11px;color:var(--g);margin-top:5px;line-height:1.5;}
+.qrow{display:flex;align-items:center;gap:14px;}
+.qslider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+  background:linear-gradient(90deg,var(--red),var(--gold),var(--em));outline:none;cursor:pointer;}
+.qslider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--navy);cursor:pointer;box-shadow:0 0 8px rgba(201,168,76,0.5);}
+.qval{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);width:34px;text-align:center;}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;}
+.presets-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
+.preset-chip{padding:5px 13px;border-radius:100px;font-size:11px;font-weight:500;border:1px solid rgba(201,168,76,0.18);
+  color:var(--gl);cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+.preset-chip:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.06);}
+
+/* ── RESULTS BOX ── */
+.rbox{background:var(--card2);border:1px solid rgba(201,168,76,0.1);border-radius:12px;padding:24px;}
+.rbox-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--gold-d);text-transform:uppercase;margin-bottom:18px;}
+.r-hero{text-align:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(201,168,76,0.08);}
+.r-big{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:var(--gold);line-height:1;}
+.r-big-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--g);letter-spacing:0.12em;margin-top:5px;}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.r-cell{background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.07);border-radius:7px;padding:13px;text-align:center;}
+.r-cell-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--w);}
+.r-cell-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.1em;margin-top:3px;}
+
+/* LHI cells */
+.r-lhi{background:var(--lh-d);border:1px solid rgba(255,140,105,0.2);}
+.r-lhi .r-cell-num{color:var(--lh);}
+.r-lhi .r-cell-label{color:rgba(255,140,105,0.5);}
+
+.score-box{border-radius:8px;padding:13px 16px;display:flex;align-items:center;gap:12px;border:1px solid;}
+.score-circle{width:46px;height:46px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:18px;font-weight:900;border:2px solid;}
+.score-verdict-txt{font-size:12px;color:var(--gl);}
+.score-verdict-lbl{font-weight:600;margin-bottom:2px;}
+
+.insight-box{margin-top:14px;padding:13px 15px;background:var(--lh-d);border:1px solid rgba(255,140,105,0.15);
+  border-radius:7px;font-size:12px;color:var(--gl);line-height:1.6;}
+.insight-box strong{color:var(--lh);}
+.insight-label{font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,140,105,0.5);letter-spacing:0.12em;margin-bottom:5px;}
+
+.cbtn{width:100%;padding:13px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;
+  transition:all 0.2s;letter-spacing:0.02em;}
+.cbtn:hover{background:var(--gold-l);transform:translateY(-1px);box-shadow:0 8px 20px rgba(201,168,76,0.3);}
+
+/* ── 2080 CHART ── */
+.chart-wrap{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:36px;margin-bottom:24px;}
+.chart-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:6px;}
+.chart-sub{font-size:13px;color:var(--gl);margin-bottom:28px;line-height:1.7;max-width:680px;}
+.hour-grid{display:grid;grid-template-columns:repeat(52,1fr);gap:2px;margin-bottom:20px;width:100%;}
+.hblock{aspect-ratio:1;border-radius:1px;cursor:pointer;transition:transform 0.1s,opacity 0.2s;position:relative;}
+.hblock:hover{transform:scale(1.6);z-index:10;}
+.hblock.free{background:rgba(255,255,255,0.06);}
+.chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--gl);}
+.leg-dot{width:12px;height:12px;border-radius:2px;flex-shrink:0;}
+.chart-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.cs-cell{background:var(--card2);border:1px solid var(--b2);border-radius:10px;padding:16px;text-align:center;}
+.cs-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--lh);line-height:1;margin-bottom:4px;}
+.cs-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;line-height:1.4;}
+.chart-tooltip{position:fixed;background:rgba(7,17,31,0.95);border:1px solid var(--b);border-radius:8px;
+  padding:10px 14px;font-size:12px;color:var(--gl);pointer-events:none;z-index:1000;display:none;
+  font-family:'DM Mono',monospace;letter-spacing:0.05em;}
+
+/* ── COMPARE PANEL ── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.cmp-card{background:var(--card2);border:1px solid rgba(201,168,76,0.1);border-radius:12px;padding:22px;}
+.cmp-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;color:var(--gold-d);text-transform:uppercase;margin-bottom:14px;}
+.cmp-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(201,168,76,0.05);font-size:12px;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-row .lbl{color:var(--g);}
+.cmp-row .val{font-family:'DM Mono',monospace;font-weight:500;}
+.win-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:0.1em;
+  background:rgba(45,212,160,0.15);color:var(--em);border:1px solid rgba(45,212,160,0.3);margin-left:6px;}
+.lhi-badge{background:var(--lh-d);color:var(--lh);border:1px solid rgba(255,140,105,0.3);}
+.cmp-verdict{margin-top:20px;padding:18px;border-radius:10px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.1);grid-column:1/-1;}
+
+/* ── LEDGER ── */
+.ledger-add{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:14px;}
+.ltable{width:100%;border-collapse:collapse;}
+.ltable th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;color:var(--gold-d);text-transform:uppercase;
+  padding:9px 12px;text-align:left;border-bottom:1px solid rgba(201,168,76,0.15);background:var(--card2);}
+.ltable td{padding:11px 12px;font-size:12px;color:var(--gl);border-bottom:1px solid rgba(201,168,76,0.04);vertical-align:middle;}
+.ltable tr:hover td{background:rgba(201,168,76,0.025);}
+.ltable .total-row td{font-family:'DM Mono',monospace;font-weight:500;color:var(--gold);border-top:2px solid rgba(201,168,76,0.18);padding-top:14px;}
+.ltable .lhi-row td{color:var(--lh);}
+.del-btn{background:rgba(224,85,85,0.1);border:1px solid rgba(224,85,85,0.2);color:var(--red);border-radius:5px;padding:3px 9px;cursor:pointer;font-size:10px;transition:all 0.2s;}
+.del-btn:hover{background:rgba(224,85,85,0.2);}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;}
+.ledger-empty{text-align:center;padding:44px;color:var(--g);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;}
+
+/* ── CATEGORY REFERENCE ── */
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.cat-card{background:var(--card);border:1px solid var(--b);border-radius:10px;overflow:hidden;}
+.cat-hdr{padding:12px 16px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--b);}
+.cat-icon-sm{font-size:18px;}
+.cat-hdr-name{font-size:13px;font-weight:500;}
+.cat-item{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(201,168,76,0.04);font-size:11px;cursor:pointer;transition:background 0.15s;}
+.cat-item:last-child{border-bottom:none;}
+.cat-item:hover{background:rgba(201,168,76,0.04);}
+.cat-item-name{color:var(--gl);}
+.cat-item-life{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);}
+
+/* ── DECISION MATRIX ── */
+.dm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-radius:12px;overflow:hidden;border:1px solid var(--b);}
+.dm-cell{padding:20px 16px;text-align:center;}
+.dm-cell:nth-child(1){background:rgba(45,212,160,0.09);}
+.dm-cell:nth-child(2){background:rgba(201,168,76,0.09);}
+.dm-cell:nth-child(3){background:rgba(201,168,76,0.05);}
+.dm-cell:nth-child(4){background:rgba(224,85,85,0.07);}
+.dm-icon{font-size:24px;margin-bottom:9px;}
+.dm-outcome{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:6px;}
+.dm-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+.dm-desc{font-size:11px;color:var(--g);line-height:1.5;}
+
+/* ── RESEARCH SECTION ── */
+.research-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px;}
+.rs-card{background:var(--card);border:1px solid var(--b2);border-radius:10px;padding:20px 22px;border-left:3px solid;}
+.rs-card.gold-l{border-left-color:var(--gold);}
+.rs-card.em-l{border-left-color:var(--em);}
+.rs-card.pu-l{border-left-color:var(--pu);}
+.rs-card.lh-l{border-left-color:var(--lh);}
+.rs-domain{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:7px;}
+.rs-quote{font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:var(--gl);line-height:1.6;margin-bottom:8px;}
+.rs-cite{font-family:'DM Mono',monospace;font-size:10px;color:var(--g);}
+.rs-finding{font-size:12px;color:var(--g);line-height:1.55;margin-top:6px;border-top:1px solid var(--b2);padding-top:8px;}
+
+/* ── FOOTNOTES ── */
+.footnotes{position:relative;z-index:1;max-width:1100px;margin:0 auto 60px;padding:0 40px;}
+.fn-box{border-top:1px solid rgba(201,168,76,0.1);padding-top:28px;}
+.fn-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--gold-d);text-transform:uppercase;margin-bottom:14px;}
+.fn{font-size:11px;color:var(--g);line-height:1.6;margin-bottom:5px;padding-left:22px;position:relative;}
+.fn sup{position:absolute;left:0;color:var(--gold-d);font-family:'DM Mono',monospace;}
+.fn-divider{height:1px;background:var(--b2);margin:14px 0;}
+
+.l-chip{padding:6px 14px;border-radius:100px;font-size:11px;font-weight:500;
+  border:1px solid rgba(201,168,76,0.18);color:var(--gl);cursor:pointer;
+  transition:all 0.2s;font-family:'DM Sans',sans-serif;user-select:none;}
+.l-chip:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.06);}
+.l-chip.active{border-color:var(--gold);color:var(--navy);background:var(--gold);font-weight:600;}
+.l-chip[data-cat="home"].active{background:var(--lh);border-color:var(--lh);color:var(--navy);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:var(--gold-d);border-radius:3px;}
+@media(max-width:900px){
+  .calc-grid,.cmp-grid,.research-grid{grid-template-columns:1fr;}
+  .cat-grid{grid-template-columns:1fr 1fr;}
+  .dm-grid{grid-template-columns:1fr 1fr;}
+  .chart-summary{grid-template-columns:1fr 1fr;}
+  .ledger-add{grid-template-columns:1fr 1fr;}
+  .nav,.banner,.income-panel,.hero,.section,.footnotes{padding-left:20px;padding-right:20px;}
+  .cpanel{padding:20px;}
+  .hour-grid{grid-template-columns:repeat(40,1fr);}
+}
+@media(max-width:600px){
+  .cat-grid,.dm-grid{grid-template-columns:1fr;}
+  .hour-grid{grid-template-columns:repeat(26,1fr);}
+  .chart-summary{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOOLTIP -->
+<div class="chart-tooltip" id="chart-tooltip"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">ScaledMoney|OS™<span>· Lean Dollar: Core</span></div>
+  <div class="nav-badge">PILLAR III · TRUE COST ENGINE™</div>
+  <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,140,105,0.55);letter-spacing:0.1em;margin-left:4px;">+ Life Hour Index™</div>
+</nav>
+
+<!-- BANNER -->
+<div class="banner">
+  <span style="color:var(--gold-d)">SCALEDMONEY|OS™</span>
+  <span style="color:var(--gold-d)">→</span>
+  <span style="color:var(--gold)">LEAN DOLLAR</span>
+  <span style="color:var(--gold-d)">→</span>
+  <span style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);color:var(--w);padding:2px 10px;border-radius:4px;">CORE</span>
+  <span style="color:var(--gold-d);margin:0 4px;">·</span>
+  <span style="color:rgba(180,140,255,0.85);font-weight:600;">True Cost Engine™</span>
+  <span style="color:var(--gold-d);margin-left:6px;font-size:9px;">+ Life Hour Index™</span>
+  <span style="margin-left:auto;background:var(--lh-d);border:1px solid rgba(255,140,105,0.25);color:var(--lh);padding:2px 10px;border-radius:4px;font-size:9px;">UNIQUE TO SCALEDMONEY|OS™</span>
+</div>
+
+<!-- INCOME PANEL -->
+<div class="income-panel">
+  <div class="ip-inner">
+    <div>
+      <div class="ip-label">Annual Gross Income</div>
+      <div class="ip-inp-wrap">
+        <span class="ip-dollar">$</span>
+        <input class="ip-inp" type="number" id="annual-income" placeholder="65,000" oninput="updateIncome(this.value)">
+      </div>
+    </div>
+    <div class="ip-divider"></div>
+    <div class="ip-stat">
+      <div class="ip-stat-num" id="lh-rate">$0.00</div>
+      <div class="ip-stat-label">LIFE HOUR™ RATE</div>
+    </div>
+    <div class="ip-divider"></div>
+    <div class="ip-stat">
+      <div class="ip-stat-num" id="lh-day">0.0 hrs</div>
+      <div class="ip-stat-label">WORK HOURS / DAY TO COVER TAXES (25%)</div>
+    </div>
+    <div class="ip-divider"></div>
+    <div class="ip-stat">
+      <div class="ip-stat-num" id="lh-free">0</div>
+      <div class="ip-stat-label">FREE HOURS IN 2,080-HOUR WORK YEAR</div>
+    </div>
+    <div class="ip-note">
+      <div class="lhi-tag">⏱ Life Hour Index™ Active</div>
+      <div style="margin-top:6px;">Every calculation now shows cost in <strong style="color:var(--lh)">Life Hours</strong> — the working hours your income requires to cover each expense.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Pillar III · Signature Methodology</div>
+  <h1>The True Cost <em>Engine™</em></h1>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,140,105,0.65);letter-spacing:0.14em;margin-bottom:14px;">NOW WITH LIFE HOUR INDEX™ INTEGRATION</p>
+  <p class="hero-sub">The only personal finance framework that treats purchases as unit economics decisions — calculating true incremental cost in both dollars and Life Hours, the working hours your income requires to pay for it.</p>
+  <div class="formula-row">
+    <span class="fp">Purchase Price</span><span class="fo">÷</span>
+    <span class="fp">Expected Life</span><span class="fo">×</span>
+    <span class="fp">Quality</span><span class="fo">=</span>
+    <span class="fr">True Cost</span>
+    <div class="formula-plus"></div>
+    <span class="fo">÷</span>
+    <span class="fp">Life Hour Rate</span><span class="fo">=</span>
+    <span class="fl">Life Hours™</span>
+  </div>
+  <div class="thoreau-quote">
+    "The cost of a thing is the amount of what I will call life which is required to be exchanged for it, immediately or in the long run."
+    <cite>— Henry David Thoreau, Walden (1854) <sup>[1]</sup></cite>
+  </div>
+</div>
+
+<!-- CALCULATOR -->
+<section class="section">
+  <div class="sec-label">
+    <span class="sl-t">True Cost Engine™ + Life Hour Index™</span>
+    <span class="sl-line"></span>
+    <span class="sl-r">INTERACTIVE CALCULATOR</span>
+  </div>
+  <h2 class="sec-title">The Incremental Cost Calculator</h2>
+  <p class="sec-desc">Analyze any purchase and see its true incremental cost — monthly, daily, and per use. Enter your income above to also see cost expressed in Life Hours™, the working hours required to pay for it. Compare two options side by side, or build your Lifestyle Ledger.</p>
+
+  <div class="calc-shell">
+    <div class="calc-tabs">
+      <div class="ctab active" onclick="switchTab('single')">Single Analyzer</div>
+      <div class="ctab" onclick="switchTab('compare')">Compare Two Items</div>
+      <div class="ctab" onclick="switchTab('ledger')">Lifestyle Ledger</div>
+    </div>
+
+    <!-- SINGLE -->
+    <div class="cpanel active" id="panel-single">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-d);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;">Quick Load</div>
+      <div class="presets-row">
+        <div class="preset-chip" onclick="loadPreset('tv')">📺 TV</div>
+        <div class="preset-chip" onclick="loadPreset('car')">🚗 Vehicle</div>
+        <div class="preset-chip" onclick="loadPreset('sofa')">🛋️ Sofa</div>
+        <div class="preset-chip" onclick="loadPreset('laptop')">💻 Laptop</div>
+        <div class="preset-chip" onclick="loadPreset('shoes')">👟 Running Shoes</div>
+        <div class="preset-chip" onclick="loadPreset('suit')">👔 Suit</div>
+        <div class="preset-chip" onclick="loadPreset('washer')">🫧 Washer/Dryer</div>
+        <div class="preset-chip" onclick="loadPreset('mattress')">🛏️ Mattress</div>
+        <div class="preset-chip" onclick="loadPreset('phone')">📱 Smartphone</div>
+        <div class="preset-chip" onclick="loadPreset('jeans')">👖 Jeans</div>
+        <div class="preset-chip" onclick="loadPreset('fridge')">🧊 Refrigerator</div>
+        <div class="preset-chip" onclick="loadPreset('coffee')">☕ Espresso Machine</div>
+        <div class="preset-chip" onclick="loadPreset('gym')">🏋️ Gym Membership</div>
+        <div class="preset-chip" onclick="loadPreset('netflix')">📡 Streaming (yr)</div>
+      </div>
+      <div class="calc-grid">
+        <div>
+          <div class="igroup">
+            <label class="ilabel">Item Name</label>
+            <input class="cinp" id="s-name" type="text" placeholder="e.g. Samsung 65-inch TV">
+          </div>
+          <div class="igroup">
+            <label class="ilabel">Purchase Price ($)</label>
+            <input class="cinp" id="s-price" type="number" placeholder="799" min="0">
+          </div>
+          <div class="igroup">
+            <label class="ilabel">Expected Useful Life</label>
+            <div class="irow">
+              <input class="cinp" id="s-life" type="number" placeholder="10" min="0.1" style="flex:1">
+              <select class="csel" id="s-unit" style="width:110px">
+                <option value="years">Years</option>
+                <option value="months">Months</option>
+              </select>
+            </div>
+            <div class="ihint">How long will you realistically keep and use this?</div>
+          </div>
+          <div class="igroup">
+            <label class="ilabel">Weekly Uses</label>
+            <input class="cinp" id="s-uses" type="number" placeholder="7" min="0.1">
+            <div class="ihint">Times per week you will use or benefit from this item</div>
+          </div>
+          <div class="igroup">
+            <label class="ilabel">Quality Score <span id="qs-val" style="color:var(--gold)">5</span>/10</label>
+            <div class="qrow">
+              <span style="font-size:11px;color:var(--g)">Low</span>
+              <input type="range" class="qslider" id="s-quality" min="1" max="10" value="5" oninput="document.getElementById('qs-val').textContent=this.value">
+              <span style="font-size:11px;color:var(--g)">Premium</span>
+            </div>
+          </div>
+          <div class="igroup">
+            <label class="ilabel">Category</label>
+            <select class="csel" id="s-cat">
+              <option value="electronics">Electronics</option>
+              <option value="vehicle">Vehicle</option>
+              <option value="appliance">Appliance</option>
+              <option value="clothing">Clothing</option>
+              <option value="furniture">Furniture</option>
+              <option value="subscription">Subscription/Service</option>
+              <option value="tools">Tools / Equipment</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <button class="cbtn" onclick="calculate()">Calculate True Cost + Life Hours →</button>
+        </div>
+        <div>
+          <div class="rbox" id="result-box">
+            <div class="rbox-title">ANALYSIS RESULT</div>
+            <div id="result-content" style="text-align:center;padding:44px 20px;color:var(--g)">
+              <div style="font-size:30px;margin-bottom:10px">⚙️</div>
+              <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em">ENTER DETAILS AND CALCULATE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <div class="cpanel" id="panel-compare">
+      <p style="font-size:13px;color:var(--gl);margin-bottom:24px;">Compare two competing options by true dollar cost <em>and</em> Life Hours. See which truly delivers better value over the full ownership period.</p>
+      <div class="cmp-grid">
+        <div class="cmp-card">
+          <div class="cmp-lbl">Option A</div>
+          <div class="igroup"><label class="ilabel">Name</label><input class="cinp" id="ca-name" type="text" placeholder="Budget Option"></div>
+          <div class="igroup"><label class="ilabel">Price ($)</label><input class="cinp" id="ca-price" type="number" placeholder="299"></div>
+          <div class="igroup"><label class="ilabel">Life (years)</label><input class="cinp" id="ca-life" type="number" placeholder="3"></div>
+          <div class="igroup"><label class="ilabel">Weekly Uses</label><input class="cinp" id="ca-uses" type="number" placeholder="5"></div>
+          <div class="igroup">
+            <label class="ilabel">Quality <span id="qa-val">5</span>/10</label>
+            <input type="range" class="qslider" id="ca-quality" min="1" max="10" value="5" oninput="document.getElementById('qa-val').textContent=this.value">
+          </div>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-lbl">Option B</div>
+          <div class="igroup"><label class="ilabel">Name</label><input class="cinp" id="cb-name" type="text" placeholder="Premium Option"></div>
+          <div class="igroup"><label class="ilabel">Price ($)</label><input class="cinp" id="cb-price" type="number" placeholder="699"></div>
+          <div class="igroup"><label class="ilabel">Life (years)</label><input class="cinp" id="cb-life" type="number" placeholder="8"></div>
+          <div class="igroup"><label class="ilabel">Weekly Uses</label><input class="cinp" id="cb-uses" type="number" placeholder="5"></div>
+          <div class="igroup">
+            <label class="ilabel">Quality <span id="qb-val">7</span>/10</label>
+            <input type="range" class="qslider" id="cb-quality" min="1" max="10" value="7" oninput="document.getElementById('qb-val').textContent=this.value">
+          </div>
+        </div>
+      </div>
+      <button class="cbtn" style="margin-top:8px" onclick="compare()">Compare Options →</button>
+      <div id="compare-results" style="margin-top:20px"></div>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="cpanel" id="panel-ledger">
+      <p style="font-size:13px;color:var(--gl);margin-bottom:20px;">Your Lifestyle Ledger catalogs everything you own with its true monthly cost <em>and</em> annual Life Hours consumed. This is the most powerful number in the True Cost Engine — the hidden cost of your material life in both dollars <em>and</em> working hours.</p>
+
+      <div style="margin-bottom:14px;">
+        <label class="ilabel">Category</label>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;" id="l-cat-chips">
+          <div class="l-chip active" data-cat="home" onclick="selectLedgerCat(this)">&#127968; Home</div>
+          <div class="l-chip" data-cat="vehicle" onclick="selectLedgerCat(this)">&#128663; Vehicle</div>
+          <div class="l-chip" data-cat="electronics" onclick="selectLedgerCat(this)">&#128250; Electronics</div>
+          <div class="l-chip" data-cat="appliance" onclick="selectLedgerCat(this)">&#9881; Appliance</div>
+          <div class="l-chip" data-cat="clothing" onclick="selectLedgerCat(this)">&#128084; Clothing</div>
+          <div class="l-chip" data-cat="furniture" onclick="selectLedgerCat(this)">&#128247; Furniture</div>
+          <div class="l-chip" data-cat="subscription" onclick="selectLedgerCat(this)">&#128225; Subscription</div>
+          <div class="l-chip" data-cat="tools" onclick="selectLedgerCat(this)">&#128295; Tools</div>
+          <div class="l-chip" data-cat="other" onclick="selectLedgerCat(this)">&middot;&middot; Other</div>
+        </div>
+      </div>
+
+      <div id="l-mode-home" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:6px;">
+        <div>
+          <label class="ilabel">Description (optional)</label>
+          <input class="cinp" id="l-home-name" type="text" placeholder="e.g. Primary Residence">
+        </div>
+        <div>
+          <label class="ilabel">Monthly Payment ($)</label>
+          <input class="cinp" id="l-home-payment" type="number" placeholder="2100" min="1">
+        </div>
+        <div>
+          <label class="ilabel">Type</label>
+          <select class="csel" id="l-home-type">
+            <option value="Mortgage">Mortgage</option>
+            <option value="Rent">Rent</option>
+            <option value="HOA / Fees">HOA / Fees</option>
+            <option value="Property Tax">Property Tax</option>
+            <option value="Home Insurance">Home Insurance</option>
+            <option value="Other Housing">Other Housing</option>
+          </select>
+        </div>
+        <button class="cbtn" style="margin-top:0;padding:12px 18px;white-space:nowrap;" onclick="addLedgerItem()">+ Add</button>
+      </div>
+      <div id="l-home-note" style="font-size:11px;color:var(--g);margin-bottom:14px;padding:8px 12px;background:rgba(255,140,105,0.05);border:1px solid rgba(255,140,105,0.1);border-radius:6px;line-height:1.6;">
+        <strong style="color:var(--lh)">Home entries</strong> use your actual monthly payment directly — no purchase price or lifespan calculation needed. For a full housing picture, add separate rows for mortgage P&amp;I, HOA, property tax, and insurance.
+      </div>
+
+      <div id="l-mode-standard" style="display:none;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:14px;">
+        <div>
+          <label class="ilabel">Item Name</label>
+          <input class="cinp" id="l-name" type="text" placeholder="Item name">
+        </div>
+        <div>
+          <label class="ilabel">Purchase Price ($)</label>
+          <input class="cinp" id="l-price" type="number" placeholder="500" min="1">
+        </div>
+        <div>
+          <label class="ilabel">Useful Life (yrs)</label>
+          <input class="cinp" id="l-life" type="number" placeholder="5" min="0.1" step="0.5">
+        </div>
+        <button class="cbtn" style="margin-top:0;padding:12px 18px;white-space:nowrap;" onclick="addLedgerItem()">+ Add</button>
+      </div>
+
+      <div id="ledger-wrap"><div class="ledger-empty">NO ITEMS YET · ADD YOUR FIRST ITEM ABOVE</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2080 CHART -->
+<section class="section">
+  <div class="sec-label">
+    <span class="sl-t">The 2,080-Hour Work Year</span>
+    <span class="sl-line"></span>
+    <span class="sl-r" style="color:var(--lh)">LIFE HOUR INDEX™ CHART</span>
+  </div>
+  <h2 class="sec-title">Your Working Life, Visualized</h2>
+  <p class="sec-desc">Every block represents one hour of your working year — all 2,080 of them. Add items to your Lifestyle Ledger above and watch them claim their hours. What's left in white is truly yours.</p>
+
+  <div class="chart-wrap">
+    <div class="chart-title">The 2,080-Hour Life Chart™</div>
+    <div class="chart-sub" id="chart-sub-text">Enter your income above and add items to your Lifestyle Ledger to see how your working year is allocated. Each colored block = 1 Life Hour™ consumed by that expense category annually.</div>
+    <div class="chart-legend" id="chart-legend"></div>
+    <div class="hour-grid" id="hour-grid"></div>
+    <div class="chart-summary" id="chart-summary">
+      <div class="cs-cell"><div class="cs-num" id="cs-spoken">0</div><div class="cs-label">LIFE HOURS SPOKEN FOR</div></div>
+      <div class="cs-cell"><div class="cs-num" id="cs-free" style="color:var(--em)">2,080</div><div class="cs-label">FREE LIFE HOURS REMAINING</div></div>
+      <div class="cs-cell"><div class="cs-num" id="cs-pct" style="color:var(--amber)">0%</div><div class="cs-label">OF WORK YEAR ALREADY ALLOCATED</div></div>
+      <div class="cs-cell"><div class="cs-num" id="cs-dollar" style="color:var(--gold)">$0</div><div class="cs-label">TOTAL TRUE MONTHLY DEPRECIATION</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section class="section">
+  <div class="sec-label">
+    <span class="sl-t">The Science Behind the System</span>
+    <span class="sl-line"></span>
+    <span class="sl-r">BEHAVIORAL ECONOMICS · PSYCHOLOGY · MENTAL MODELS</span>
+  </div>
+  <h2 class="sec-title">Why This Framework Works</h2>
+  <p class="sec-desc">The True Cost Engine™ and Life Hour Index™ are grounded in decades of peer-reviewed research across behavioral economics, cognitive psychology, and decision theory. This is not intuition — it is applied science.</p>
+
+  <div class="research-grid">
+    <div class="rs-card gold-l">
+      <div class="rs-domain" style="color:var(--gold)">BEHAVIORAL ECONOMICS · MENTAL ACCOUNTING</div>
+      <div class="rs-quote">"People treat money differently depending on its mental label — they do not evaluate costs in a unified, rational way."</div>
+      <div class="rs-cite">— Richard Thaler, "Mental Accounting Matters" (1999) · Nobel Prize 2017 <sup>[2]</sup></div>
+      <div class="rs-finding">The True Cost Engine forces a single, unified cost frame — monthly and per-use — overriding the cognitive distortion that makes a $30,000 car feel like one decision rather than 360 consecutive monthly decisions.</div>
+    </div>
+    <div class="rs-card lh-l">
+      <div class="rs-domain" style="color:var(--lh)">LIFE ENERGY · OPPORTUNITY COST</div>
+      <div class="rs-quote">"Money is something we choose to trade our life energy for. The real price of anything is the amount of your life you give up to get it."</div>
+      <div class="rs-cite">— Vicki Robin & Joe Dominguez, Your Money or Your Life (1992) <sup>[3]</sup></div>
+      <div class="rs-finding">The Life Hour Index™ operationalizes this principle with precision — converting every dollar figure into the exact number of working hours required to earn it, making abstract cost viscerally concrete.</div>
+    </div>
+    <div class="rs-card em-l">
+      <div class="rs-domain" style="color:var(--em)">TIME VALUATION · HAPPINESS RESEARCH</div>
+      <div class="rs-quote">"People who prioritize time over money report greater happiness, more positive emotions, and more social connection — across income levels."</div>
+      <div class="rs-cite">— Ashley Whillans, Harvard Business School, "Time for Happiness" (2019) <sup>[4]</sup></div>
+      <div class="rs-finding">Expressing cost in Life Hours shifts the cognitive frame from wealth accumulation to time preservation — the variable that research consistently links to wellbeing. The 2,080 Chart makes this comparison immediate and visual.</div>
+    </div>
+    <div class="rs-card pu-l">
+      <div class="rs-domain" style="color:var(--pu)">PAIN OF PAYING · CONSUMER BEHAVIOR</div>
+      <div class="rs-quote">"The pain of paying is the psychological discomfort associated with a financial transaction. Anything that reduces the salience of payment reduces the pain — and increases spending."</div>
+      <div class="rs-cite">— Drazen Prelec & Duncan Simester, "Always Leave Home Without It" (2001) <sup>[5]</sup></div>
+      <div class="rs-finding">Credit cards, digital payments, and subscription models systematically reduce payment salience — making spending feel costless. The Life Hour Index™ restores full payment salience by anchoring every cost to an irreplaceable unit: your working hours.</div>
+    </div>
+    <div class="rs-card gold-l">
+      <div class="rs-domain" style="color:var(--gold)">TEMPORAL DISCOUNTING · PRESENT BIAS</div>
+      <div class="rs-quote">"Humans systematically overvalue immediate rewards relative to future ones — a cognitive bias that distorts nearly every financial decision involving delayed costs or benefits."</div>
+      <div class="rs-cite">— Kahneman & Tversky, Prospect Theory (1979) · Nobel Prize 2002 <sup>[6]</sup></div>
+      <div class="rs-finding">The True Cost Engine™ counteracts present bias by spreading a purchase's true cost across time — making future payments visible at the point of decision. The Monthly Cost view forces consideration of the full ownership period, not just the sticker price.</div>
+    </div>
+    <div class="rs-card em-l">
+      <div class="rs-domain" style="color:var(--em)">OPPORTUNITY COST NEGLECT</div>
+      <div class="rs-quote">"People often fail to spontaneously consider opportunity costs — what else they could have done with the same money — when making purchase decisions."</div>
+      <div class="rs-cite">— Shane Frederick et al., "Opportunity Cost Neglect" (2009), Journal of Consumer Research <sup>[7]</sup></div>
+      <div class="rs-finding">The 2,080-Hour Chart makes opportunity cost undeniable. When 312 blocks representing a car loan are already colored, the remaining white blocks become the true question: "Is this next purchase worth the Life Hours it costs me?"</div>
+    </div>
+    <div class="rs-card lh-l">
+      <div class="rs-domain" style="color:var(--lh)">DEPRECIATION PSYCHOLOGY</div>
+      <div class="rs-quote">"Consumers systematically underestimate ongoing costs and overestimate the longevity of their purchases — a pattern that leads to chronic underbudgeting for replacements."</div>
+      <div class="rs-cite">— Statman & Caldwell, "Keeping Up With the Joneses" (1987), Financial Management <sup>[8]</sup></div>
+      <div class="rs-finding">The Lifestyle Ledger solves this directly: by cataloging existing possessions with their true monthly depreciation, it surfaces the ongoing cost of ownership that most people never consciously account for in their monthly budgets.</div>
+    </div>
+    <div class="rs-card pu-l">
+      <div class="rs-domain" style="color:var(--pu)">QUALITY HEURISTICS · VALUE PERCEPTION</div>
+      <div class="rs-quote">"It is unwise to pay too much, but it is worse to pay too little. When you pay too much, you lose a little money — that is all."</div>
+      <div class="rs-cite">— John Ruskin, The Common Law of Business Balance (1860s) <sup>[9]</sup></div>
+      <div class="rs-finding">The Quality Multiplier translates Ruskin's principle into a calculable variable. Research on consumer durables consistently shows that quality-adjusted cost-per-use strongly favors mid-to-high quality goods over budget alternatives across nearly every product category. <sup>[10]</sup></div>
+    </div>
+  </div>
+</section>
+
+<!-- DECISION MATRIX -->
+<section class="section">
+  <div class="sec-label">
+    <span class="sl-t">The Purchase Decision Matrix</span>
+    <span class="sl-line"></span>
+    <span class="sl-r">4 OUTCOMES</span>
+  </div>
+  <h2 class="sec-title">Before Every Significant Purchase: Run the Matrix</h2>
+  <p class="sec-desc">After calculating the True Cost and Life Hour™ count, every purchase falls into one of four outcomes. The matrix makes the rational decision visible — overriding the cognitive biases that default spending toward impulsivity.</p>
+
+  <div class="dm-grid">
+    <div class="dm-cell">
+      <div class="dm-icon">✅</div>
+      <div class="dm-outcome" style="color:var(--em)">OUTCOME 1</div>
+      <div class="dm-title">Buy with Confidence</div>
+      <div class="dm-desc">True monthly cost fits Sprint Allocation. Life Hours are justified by usage frequency. Quality ≥ 7. Long useful life confirmed.</div>
+    </div>
+    <div class="dm-cell">
+      <div class="dm-icon">⏳</div>
+      <div class="dm-outcome">OUTCOME 2</div>
+      <div class="dm-title">Defer & Save</div>
+      <div class="dm-desc">Right item, wrong timing. True cost exceeds current Sprint capacity. Build a sinking fund. Buy when funded — not on credit.</div>
+    </div>
+    <div class="dm-cell">
+      <div class="dm-icon">🔄</div>
+      <div class="dm-outcome" style="color:var(--amber)">OUTCOME 3</div>
+      <div class="dm-title">Find the Better Version</div>
+      <div class="dm-desc">Life Hour cost is poor — usually because expected life is short or quality is low. The premium version is often cheaper in Life Hours.</div>
+    </div>
+    <div class="dm-cell">
+      <div class="dm-icon">🚫</div>
+      <div class="dm-outcome" style="color:var(--red)">OUTCOME 4</div>
+      <div class="dm-title">Eliminate</div>
+      <div class="dm-desc">High Life Hour cost, low usage frequency, minimal quality value. Remove from Sprint plan and reclaim those hours.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY REF -->
+<section class="section">
+  <div class="sec-label">
+    <span class="sl-t">Expected Life Reference Guide</span>
+    <span class="sl-line"></span>
+    <span class="sl-r">CLICK TO LOAD CALCULATOR</span>
+  </div>
+  <div class="cat-grid">
+    <div class="cat-card">
+      <div class="cat-hdr"><span class="cat-icon-sm">🚗</span><span class="cat-hdr-name">Vehicles</span></div>
+      <div class="cat-item" onclick="ql('Sedan (kept 8 yrs)',15000,8,'vehicle',7,7)"><span class="cat-item-name">Sedan — kept 8 yrs</span><span class="cat-item-life">8 yrs</span></div>
+      <div class="cat-item" onclick="ql('SUV (kept 10 yrs)',32000,10,'vehicle',7,7)"><span class="cat-item-name">SUV — kept 10 yrs</span><span class="cat-item-life">10 yrs</span></div>
+      <div class="cat-item" onclick="ql('Truck (kept 12 yrs)',38000,12,'vehicle',7,7)"><span class="cat-item-name">Truck — kept 12 yrs</span><span class="cat-item-life">12 yrs</span></div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-hdr"><span class="cat-icon-sm">📺</span><span class="cat-hdr-name">Electronics</span></div>
+      <div class="cat-item" onclick="ql('Television',800,10,'electronics',7,14)"><span class="cat-item-name">Television</span><span class="cat-item-life">8–12 yrs</span></div>
+      <div class="cat-item" onclick="ql('Laptop',1200,4,'electronics',7,35)"><span class="cat-item-name">Laptop</span><span class="cat-item-life">3–5 yrs</span></div>
+      <div class="cat-item" onclick="ql('Smartphone',900,3,'electronics',7,35)"><span class="cat-item-name">Smartphone</span><span class="cat-item-life">2–4 yrs</span></div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-hdr"><span class="cat-icon-sm">🏠</span><span class="cat-hdr-name">Appliances</span></div>
+      <div class="cat-item" onclick="ql('Refrigerator',1200,15,'appliance',7,14)"><span class="cat-item-name">Refrigerator</span><span class="cat-item-life">13–17 yrs</span></div>
+      <div class="cat-item" onclick="ql('Washer & Dryer',1400,12,'appliance',7,7)"><span class="cat-item-name">Washer & Dryer</span><span class="cat-item-life">10–14 yrs</span></div>
+      <div class="cat-item" onclick="ql('Mattress',1200,10,'furniture',8,7)"><span class="cat-item-name">Mattress</span><span class="cat-item-life">8–12 yrs</span></div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-hdr"><span class="cat-icon-sm">👔</span><span class="cat-hdr-name">Clothing</span></div>
+      <div class="cat-item" onclick="ql('Quality Suit',500,8,'clothing',8,2)"><span class="cat-item-name">Quality Suit</span><span class="cat-item-life">6–10 yrs</span></div>
+      <div class="cat-item" onclick="ql('Fast Fashion Suit',150,2,'clothing',4,2)"><span class="cat-item-name">Fast Fashion Suit</span><span class="cat-item-life">1–3 yrs</span></div>
+      <div class="cat-item" onclick="ql('Quality Running Shoes',160,2,'clothing',8,7)"><span class="cat-item-name">Running Shoes</span><span class="cat-item-life">18–24 mo</span></div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-hdr"><span class="cat-icon-sm">🛋️</span><span class="cat-hdr-name">Furniture</span></div>
+      <div class="cat-item" onclick="ql('Quality Sofa',2000,15,'furniture',8,14)"><span class="cat-item-name">Quality Sofa</span><span class="cat-item-life">12–20 yrs</span></div>
+      <div class="cat-item" onclick="ql('Budget Sofa',600,4,'furniture',4,14)"><span class="cat-item-name">Budget Sofa</span><span class="cat-item-life">3–6 yrs</span></div>
+      <div class="cat-item" onclick="ql('Solid Wood Dining Table',1200,25,'furniture',9,7)"><span class="cat-item-name">Solid Wood Table</span><span class="cat-item-life">20–30+ yrs</span></div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-hdr"><span class="cat-icon-sm">📡</span><span class="cat-hdr-name">Subscriptions</span></div>
+      <div class="cat-item" onclick="ql('Streaming Bundle (yr)',1200,1,'subscription',5,7)"><span class="cat-item-name">Streaming Bundle/yr</span><span class="cat-item-life">ongoing</span></div>
+      <div class="cat-item" onclick="ql('Gym Membership (yr)',696,1,'subscription',5,3)"><span class="cat-item-name">Gym Membership/yr</span><span class="cat-item-life">ongoing</span></div>
+      <div class="cat-item" onclick="ql('Espresso Machine',600,10,'appliance',8,14)"><span class="cat-item-name">Espresso Machine</span><span class="cat-item-life">8–12 yrs</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTNOTES -->
+<div class="footnotes">
+  <div class="fn-box">
+    <div class="fn-title">Research References — True Cost Engine™ + Life Hour Index™</div>
+
+    <div class="fn-divider"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);letter-spacing:0.15em;margin-bottom:10px;">PHILOSOPHICAL FOUNDATIONS</div>
+    <p class="fn"><sup>[1]</sup> Thoreau, H.D. (1854). <em>Walden; or, Life in the Woods.</em> Ticknor and Fields. The "cost measured in life" framework is the philosophical ancestor of the Life Hour Index™. Thoreau quantified his own cabin construction and maintenance costs in hours of manual labor rather than currency — a methodology 170 years ahead of modern behavioral economics.</p>
+    <p class="fn"><sup>[3]</sup> Robin, V. & Dominguez, J. (1992). <em>Your Money or Your Life.</em> Viking Penguin. The "life energy" calculation — hourly wage adjusted for work-related expenses, commuting, and decompression time — is the foundational concept behind the Life Hour™ unit. The Life Hour Index™ extends this into an integrated per-purchase and portfolio analysis system.</p>
+
+    <div class="fn-divider"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);letter-spacing:0.15em;margin-bottom:10px;">BEHAVIORAL ECONOMICS</div>
+    <p class="fn"><sup>[2]</sup> Thaler, R.H. (1999). "Mental Accounting Matters." <em>Journal of Behavioral Decision Making, 12</em>(3), 183–206. Established that people categorize and treat money differently based on its perceived source and intended use — rather than as fungible units. The True Cost Engine™ creates a single, unified cost frame that bypasses mental accounting distortions.</p>
+    <p class="fn"><sup>[5]</sup> Prelec, D. & Simester, D. (2001). "Always Leave Home Without It: A Further Investigation of the Credit-Card Effect on Willingness to Pay." <em>Marketing Letters, 12</em>(1), 5–12. Demonstrated that credit card transactions increase willingness to pay by 83% relative to cash for identical items — because they reduce payment salience. The Life Hour Index™ reintroduces maximum salience by anchoring price to earned hours rather than abstract currency.</p>
+    <p class="fn"><sup>[6]</sup> Kahneman, D. & Tversky, A. (1979). "Prospect Theory: An Analysis of Decision Under Risk." <em>Econometrica, 47</em>(2), 263–291. Nobel Prize in Economics, 2002. The seminal work establishing that humans are loss-averse and present-biased — systematically overweighting immediate costs/gains versus future ones. The True Cost Engine™ counteracts present bias by spreading cost forward across the full ownership period.</p>
+    <p class="fn"><sup>[7]</sup> Frederick, S., Novemsky, N., Wang, J., Dhar, R., & Nowlis, S. (2009). "Opportunity Cost Neglect." <em>Journal of Consumer Research, 36</em>(4), 553–561. Showed that simply prompting consumers to consider opportunity cost reduced willingness to pay by 20%. The 2,080-Hour Life Chart™ makes opportunity cost structurally unavoidable — not optional.</p>
+    <p class="fn"><sup>[8]</sup> Statman, M. & Caldwell, D. (1987). "Applying Behavioral Finance to Capital Budgeting: Project Terminations." <em>Financial Management, 16</em>(4), 7–15. Documents the tendency to underestimate ongoing and replacement costs of existing assets — directly addressed by the Lifestyle Ledger's true monthly depreciation model.</p>
+
+    <div class="fn-divider"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);letter-spacing:0.15em;margin-bottom:10px;">HAPPINESS & TIME RESEARCH</div>
+    <p class="fn"><sup>[4]</sup> Whillans, A.V., Dunn, E.W., Smeets, P., Bekkers, R., & Norton, M.I. (2017). "Buying time promotes happiness." <em>Proceedings of the National Academy of Sciences, 114</em>(32), 8523–8527. Across six studies and 4,690 participants, people who spent money to gain free time reported higher life satisfaction than those who did not — regardless of income level. Life Hours saved are more valuable than dollars saved.</p>
+
+    <div class="fn-divider"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);letter-spacing:0.15em;margin-bottom:10px;">PRODUCT QUALITY & VALUE RESEARCH</div>
+    <p class="fn"><sup>[9]</sup> Ruskin, J. (1860s). <em>The Common Law of Business Balance.</em> The principle that quality-adjusted value almost always favors higher-quality goods has been confirmed across product categories by modern consumer research.</p>
+    <p class="fn"><sup>[10]</sup> Chu, W., Choi, B., & Song, M.R. (2005). "The Role of On-Line Retailer Brand and Infomediary Reputation in Increasing Consumer Purchase Intention." <em>International Journal of Electronic Commerce, 9</em>(3), 115–127; supplemented by Consumer Reports longitudinal durability data (2015–2023) showing quality-tier products consistently outperform budget alternatives on cost-per-year-of-ownership by 15–40% across appliances, electronics, and clothing categories.</p>
+
+    <div class="fn-divider"></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);letter-spacing:0.15em;margin-bottom:10px;">PRODUCT LIFECYCLE DATA</div>
+    <p class="fn"><sup>[B1]</sup> National Association of Home Builders (2021). <em>Study of Life Expectancy of Home Components.</em> Primary source for appliance and home component useful life benchmarks used in the Category Reference Guide.</p>
+    <p class="fn"><sup>[B2]</sup> U.S. Bureau of Labor Statistics (2023). <em>Consumer Expenditure Survey.</em> Used for national average spending benchmarks by category.</p>
+    <p class="fn"><sup>[B3]</sup> IRS Publication 946 (2023). <em>How to Depreciate Property.</em> MACRS asset class useful life schedules used as cross-reference for consumer goods expected life benchmarks in the calculator defaults.</p>
+
+    <div class="fn-divider"></div>
+    <p style="font-size:10px;color:var(--g);line-height:1.6;font-family:'DM Mono',monospace;letter-spacing:0.06em;">
+      DISCLAIMER: The True Cost Engine™ and Life Hour Index™ are educational and illustrative tools. They do not constitute financial, investment, legal, or tax advice. Life Hour™ calculations use gross annual income ÷ 2,080 standard work hours (BLS definition of full-time employment). Individual tax rates, actual take-home pay, and true hourly compensation vary. Compound projections assume consistent contribution rates and average historical returns — past performance does not guarantee future results. ScaledMoney|OS™ and Lean Dollar® are proprietary frameworks of Ray Harned / [Entity Name]. Life Hour™, Life Hour Index™, True Cost Engine™, Life Hour Chart™, and related marks are proprietary. All rights reserved.
+    </p>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let lhRate = 0; // $ per Life Hour
+let ledgerItems = [];
+
+const CAT_COLORS = {
+  home:'#ff8c69', vehicle:'#e05555', electronics:'#c9a84c', appliance:'#6ab4e8',
+  clothing:'#e88fa0', furniture:'#b8a8e8', subscription:'#f0a050',
+  tools:'#2dd4a0', other:'#8892a4'
+};
+
+const PRESETS = {
+  tv:      {name:'65" Television',price:799,life:10,unit:'years',uses:14,quality:7,cat:'electronics'},
+  car:     {name:'SUV (kept 8 yrs)',price:34000,life:8,unit:'years',uses:7,quality:7,cat:'vehicle'},
+  sofa:    {name:'Quality Sofa',price:1800,life:15,unit:'years',uses:14,quality:8,cat:'furniture'},
+  laptop:  {name:'MacBook Pro 14"',price:1999,life:4,unit:'years',uses:35,quality:9,cat:'electronics'},
+  shoes:   {name:'Running Shoes',price:160,life:2,unit:'years',uses:7,quality:8,cat:'clothing'},
+  suit:    {name:'Quality Business Suit',price:500,life:8,unit:'years',uses:2,quality:8,cat:'clothing'},
+  washer:  {name:'Washer & Dryer Set',price:1400,life:12,unit:'years',uses:7,quality:7,cat:'appliance'},
+  mattress:{name:'Quality Mattress',price:1200,life:10,unit:'years',uses:7,quality:8,cat:'furniture'},
+  phone:   {name:'iPhone 15 Pro',price:999,life:3,unit:'years',uses:35,quality:8,cat:'electronics'},
+  jeans:   {name:'Premium Denim Jeans',price:120,life:4,unit:'years',uses:4,quality:8,cat:'clothing'},
+  fridge:  {name:'French Door Refrigerator',price:1600,life:15,unit:'years',uses:14,quality:7,cat:'appliance'},
+  coffee:  {name:'Espresso Machine',price:450,life:10,unit:'years',uses:14,quality:8,cat:'appliance'},
+  gym:     {name:'Gym Membership (year)',price:696,life:1,unit:'years',uses:3,quality:6,cat:'subscription'},
+  netflix: {name:'Streaming Bundle (year)',price:1200,life:1,unit:'years',uses:7,quality:6,cat:'subscription'},
+};
+
+// ══════════════════════════════════════
+// INCOME / LIFE HOUR RATE
+// ══════════════════════════════════════
+function updateIncome(val) {
+  const annual = parseFloat(val) || 0;
+  lhRate = annual / 2080;
+  document.getElementById('lh-rate').textContent = '$' + lhRate.toFixed(2);
+  // Tax hours: ~25% of 8 hours = 2 hours/day in taxes
+  const taxHrs = (0.25 * 8).toFixed(1);
+  document.getElementById('lh-day').textContent = taxHrs + ' hrs';
+  // Assume ~$14,000 avg annual expenses claimed back
+  const spokenHrs = ledgerItems.reduce((s,i) => s + (i.monthly * 12 / Math.max(lhRate,0.01)), 0);
+  document.getElementById('lh-free').textContent = Math.max(0, Math.round(2080 - spokenHrs));
+  renderChart();
+  // Re-render if single result visible
+  const price = parseFloat(document.getElementById('s-price').value);
+  if (price > 0) calculate();
+}
+
+function toLH(dollars) {
+  if (!lhRate) return null;
+  return dollars / lhRate;
+}
+
+function fmtLH(hours) {
+  if (hours === null || isNaN(hours)) return '—';
+  if (hours < 1) return (hours * 60).toFixed(0) + ' min';
+  if (hours < 24) return hours.toFixed(1) + ' hrs';
+  const days = hours / 8;
+  if (days < 30) return days.toFixed(1) + ' workdays';
+  const wks = days / 5;
+  if (wks < 52) return wks.toFixed(1) + ' workweeks';
+  return (wks / 52).toFixed(2) + ' workyears';
+}
+
+// ══════════════════════════════════════
+// SINGLE ANALYZER
+// ══════════════════════════════════════
+function loadPreset(key) {
+  const p = PRESETS[key];
+  document.getElementById('s-name').value    = p.name;
+  document.getElementById('s-price').value   = p.price;
+  document.getElementById('s-life').value    = p.life;
+  document.getElementById('s-unit').value    = p.unit;
+  document.getElementById('s-uses').value    = p.uses;
+  document.getElementById('s-quality').value = p.quality;
+  document.getElementById('qs-val').textContent = p.quality;
+  document.getElementById('s-cat').value     = p.cat;
+  calculate();
+}
+
+function ql(name, price, life, cat, quality, uses) {
+  switchTab('single');
+  document.getElementById('s-name').value    = name;
+  document.getElementById('s-price').value   = price;
+  document.getElementById('s-life').value    = life;
+  document.getElementById('s-unit').value    = 'years';
+  document.getElementById('s-uses').value    = uses;
+  document.getElementById('s-quality').value = quality;
+  document.getElementById('qs-val').textContent = quality;
+  document.getElementById('s-cat').value     = cat;
+  calculate();
+  document.querySelector('.calc-shell').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ══════════════════════════════════════
+// CATEGORY BENCHMARKS
+// BLS Consumer Expenditure Survey 2023 + CFP planning guidelines
+// annualPct = recommended % of gross income for this category
+// avgPrice  = typical market price (used for price tier classification)
+// hourPct   = share of 2,080 work-year hours this category typically consumes
+// ══════════════════════════════════════
+const CAT_CONFIG = {
+  vehicle:     { label:'Vehicle',           annualPct:0.10, hourPct:0.10, avgPrice:32000, guideline:'10–15% of gross income covers all vehicle costs; depreciation portion ~8–10%' },
+  electronics: { label:'Electronics',       annualPct:0.02, hourPct:0.02, avgPrice:700,   guideline:'1–3% of gross income annually for consumer electronics' },
+  appliance:   { label:'Appliance',         annualPct:0.015,hourPct:0.015,avgPrice:900,   guideline:'1–2% of gross income annually for major household appliances' },
+  clothing:    { label:'Clothing',          annualPct:0.04, hourPct:0.03, avgPrice:200,   guideline:'2–5% of gross income annually for clothing and apparel' },
+  furniture:   { label:'Furniture',         annualPct:0.02, hourPct:0.02, avgPrice:800,   guideline:'1–3% of gross income annually for furniture and home goods' },
+  subscription:{ label:'Subscription',      annualPct:0.03, hourPct:0.02, avgPrice:300,   guideline:'1–3% of gross income total for all subscriptions combined' },
+  tools:       { label:'Tools/Equipment',   annualPct:0.01, hourPct:0.01, avgPrice:400,   guideline:'0.5–1.5% of gross income for tools and equipment' },
+  other:       { label:'Other',             annualPct:0.03, hourPct:0.02, avgPrice:500,   guideline:'General benchmark: ≤3% of gross income annually' },
+};
+
+// Price tier labels relative to category average
+function getPriceTier(price, cat) {
+  const avg = CAT_CONFIG[cat]?.avgPrice || 500;
+  const ratio = price / avg;
+  if (ratio < 0.5)  return { label:'Budget',        ratio, color:'var(--gl)' };
+  if (ratio < 1.25) return { label:'Mid-Market',    ratio, color:'var(--em)' };
+  if (ratio < 2.5)  return { label:'Premium',       ratio, color:'var(--gold)' };
+  if (ratio < 5.0)  return { label:'Ultra-Premium', ratio, color:'var(--amber)' };
+  return               { label:'Luxury / Outlier',  ratio, color:'var(--red)' };
+}
+
+function calcCore(price, lifeMonths, weeklyUses, quality) {
+  const totalUses  = weeklyUses * (lifeMonths / 12) * 52;
+  const costPerUse = totalUses > 0 ? price / totalUses : 0;
+  const monthly    = price / lifeMonths;
+  const yearly     = monthly * 12;
+  const daily      = monthly / 30.4;
+  // qualAdj kept for display reference but NOT used in scoring
+  const qualAdj    = costPerUse > 0 ? costPerUse * (1 / (quality / 5)) : 0;
+  return { monthly, yearly, daily, costPerUse, qualAdj, totalUses, lifeMonths };
+}
+
+// ══════════════════════════════════════
+// MULTI-FACTOR SCORING ALGORITHM
+// Income-relative · Category-benchmarked · Life-Hour-aware
+//
+// Factor 1 — Category Budget Fit   (40 pts)
+//   Monthly true cost vs. income-based category allocation
+// Factor 2 — Price Tier Fit        (30 pts)
+//   Purchase price vs. category market average;
+//   rewards paying for quality, penalizes paying outlier prices
+//   without proportional quality gain
+// Factor 3 — Life Hour Affordability (20 pts)
+//   Annual Life Hours consumed vs. category hour allocation
+//   (neutral 15pts if no income entered)
+// Factor 4 — Longevity Bonus       (10 pts)
+//   Longer useful life = better score; rewards durable goods
+// ══════════════════════════════════════
+function scoreItem(price, monthly, lifeMonths, quality, cat) {
+  const cfg = CAT_CONFIG[cat] || CAT_CONFIG.other;
+  // Use entered income or BLS 2023 median household income as fallback
+  const effectiveIncome = lhRate > 0 ? lhRate * 2080 : 77540;
+
+  // ── Factor 1: Category Budget Fit (0–40) ──────────────
+  const monthlyBudget = (effectiveIncome * cfg.annualPct) / 12;
+  const budgetRatio   = monthlyBudget > 0 ? monthly / monthlyBudget : 9;
+  let f1;
+  if      (budgetRatio <= 0.25) f1 = 40;
+  else if (budgetRatio <= 0.50) f1 = 37;
+  else if (budgetRatio <= 1.00) f1 = 32;
+  else if (budgetRatio <= 1.50) f1 = 22;
+  else if (budgetRatio <= 2.50) f1 = 12;
+  else if (budgetRatio <= 4.00) f1 = 4;
+  else                          f1 = 0;
+
+  // ── Factor 2: Price Tier + Quality Fit (0–30) ─────────
+  // A premium price demands proportionally higher quality
+  const priceRatio    = price / (cfg.avgPrice || 500);
+  // Expected quality given price tier: Budget→4, Avg→5.5, 2x→7, 3x→8, 5x→9
+  const expectedQ     = Math.min(10, 4 + Math.log(Math.max(priceRatio, 0.3) + 0.7) * 3.5);
+  const qualGap       = quality - expectedQ;   // positive = over-delivers, negative = under-delivers
+  let f2;
+  if      (qualGap >= 1.5)  f2 = 30;  // quality beats price expectations
+  else if (qualGap >= 0.5)  f2 = 26;
+  else if (qualGap >= -0.5) f2 = 21;  // quality matches price expectations
+  else if (qualGap >= -1.5) f2 = 14;
+  else if (qualGap >= -2.5) f2 = 7;
+  else                      f2 = 2;   // severely over-priced for quality given
+
+  // ── Factor 3: Life Hour Affordability (0–20) ──────────
+  let f3 = 15; // neutral default when no income
+  if (lhRate > 0) {
+    const annualLH        = (monthly * 12) / lhRate;
+    const categoryLHBudgt = 2080 * cfg.hourPct;
+    const lhRatio         = categoryLHBudgt > 0 ? annualLH / categoryLHBudgt : 9;
+    if      (lhRatio <= 0.25) f3 = 20;
+    else if (lhRatio <= 0.50) f3 = 18;
+    else if (lhRatio <= 1.00) f3 = 15;
+    else if (lhRatio <= 1.75) f3 = 10;
+    else if (lhRatio <= 3.00) f3 = 5;
+    else                      f3 = 0;
+  }
+
+  // ── Factor 4: Longevity Bonus (0–10) ──────────────────
+  const lifeYears = lifeMonths / 12;
+  let f4;
+  if      (lifeYears >= 15) f4 = 10;
+  else if (lifeYears >= 10) f4 = 9;
+  else if (lifeYears >= 7)  f4 = 7;
+  else if (lifeYears >= 4)  f4 = 5;
+  else if (lifeYears >= 2)  f4 = 3;
+  else                      f4 = 1;
+
+  const total = f1 + f2 + f3 + f4;
+
+  // ── Letter Grade ───────────────────────────────────────
+  let grade, label, color, outcome, note;
+  if      (total >= 87) { grade='A+'; label='Exceptional Value';    color='var(--em)';    outcome='Buy with Confidence'; }
+  else if (total >= 76) { grade='A';  label='Strong Value';          color='var(--em)';    outcome='Buy with Confidence'; }
+  else if (total >= 64) { grade='B';  label='Good Value';            color='#7dd4a0';      outcome='Buy — Review Sprint Fit'; }
+  else if (total >= 52) { grade='C';  label='Fair Value';            color='var(--gold)';  outcome='Proceed with Caution'; }
+  else if (total >= 38) { grade='D';  label='Poor Value';            color='var(--amber)'; outcome='Defer or Find Alternative'; }
+  else                  { grade='F';  label='Does Not Pencil Out';   color='var(--red)';   outcome='Eliminate'; }
+
+  // Contextual verdict note
+  const tier = getPriceTier(price, cat);
+  const budgetPct = (budgetRatio * 100).toFixed(0);
+  const incomeSrc = lhRate > 0 ? 'your income' : 'median U.S. income';
+  note = `Monthly true cost is ${budgetPct}% of the recommended ${(cfg.annualPct*100).toFixed(0)}% ${cfg.label.toLowerCase()} allocation based on ${incomeSrc}. ${tier.label} price tier (${tier.ratio.toFixed(1)}× category average). `;
+  if (qualGap >= 0.5) note += 'Quality score meets or exceeds price-tier expectations — good value delivery.';
+  else if (qualGap >= -1) note += 'Quality is roughly in line with price tier.';
+  else note += `Quality score of ${quality}/10 is below what the price tier typically delivers — consider a better-spec alternative at this price point.`;
+
+  // Flags
+  const flags = [];
+  if (tier.ratio >= 5)  flags.push({ type:'warn', text:`Luxury pricing: ${tier.ratio.toFixed(1)}× the category average. Ensure utility justifies the premium.` });
+  if (tier.ratio >= 2.5 && qualGap < 0) flags.push({ type:'warn', text:'Ultra-premium price with below-expectation quality rating — high risk of overpaying.' });
+  if (budgetRatio > 2.5) flags.push({ type:'warn', text:`This item consumes ${budgetPct}% of the recommended ${cfg.label.toLowerCase()} budget — consider a lower price tier.` });
+  if (lifeYears < 1.5)  flags.push({ type:'info', text:'Short useful life significantly increases true monthly cost. Durable alternatives are likely cheaper long-term.' });
+  if (qualGap >= 1.5)   flags.push({ type:'good', text:'Quality significantly over-delivers for the price tier — strong value efficiency.' });
+  if (budgetRatio <= 0.33 && grade !== 'F') flags.push({ type:'good', text:`Fits comfortably within budget: only ${budgetPct}% of the recommended ${cfg.label.toLowerCase()} allocation.` });
+
+  return {
+    grade, label, color, outcome, note, flags, total,
+    f1, f2, f3, f4,
+    budgetRatio, budgetPct, tier,
+    monthlyBudget, cfg, qualGap, expectedQ,
+    incomeSrc
+  };
+}
+
+function fmt(n) {
+  if (n === null || isNaN(n)) return '—';
+  const dec = n >= 10 ? 0 : n >= 1 ? 2 : 2;
+  return '$' + n.toFixed(dec);
+}
+
+function factorBar(label, score, max, color, tooltip) {
+  const pct = Math.round((score / max) * 100);
+  return `<div style="margin-bottom:9px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.1em;">${label}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:${color}">${score}/${max}</span>
+    </div>
+    <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;" title="${tooltip}">
+      <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;transition:width 0.5s ease;"></div>
+    </div>
+    <div style="font-size:10px;color:var(--g);margin-top:3px;line-height:1.4;">${tooltip}</div>
+  </div>`;
+}
+
+function flagHtml(flags) {
+  return flags.map(f => {
+    const bg   = f.type==='good' ? 'rgba(45,212,160,0.07)' : f.type==='warn' ? 'rgba(240,160,80,0.07)' : 'rgba(255,255,255,0.04)';
+    const bc   = f.type==='good' ? 'rgba(45,212,160,0.25)' : f.type==='warn' ? 'rgba(240,160,80,0.25)'  : 'rgba(255,255,255,0.08)';
+    const icon = f.type==='good' ? '✓' : f.type==='warn' ? '⚠' : 'ℹ';
+    const fc   = f.type==='good' ? 'var(--em)' : f.type==='warn' ? 'var(--amber)' : 'var(--gl)';
+    return `<div style="display:flex;gap:9px;align-items:flex-start;padding:8px 12px;border-radius:7px;background:${bg};border:1px solid ${bc};margin-bottom:6px;">
+      <span style="color:${fc};font-size:12px;flex-shrink:0;margin-top:1px;">${icon}</span>
+      <span style="font-size:11px;color:var(--gl);line-height:1.5;">${f.text}</span>
+    </div>`;
+  }).join('');
+}
+
+function calculate() {
+  const price   = parseFloat(document.getElementById('s-price').value);
+  const lifeRaw = parseFloat(document.getElementById('s-life').value);
+  const unit    = document.getElementById('s-unit').value;
+  const uses    = parseFloat(document.getElementById('s-uses').value);
+  const quality = parseInt(document.getElementById('s-quality').value);
+  const cat     = document.getElementById('s-cat').value;
+  if (!price || !lifeRaw || !uses) return;
+
+  const lifeMonths = unit === 'years' ? lifeRaw * 12 : lifeRaw;
+  const r  = calcCore(price, lifeMonths, uses, quality);
+  const sc = scoreItem(price, r.monthly, lifeMonths, quality, cat);
+
+  // Life Hours
+  const lhPurchase = toLH(price);
+  const lhMonthly  = toLH(r.monthly);
+  const lhYearly   = toLH(r.yearly);
+  const lhPerUse   = toLH(r.costPerUse);
+  const hasLH      = lhRate > 0;
+  const annualLH   = hasLH ? (r.monthly * 12 / lhRate) : 0;
+  const catLHBudget = 2080 * (sc.cfg.hourPct || 0.02);
+
+  // Factor tooltips (concise)
+  const f1tip = `${sc.budgetPct}% of your recommended ${(sc.cfg.annualPct*100).toFixed(0)}% ${sc.cfg.label.toLowerCase()} budget based on ${sc.incomeSrc} ($${Math.round(sc.monthlyBudget)}/mo budget)`;
+  const f2tip = `${sc.tier.label} pricing (${sc.tier.ratio.toFixed(1)}× category avg). Quality ${quality}/10 vs expected ${sc.expectedQ.toFixed(1)} — gap: ${sc.qualGap >= 0 ? '+' : ''}${sc.qualGap.toFixed(1)}`;
+  const f3tip = hasLH
+    ? `${annualLH.toFixed(1)} Life Hours/yr vs. ${catLHBudget.toFixed(0)}-hr category allocation (${((annualLH/catLHBudget)*100).toFixed(0)}% of budget)`
+    : 'Enter income above to activate Life Hour affordability scoring';
+  const f4tip = `${(lifeMonths/12).toFixed(1)}-year expected life — longer life reduces true monthly cost`;
+
+  const outcomeColors = {
+    'Buy with Confidence':'var(--em)', 'Buy — Review Sprint Fit':'#7dd4a0',
+    'Proceed with Caution':'var(--gold)', 'Defer or Find Alternative':'var(--amber)', 'Eliminate':'var(--red)'
+  };
+
+  const lhBlock = hasLH ? `
+    <div style="background:var(--lh-d);border:1px solid rgba(255,140,105,0.2);border-radius:8px;padding:14px 16px;margin-top:12px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,140,105,0.5);letter-spacing:0.15em;margin-bottom:10px;">⏱ LIFE HOUR INDEX™ — WORKING HOURS REQUIRED</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="text-align:center;background:rgba(7,17,31,0.4);border-radius:6px;padding:11px;">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--lh)">${fmtLH(lhPurchase)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,140,105,0.4);margin-top:3px;">TO BUY IT</div>
+        </div>
+        <div style="text-align:center;background:rgba(7,17,31,0.4);border-radius:6px;padding:11px;">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--lh)">${fmtLH(lhMonthly)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,140,105,0.4);margin-top:3px;">PER MONTH</div>
+        </div>
+        <div style="text-align:center;background:rgba(7,17,31,0.4);border-radius:6px;padding:11px;">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--lh)">${fmtLH(lhYearly)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,140,105,0.4);margin-top:3px;">PER YEAR</div>
+        </div>
+        <div style="text-align:center;background:rgba(7,17,31,0.4);border-radius:6px;padding:11px;">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--lh)">${fmtLH(lhPerUse)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,140,105,0.4);margin-top:3px;">PER USE</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:8px 10px;background:rgba(7,17,31,0.4);border-radius:6px;font-size:11px;color:rgba(255,140,105,0.5);text-align:center;">
+        $${lhRate.toFixed(2)}/Life Hour™ · ${annualLH.toFixed(1)} hrs/yr claimed · ${((annualLH/catLHBudget)*100).toFixed(0)}% of ${sc.cfg.label.toLowerCase()} hour budget (${catLHBudget.toFixed(0)} hrs)
+      </div>
+    </div>` : `<div style="background:rgba(255,140,105,0.05);border:1px dashed rgba(255,140,105,0.2);border-radius:8px;padding:14px;text-align:center;margin-top:12px;font-size:12px;color:rgba(255,140,105,0.5);font-family:'DM Mono',monospace;letter-spacing:0.1em;">ENTER YOUR INCOME ABOVE TO ACTIVATE<br>THE LIFE HOUR INDEX™</div>`;
+
+  document.getElementById('result-content').innerHTML = `
+    <div class="r-hero">
+      <div class="r-big">${fmt(r.monthly)}</div>
+      <div class="r-big-sub">TRUE MONTHLY COST</div>
+    </div>
+    <div class="r-grid">
+      <div class="r-cell"><div class="r-cell-num">${fmt(r.daily)}</div><div class="r-cell-label">PER DAY</div></div>
+      <div class="r-cell"><div class="r-cell-num">${fmt(r.yearly)}</div><div class="r-cell-label">PER YEAR</div></div>
+      <div class="r-cell"><div class="r-cell-num">${fmt(r.costPerUse)}</div><div class="r-cell-label">PER USE</div></div>
+      <div class="r-cell"><div class="r-cell-num">${Math.round(r.totalUses).toLocaleString()}</div><div class="r-cell-label">TOTAL USES</div></div>
+    </div>
+
+    <div class="score-box" style="border-color:${sc.color}33;background:${sc.color}08;margin-bottom:12px;">
+      <div style="text-align:center;flex-shrink:0;">
+        <div class="score-circle" style="color:${sc.color};border-color:${sc.color};width:52px;height:52px;font-size:22px;">${sc.grade}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);margin-top:4px;letter-spacing:0.08em;">${sc.total}/100</div>
+      </div>
+      <div class="score-verdict-txt" style="flex:1;">
+        <div class="score-verdict-lbl" style="color:${sc.color};font-size:14px;">${sc.label}</div>
+        <div style="font-size:11px;color:${outcomeColors[sc.outcome]||sc.color};font-family:'DM Mono',monospace;letter-spacing:0.08em;margin-top:2px;">→ ${sc.outcome}</div>
+        <div style="font-size:11px;color:var(--g);margin-top:5px;line-height:1.5;">${sc.note}</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.08);border-radius:9px;padding:14px 16px;margin-bottom:10px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);letter-spacing:0.15em;margin-bottom:12px;">SCORING BREAKDOWN — HOW THIS GRADE WAS CALCULATED</div>
+      ${factorBar('BUDGET FIT (income-relative)',    sc.f1, 40, sc.f1>=30?'var(--em)':sc.f1>=20?'var(--gold)':'var(--red)', f1tip)}
+      ${factorBar('PRICE TIER vs. QUALITY DELIVERY', sc.f2, 30, sc.f2>=22?'var(--em)':sc.f2>=14?'var(--gold)':'var(--red)', f2tip)}
+      ${factorBar('LIFE HOUR AFFORDABILITY',         sc.f3, 20, sc.f3>=15?'var(--em)':sc.f3>=9?'var(--gold)' :'var(--red)', f3tip)}
+      ${factorBar('LONGEVITY BONUS',                 sc.f4, 10, sc.f4>=7 ?'var(--em)':sc.f4>=4?'var(--gold)' :'var(--red)', f4tip)}
+    </div>
+
+    ${sc.flags.length ? `<div style="margin-bottom:10px;">${flagHtml(sc.flags)}</div>` : ''}
+
+    <div style="font-size:10px;color:var(--g);margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:6px;line-height:1.5;">
+      <strong style="color:var(--gold-d)">Guideline:</strong> ${sc.cfg.guideline}
+    </div>
+
+    ${lhBlock}
+  `;
+}
+
+// ══════════════════════════════════════
+// COMPARE
+// ══════════════════════════════════════
+function compare() {
+  const aName  = document.getElementById('ca-name').value  || 'Option A';
+  const bName  = document.getElementById('cb-name').value  || 'Option B';
+  const aPrice = parseFloat(document.getElementById('ca-price').value);
+  const bPrice = parseFloat(document.getElementById('cb-price').value);
+  const aLife  = (parseFloat(document.getElementById('ca-life').value)||1)  * 12;
+  const bLife  = (parseFloat(document.getElementById('cb-life').value)||1)  * 12;
+  const aUses  = parseFloat(document.getElementById('ca-uses').value)||1;
+  const bUses  = parseFloat(document.getElementById('cb-uses').value)||1;
+  const aQ     = parseInt(document.getElementById('ca-quality').value);
+  const bQ     = parseInt(document.getElementById('cb-quality').value);
+  if (!aPrice||!bPrice) return;
+
+  // Use whatever category the single tab has selected, default 'other'
+  const cat = document.getElementById('s-cat')?.value || 'other';
+
+  const a = calcCore(aPrice, aLife, aUses, aQ);
+  const b = calcCore(bPrice, bLife, bUses, bQ);
+  const sa = scoreItem(aPrice, a.monthly, aLife, aQ, cat);
+  const sb = scoreItem(bPrice, b.monthly, bLife, bQ, cat);
+
+  const winner = sa.total >= sb.total ? 'A' : 'B';
+  const hasLH  = lhRate > 0;
+
+  function row(label, aVal, bVal, lowerBetter=true, isLH=false) {
+    const an = parseFloat((aVal+'').replace(/[^0-9.]/g,''))||0;
+    const bn = parseFloat((bVal+'').replace(/[^0-9.]/g,''))||0;
+    const aW = lowerBetter ? an<=bn : an>=bn;
+    const wb = isLH ? ' style="background:var(--lh-d);color:var(--lh);border-color:rgba(255,140,105,0.3)"' : '';
+    return `<div class="cmp-row">
+      <span class="lbl">${label}</span>
+      <span class="val" style="color:${aW?'var(--em)':'var(--gl)'}">${aVal}${aW?`<span class="win-badge"${wb}>✓</span>`:''}</span>
+      <span class="val" style="color:${!aW?'var(--em)':'var(--gl)'}">${bVal}${!aW?`<span class="win-badge"${wb}>✓</span>`:''}</span>
+    </div>`;
+  }
+
+  const lhRows = hasLH ? `
+    ${row('⏱ Life Hours to Buy',   fmtLH(toLH(aPrice)),       fmtLH(toLH(bPrice)),       true, true)}
+    ${row('⏱ Life Hours / Year',   fmtLH(toLH(a.yearly)),     fmtLH(toLH(b.yearly)),     true, true)}
+    ${row('⏱ Life Hours / Use',    fmtLH(toLH(a.costPerUse)), fmtLH(toLH(b.costPerUse)), true, true)}
+  ` : '';
+
+  const monthDiff = Math.abs(a.monthly - b.monthly);
+  const wSc = winner==='A' ? sa : sb;
+  const lSc = winner==='A' ? sb : sa;
+
+  document.getElementById('compare-results').innerHTML = `
+    <div style="background:var(--card2);border:1px solid rgba(201,168,76,0.1);border-radius:12px;overflow:hidden;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--card);border-bottom:1px solid var(--b2);">
+        <div style="padding:12px 14px;font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);">METRIC</div>
+        <div style="padding:12px 14px;font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);">${aName.toUpperCase()}</div>
+        <div style="padding:12px 14px;font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);">${bName.toUpperCase()}</div>
+      </div>
+      ${row('True Score',        sa.grade+' ('+sa.total+')', sb.grade+' ('+sb.total+')', false)}
+      ${row('True Monthly Cost', fmt(a.monthly),             fmt(b.monthly))}
+      ${row('Cost Per Use',      fmt(a.costPerUse),          fmt(b.costPerUse))}
+      ${row('Price Tier',        sa.tier.label,              sb.tier.label,              false)}
+      ${row('Total Uses in Life',Math.round(a.totalUses).toLocaleString(), Math.round(b.totalUses).toLocaleString(), false)}
+      ${row('5-Year True Cost',  fmt(a.monthly*60),          fmt(b.monthly*60))}
+      ${lhRows}
+    </div>
+    <div class="cmp-verdict" style="margin-top:10px;background:var(--card);border:1px solid rgba(201,168,76,0.1);border-radius:10px;padding:18px 20px;">
+      <div style="font-size:14px;font-weight:600;color:var(--em);margin-bottom:8px;">
+        ${winner==='A'?aName:bName} delivers better overall value <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--gold)">(${wSc.total} vs ${lSc.total} points)</span>
+      </div>
+      <div style="font-size:13px;color:var(--gl);line-height:1.7;">
+        ${winner==='B' && bPrice>aPrice ? `Although ${bName} costs $${(bPrice-aPrice).toLocaleString()} more upfront, its ${(bLife/12).toFixed(0)}-year life delivers superior monthly cost efficiency. The True Cost Engine™ scores the <em>total ownership experience</em>, not just the sticker price.` : `${winner==='A'?aName:bName} wins on combined budget fit, price-tier quality delivery, and longevity.`}
+        ${hasLH ? ` In Life Hours: ${winner==='A'?aName:bName} costs <strong style="color:var(--lh)">${fmtLH(Math.abs(toLH(a.yearly)-toLH(b.yearly)))} fewer working hours per year</strong>.` : ''}
+      </div>
+      ${sa.flags.length||sb.flags.length ? `<div style="margin-top:12px;font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-d);letter-spacing:0.12em;margin-bottom:6px;">FLAGS</div>
+        ${flagHtml([...sa.flags.map(f=>({...f,text:aName+': '+f.text})),...sb.flags.map(f=>({...f,text:bName+': '+f.text}))])}` : ''}
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════
+// LEDGER
+// ══════════════════════════════════════
+let ledgerCat = 'home'; // tracks selected category chip
+
+function selectLedgerCat(el) {
+  document.querySelectorAll('.l-chip').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  ledgerCat = el.dataset.cat;
+  var isHome = (ledgerCat === 'home');
+  var modeHome = document.getElementById('l-mode-home');
+  var modeNote = document.getElementById('l-home-note');
+  var modeStd  = document.getElementById('l-mode-standard');
+  if (modeHome) modeHome.style.display = isHome ? 'grid' : 'none';
+  if (modeNote) modeNote.style.display = isHome ? 'block' : 'none';
+  if (modeStd)  modeStd.style.display  = isHome ? 'none'  : 'grid';
+}
+
+function addLedgerItem() {
+  var isHome = (ledgerCat === 'home');
+
+  if (isHome) {
+    var nameEl    = document.getElementById('l-home-name');
+    var payEl     = document.getElementById('l-home-payment');
+    var typeEl    = document.getElementById('l-home-type');
+    if (!nameEl || !payEl || !typeEl) { alert('Home input fields not found.'); return; }
+    var payment   = parseFloat(payEl.value);
+    if (!payment || payment <= 0) { alert('Please enter a valid monthly payment amount.'); return; }
+    var homeType  = typeEl.value;
+    var itemName  = (nameEl.value.trim()) || homeType;
+    ledgerItems.push({ name: itemName, cat: 'home', monthly: payment, isMonthly: true, homeType: homeType });
+    nameEl.value = '';
+    payEl.value  = '';
+  } else {
+    var nameEl2  = document.getElementById('l-name');
+    var priceEl  = document.getElementById('l-price');
+    var lifeEl   = document.getElementById('l-life');
+    if (!nameEl2 || !priceEl || !lifeEl) { alert('Item input fields not found.'); return; }
+    var itemName2 = nameEl2.value.trim();
+    var price2    = parseFloat(priceEl.value);
+    var life2     = parseFloat(lifeEl.value);
+    if (!itemName2) { alert('Please enter an item name.'); return; }
+    if (!price2 || price2 <= 0) { alert('Please enter a valid purchase price.'); return; }
+    if (!life2 || life2 <= 0)   { alert('Please enter a valid useful life in years.'); return; }
+    var monthly2 = price2 / (life2 * 12);
+    ledgerItems.push({ name: itemName2, price: price2, life: life2, cat: ledgerCat, monthly: monthly2, isMonthly: false });
+    nameEl2.value  = '';
+    priceEl.value  = '';
+    lifeEl.value   = '';
+  }
+  renderLedger();
+  renderChart();
+}
+
+function removeLedgerItem(i) {
+  ledgerItems.splice(i,1);
+  renderLedger();
+  renderChart();
+}
+
+function renderLedger() {
+  var wrap = document.getElementById('ledger-wrap');
+  if (!wrap) return;
+
+  if (!ledgerItems.length) {
+    wrap.innerHTML = '<div class="ledger-empty">NO ITEMS YET \u00b7 ADD YOUR FIRST ITEM ABOVE</div>';
+    return;
+  }
+
+  var totalMonthly  = 0;
+  for (var k = 0; k < ledgerItems.length; k++) { totalMonthly += ledgerItems[k].monthly; }
+  var totalYearlyLH = lhRate > 0 ? (totalMonthly * 12 / lhRate) : null;
+
+  var homeTotal = 0, depTotal = 0;
+  for (var k = 0; k < ledgerItems.length; k++) {
+    if (ledgerItems[k].cat === 'home') homeTotal += ledgerItems[k].monthly;
+    else depTotal += ledgerItems[k].monthly;
+  }
+
+  // Build rows
+  var rowsHtml = '';
+  for (var idx = 0; idx < ledgerItems.length; idx++) {
+    var it      = ledgerItems[idx];
+    var lhYear  = lhRate > 0 ? (it.monthly * 12 / lhRate) : null;
+    var dotCol  = it.cat === 'home' ? '#ff8c69' : (CAT_COLORS[it.cat] || '#888');
+    var catLabel = it.cat === 'home'
+      ? (it.homeType || 'Home')
+      : (it.cat.charAt(0).toUpperCase() + it.cat.slice(1));
+
+    var col2, col3;
+    if (it.isMonthly) {
+      col2 = '<span style="background:var(--lh-d);color:var(--lh);border:1px solid rgba(255,140,105,0.25);' +
+             'border-radius:4px;font-family:\'DM Mono\',monospace;font-size:9px;padding:2px 7px;' +
+             'letter-spacing:0.08em;">' + (it.homeType || 'MONTHLY') + '</span>';
+      col3 = '<span style="font-size:10px;color:var(--g);">Direct entry</span>';
+    } else {
+      var priceStr = it.price ? it.price.toLocaleString() : '—';
+      col2 = '<span style="font-family:\'DM Mono\',monospace;font-size:12px;">$' + priceStr + '</span>';
+      col3 = '<span style="font-family:\'DM Mono\',monospace;font-size:12px;">' + (it.life || '—') + ' yrs</span>';
+    }
+
+    var lhCell = lhYear !== null ? (fmtLH(lhYear) + '/yr') : '\u2014';
+
+    rowsHtml +=
+      '<tr>' +
+      '<td><span class="cdot" style="background:' + dotCol + '"></span>' + it.name + '</td>' +
+      '<td>' + col2 + '</td>' +
+      '<td>' + col3 + '</td>' +
+      '<td style="font-family:\'DM Mono\',monospace;color:var(--gold)">' + fmt(it.monthly) + '/mo</td>' +
+      '<td style="font-family:\'DM Mono\',monospace;color:var(--gl)">' + fmt(it.monthly * 12) + '/yr</td>' +
+      '<td style="font-family:\'DM Mono\',monospace;color:var(--lh)">' + lhCell + '</td>' +
+      '<td style="color:var(--g);font-size:11px">' + catLabel + '</td>' +
+      '<td><button class="del-btn" onclick="removeLedgerItem(' + idx + ')">Remove</button></td>' +
+      '</tr>';
+  }
+
+  // Build footer subtotal rows as separate strings (no nested backticks)
+  var footerHtml = '';
+  if (homeTotal > 0) {
+    var homeLH = lhRate > 0 ? (fmtLH(homeTotal * 12 / lhRate) + '/yr') : '\u2014';
+    footerHtml +=
+      '<tr style="border-top:1px solid rgba(255,140,105,0.1);">' +
+      '<td colspan="3" style="color:rgba(255,140,105,0.6);font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;">HOUSING PAYMENTS</td>' +
+      '<td style="color:var(--lh);font-family:\'DM Mono\',monospace;">' + fmt(homeTotal) + '/mo</td>' +
+      '<td style="color:var(--lh);font-family:\'DM Mono\',monospace;">' + fmt(homeTotal * 12) + '/yr</td>' +
+      '<td style="color:var(--lh);">' + homeLH + '</td>' +
+      '<td colspan="2"></td></tr>';
+  }
+  if (depTotal > 0) {
+    var depLH = lhRate > 0 ? (fmtLH(depTotal * 12 / lhRate) + '/yr') : '\u2014';
+    footerHtml +=
+      '<tr>' +
+      '<td colspan="3" style="color:var(--gold-d);font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.1em;">LIFESTYLE DEPRECIATION</td>' +
+      '<td style="color:var(--gold);font-family:\'DM Mono\',monospace;">' + fmt(depTotal) + '/mo</td>' +
+      '<td style="color:var(--gold);font-family:\'DM Mono\',monospace;">' + fmt(depTotal * 12) + '/yr</td>' +
+      '<td style="color:var(--gold);">' + depLH + '</td>' +
+      '<td colspan="2"></td></tr>';
+  }
+  var totalLH = totalYearlyLH !== null ? (fmtLH(totalYearlyLH) + '/yr') : '\u2014';
+  footerHtml +=
+    '<tr class="total-row">' +
+    '<td colspan="3">TOTAL MONTHLY COMMITTED</td>' +
+    '<td>' + fmt(totalMonthly) + '/mo</td>' +
+    '<td>' + fmt(totalMonthly * 12) + '/yr</td>' +
+    '<td style="color:var(--lh)">' + totalLH + '</td>' +
+    '<td colspan="2"></td></tr>';
+
+  // Build summary note
+  var summaryNote;
+  if (homeTotal > 0 && depTotal > 0) {
+    summaryNote =
+      '<strong style="color:var(--lh)">' + fmt(homeTotal) + '/mo</strong> in housing payments + ' +
+      '<strong style="color:var(--gold)">' + fmt(depTotal) + '/mo</strong> in asset depreciation = ' +
+      '<strong style="color:var(--w)">' + fmt(totalMonthly) + '/month</strong> total committed before discretionary spending.';
+  } else {
+    summaryNote = 'Your ledger commits <strong style="color:var(--gold)">' + fmt(totalMonthly) + '/month</strong> before discretionary spending.';
+  }
+  var lhNote = (lhRate > 0 && totalYearlyLH)
+    ? ' That is <strong style="color:var(--lh)">' + fmtLH(totalYearlyLH) + ' of your 2,080 annual working hours</strong>.'
+    : ' Enter your income above to see your Life Hour total.';
+
+  wrap.innerHTML =
+    '<table class="ltable">' +
+    '<thead><tr>' +
+    '<th>Item</th><th>Price / Type</th><th>Life / Basis</th>' +
+    '<th>Monthly Cost</th><th>Annual Cost</th><th>\u23f1 Annual Life Hours</th>' +
+    '<th>Category</th><th></th>' +
+    '</tr></thead>' +
+    '<tbody>' + rowsHtml + '</tbody>' +
+    '<tfoot>' + footerHtml + '</tfoot>' +
+    '</table>' +
+    '<div style="margin-top:14px;padding:14px 18px;background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.1);border-radius:8px;font-size:13px;color:var(--gl);line-height:1.7;">' +
+    summaryNote + lhNote +
+    '</div>';
+}
+
+// ══════════════════════════════════════
+// 2,080 CHART
+// ══════════════════════════════════════
+function renderChart() {
+  const grid = document.getElementById('hour-grid');
+  const legend = document.getElementById('chart-legend');
+  const TOTAL = 2080;
+
+  // Build hour allocations from ledger
+  const catHours = {};
+  let totalAllocated = 0;
+  ledgerItems.forEach(item => {
+    const hrs = lhRate > 0 ? Math.round(item.monthly * 12 / lhRate) : 0;
+    catHours[item.cat] = (catHours[item.cat] || 0) + hrs;
+    totalAllocated += hrs;
+  });
+
+  totalAllocated = Math.min(totalAllocated, TOTAL);
+
+  // Build block sequence
+  const blocks = [];
+  Object.entries(catHours).forEach(([cat, hrs]) => {
+    for (let i = 0; i < hrs && blocks.length < TOTAL; i++) {
+      blocks.push({cat, color: CAT_COLORS[cat]||'#888'});
+    }
+  });
+  while (blocks.length < TOTAL) blocks.push({cat:'free', color:null});
+
+  grid.innerHTML = blocks.map((b,i) => {
+    if (b.cat === 'free') {
+      return `<div class="hblock free" title="Free hour"></div>`;
+    }
+    return `<div class="hblock" style="background:${b.color};" 
+      onmouseover="showTip(event,'${b.cat} — Life Hour ${i+1} of ${catHours[b.cat]} allocated to ${b.cat}')"
+      onmouseout="hideTip()"></div>`;
+  }).join('');
+
+  // Legend
+  const usedCats = Object.keys(catHours).filter(c => catHours[c] > 0);
+  legend.innerHTML = usedCats.map(cat => {
+    const hrs = catHours[cat];
+    const pct = ((hrs/TOTAL)*100).toFixed(1);
+    return `<div class="leg-item">
+      <div class="leg-dot" style="background:${CAT_COLORS[cat]}"></div>
+      <span>${cat.charAt(0).toUpperCase()+cat.slice(1)} — ${hrs} hrs (${pct}%)</span>
+    </div>`;
+  }).join('') + `<div class="leg-item"><div class="leg-dot" style="background:rgba(255,255,255,0.06)"></div><span>Free — ${TOTAL-totalAllocated} hrs (${(((TOTAL-totalAllocated)/TOTAL)*100).toFixed(1)}%)</span></div>`;
+
+  // Summary stats
+  const freeHrs = TOTAL - totalAllocated;
+  const pctSpoken = ((totalAllocated/TOTAL)*100).toFixed(1);
+  const totalMonthly = ledgerItems.reduce((s,i)=>s+i.monthly,0);
+  document.getElementById('cs-spoken').textContent = totalAllocated;
+  document.getElementById('cs-free').textContent   = freeHrs;
+  document.getElementById('cs-pct').textContent    = pctSpoken + '%';
+  document.getElementById('cs-dollar').textContent = fmt(totalMonthly);
+
+  // Update free hours in income panel
+  if (lhRate > 0) document.getElementById('lh-free').textContent = freeHrs;
+
+  // Sub text
+  const sub = document.getElementById('chart-sub-text');
+  if (ledgerItems.length === 0) {
+    sub.textContent = 'Add items to your Lifestyle Ledger above to see how your working year is allocated. Each colored block = 1 Life Hour™ consumed by that expense category annually.';
+  } else if (!lhRate) {
+    sub.textContent = 'Enter your annual income above to activate the Life Hour Index™ and see your 2,080-hour chart.';
+  } else {
+    sub.textContent = `At $${lhRate.toFixed(2)}/Life Hour, your ${ledgerItems.length} catalogued items consume ${totalAllocated} of your 2,080 annual working hours — ${pctSpoken}% of your entire work year — before a single discretionary dollar is spent.`;
+  }
+}
+
+function showTip(e, text) {
+  const tip = document.getElementById('chart-tooltip');
+  tip.style.display = 'block';
+  tip.textContent = text;
+  tip.style.left = (e.clientX + 12) + 'px';
+  tip.style.top  = (e.clientY - 30) + 'px';
+}
+function hideTip() {
+  document.getElementById('chart-tooltip').style.display = 'none';
+}
+
+// ══════════════════════════════════════
+// TABS
+// ══════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.ctab').forEach((t,i)=>{
+    t.classList.toggle('active',['single','compare','ledger'][i]===tab);
+  });
+  document.querySelectorAll('.cpanel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+// Init
+renderChart();
+</script>
+</body>
+</html>

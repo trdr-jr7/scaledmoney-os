@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — ScaledMoney|OS™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #07111f;
+    --navy2:  #0d1a2b;
+    --navy3:  #112035;
+    --card:   #0f1e30;
+    --card2:  #142338;
+    --gold:   #c9a84c;
+    --gold-d: #a8882e;
+    --em:     #2dd4a0;
+    --g:      #8892a4;
+    --gl:     #b0bac8;
+    --white:  #f0f4f8;
+    --b:      rgba(255,255,255,0.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-image: radial-gradient(ellipse at 60% 0%, rgba(201,168,76,0.06) 0%, transparent 60%);
+  }
+  .wrap {
+    width: 100%;
+    max-width: 420px;
+  }
+  .brand {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .brand-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .brand-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--white);
+  }
+  .brand-logo em { color: var(--gold); font-style: normal; }
+  .brand-sub {
+    font-size: 12px;
+    color: var(--g);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--b);
+    border-radius: 16px;
+    padding: 36px;
+  }
+  .tab-row {
+    display: flex;
+    gap: 4px;
+    background: var(--navy3);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px;
+    border-radius: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--g);
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--card2);
+    color: var(--white);
+    border: 1px solid var(--b);
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--g);
+    margin-bottom: 7px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--navy3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus { border-color: rgba(201,168,76,0.4); }
+  .field input::placeholder { color: var(--g); }
+  .field-hint {
+    font-size: 11px;
+    color: var(--g);
+    margin-top: 5px;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 6px;
+  }
+  .btn-primary:hover { background: var(--gold-d); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .divider {
+    height: 1px;
+    background: var(--b);
+    margin: 24px 0;
+    position: relative;
+  }
+  .divider span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: var(--card);
+    padding: 0 10px;
+    font-size: 10px;
+    color: var(--g);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .alert {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 18px;
+    display: none;
+  }
+  .alert-error {
+    background: rgba(255,80,80,0.1);
+    border: 1px solid rgba(255,80,80,0.2);
+    color: #ff8888;
+  }
+  .alert-success {
+    background: rgba(45,212,160,0.1);
+    border: 1px solid rgba(45,212,160,0.2);
+    color: var(--em);
+  }
+  .footer-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--g);
+  }
+  .footer-link a { color: var(--gold); text-decoration: none; }
+  .footer-link a:hover { text-decoration: underline; }
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(7,17,31,0.3);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Password strength meter */
+  .pw-strength { height: 3px; border-radius: 2px; margin-top: 6px; background: var(--navy3); overflow: hidden; }
+  .pw-strength-bar { height: 100%; border-radius: 2px; width: 0; transition: all 0.3s; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-name">SCALEDMONEY|OS™</div>
+    <div class="brand-logo">Lean Dollar<em>®</em></div>
+    <div class="brand-sub">S · C · A · L · E FRAMEWORK</div>
+  </div>
+
+  <div class="card">
+    <div class="tab-row">
+      <button class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+      <button class="tab"        id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- Alerts -->
+    <div class="alert alert-error"   id="alert-error"></div>
+    <div class="alert alert-success" id="alert-success"></div>
+
+    <!-- SIGN IN FORM -->
+    <div id="form-signin">
+      <div class="field">
+        <label>EMAIL ADDRESS</label>
+        <input type="email" id="signin-email" placeholder="you@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>PASSWORD</label>
+        <input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password">
+        <div class="field-hint"><a href="#" onclick="showForgot()" style="color:var(--gold);text-decoration:none;font-size:11px;">Forgot password?</a></div>
+      </div>
+      <button class="btn-primary" id="btn-signin" onclick="handleSignIn()">Sign In →</button>
+    </div>
+
+    <!-- SIGN UP FORM -->
+    <div id="form-signup" style="display:none;">
+      <div class="field">
+        <label>EMAIL ADDRESS</label>
+        <input type="email" id="signup-email" placeholder="you@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>PASSWORD</label>
+        <input type="password" id="signup-password" placeholder="8+ characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+        <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
+        <div class="field-hint" id="pw-hint">Minimum 8 characters</div>
+      </div>
+      <div class="field">
+        <label>CONFIRM PASSWORD</label>
+        <input type="password" id="signup-confirm" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="btn-primary" id="btn-signup" onclick="handleSignUp()">Create Account →</button>
+    </div>
+
+    <!-- FORGOT PASSWORD FORM -->
+    <div id="form-forgot" style="display:none;">
+      <p style="font-size:13px;color:var(--gl);line-height:1.6;margin-bottom:18px;">Enter your email and we'll send a reset link.</p>
+      <div class="field">
+        <label>EMAIL ADDRESS</label>
+        <input type="email" id="forgot-email" placeholder="you@email.com">
+      </div>
+      <button class="btn-primary" id="btn-forgot" onclick="handleForgot()">Send Reset Link →</button>
+      <div style="text-align:center;margin-top:14px;">
+        <a href="#" onclick="switchTab('signin')" style="font-size:12px;color:var(--g);">← Back to Sign In</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-link">
+    By continuing you agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
+  </div>
+</div>
+
+<script type="module">
+import { supabase } from '/lib/supabase-client.js';
+
+// ── Redirect if already signed in ───────────────────────────
+const { data: { session } } = await supabase.auth.getSession();
+if (session) {
+  const next = new URLSearchParams(window.location.search).get('next') || '/tools/sprint-planner';
+  window.location.href = next;
+}
+
+// ── Tab switcher ─────────────────────────────────────────────
+window.switchTab = function(tab) {
+  const tabs  = ['signin','signup'];
+  const forms = { signin: 'form-signin', signup: 'form-signup' };
+  tabs.forEach(t => {
+    document.getElementById('tab-'  + t).classList.toggle('active', t === tab);
+    document.getElementById('form-' + t).style.display = (t === tab) ? 'block' : 'none';
+  });
+  document.getElementById('form-forgot').style.display = 'none';
+  hideAlerts();
+}
+
+window.showForgot = function() {
+  ['form-signin','form-signup'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('form-forgot').style.display = 'block';
+  hideAlerts();
+}
+
+// ── Alerts ───────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('alert-error');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('alert-success').style.display = 'none';
+}
+function showSuccess(msg) {
+  const el = document.getElementById('alert-success');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('alert-error').style.display = 'none';
+}
+function hideAlerts() {
+  document.getElementById('alert-error').style.display = 'none';
+  document.getElementById('alert-success').style.display = 'none';
+}
+
+function setLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.innerHTML = loading ? `<span class="spinner"></span>Working...` : label;
+}
+
+// ── Password strength ─────────────────────────────────────────
+window.checkStrength = function(pw) {
+  const bar  = document.getElementById('pw-bar');
+  const hint = document.getElementById('pw-hint');
+  let score = 0;
+  if (pw.length >= 8)               score++;
+  if (/[A-Z]/.test(pw))             score++;
+  if (/[0-9]/.test(pw))             score++;
+  if (/[^A-Za-z0-9]/.test(pw))      score++;
+  const colors = ['','#ff5050','#f0a050','#c9a84c','#2dd4a0'];
+  const labels = ['','Weak','Fair','Good','Strong'];
+  const widths = ['0%','25%','50%','75%','100%'];
+  bar.style.width = widths[score]; bar.style.background = colors[score];
+  hint.textContent = score ? labels[score] : 'Minimum 8 characters';
+  hint.style.color = colors[score] || 'var(--g)';
+}
+
+// ── Sign In ───────────────────────────────────────────────────
+window.handleSignIn = async function() {
+  const email    = document.getElementById('signin-email').value.trim();
+  const password = document.getElementById('signin-password').value;
+  if (!email || !password) { showError('Please fill in both fields.'); return; }
+
+  setLoading('btn-signin', true, 'Sign In →');
+  hideAlerts();
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    showError(error.message === 'Invalid login credentials'
+      ? 'Email or password is incorrect.'
+      : error.message);
+    setLoading('btn-signin', false, 'Sign In →');
+    return;
+  }
+
+  const next = new URLSearchParams(window.location.search).get('next') || '/tools/sprint-planner';
+  window.location.href = next;
+}
+
+// ── Sign Up ───────────────────────────────────────────────────
+window.handleSignUp = async function() {
+  const email    = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const confirm  = document.getElementById('signup-confirm').value;
+
+  if (!email || !password) { showError('Please fill in all fields.'); return; }
+  if (password.length < 8)  { showError('Password must be at least 8 characters.'); return; }
+  if (password !== confirm)  { showError('Passwords do not match.'); return; }
+
+  setLoading('btn-signup', true, 'Create Account →');
+  hideAlerts();
+
+  const { error } = await supabase.auth.signUp({
+    email, password,
+    options: { emailRedirectTo: 'https://scaledmoney.com/tools/sprint-planner' }
+  });
+
+  if (error) {
+    showError(error.message);
+    setLoading('btn-signup', false, 'Create Account →');
+    return;
+  }
+
+  showSuccess('Account created! Check your email to confirm, then sign in.');
+  setLoading('btn-signup', false, 'Create Account →');
+}
+
+// ── Forgot Password ───────────────────────────────────────────
+window.handleForgot = async function() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) { showError('Please enter your email.'); return; }
+
+  setLoading('btn-forgot', true, 'Send Reset Link →');
+  hideAlerts();
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://scaledmoney.com/reset-password'
+  });
+
+  if (error) { showError(error.message); }
+  else { showSuccess('Reset link sent — check your inbox.'); }
+  setLoading('btn-forgot', false, 'Send Reset Link →');
+}
+</script>
+</body>
+</html>

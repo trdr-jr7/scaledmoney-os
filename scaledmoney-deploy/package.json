@@ -1,0 +1,16 @@
+{
+  "name": "scaledmoney-os",
+  "version": "1.0.0",
+  "description": "ScaledMoney|OS™ — Lean Dollar Tool Suite",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "stripe": "^14.14.0"
+  },
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}

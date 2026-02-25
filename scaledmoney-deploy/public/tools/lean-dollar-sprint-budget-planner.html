@@ -1,0 +1,2283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint Budget Planner™ — SCALE Framework | ScaledMoney|OS™</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@200;300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#07111f; --navy2:#0c1829; --navy3:#111e30; --card:#101e30; --card2:#0c1624;
+  --gold:#c9a84c; --gold-l:#e2c06a; --gold-d:#7a5f28; --gold-bg:rgba(201,168,76,0.07);
+  --em:#2dd4a0; --em-d:rgba(45,212,160,0.15);
+  --red:#e05555; --amber:#f0a050; --pu:#b48cff;
+  --lh:#ff8c69; --lh-d:rgba(255,140,105,0.15);
+  --sprint:#4fc3f7; --sprint-d:rgba(79,195,247,0.15); /* sprint blue */
+  --w:#f2eed8; --g:#8892a4; --gl:#bfc8d6;
+  --b:rgba(201,168,76,0.13); --b2:rgba(255,255,255,0.05);
+  --danger:#e05555; --warn:#f0a050; --safe:#2dd4a0;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--w);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.7;overflow-x:hidden;min-height:100vh;}
+
+/* Grid texture */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(201,168,76,0.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,168,76,0.015) 1px,transparent 1px);
+  background-size:52px 52px;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(79,195,247,0.04),transparent);}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;
+  background:rgba(7,17,31,0.96);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--b);
+  display:flex;align-items:center;padding:0 36px;gap:14px;}
+.nav-brand{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:0.1em;}
+.nav-brand span{color:var(--g);font-size:10px;margin-left:6px;}
+.nav-pill{padding:3px 12px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;border:1px solid;}
+.nav-scale{border-color:rgba(79,195,247,0.3);color:var(--sprint);background:var(--sprint-d);}
+.nav-sprint{border-color:rgba(201,168,76,0.25);color:var(--gold);margin-left:auto;}
+
+/* ── PHASE PROGRESS BAR ── */
+.phase-bar{position:fixed;top:58px;left:0;right:0;z-index:99;
+  background:rgba(7,17,31,0.95);border-bottom:1px solid rgba(79,195,247,0.1);
+  display:flex;height:52px;overflow:hidden;}
+.phase-step{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;position:relative;transition:all 0.25s;
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;color:var(--g);
+  text-transform:uppercase;border-right:1px solid rgba(255,255,255,0.04);}
+.phase-step:last-child{border-right:none;}
+.phase-step::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background 0.3s;}
+.phase-step.active{color:var(--sprint);background:rgba(79,195,247,0.05);}
+.phase-step.active::after{background:var(--sprint);}
+.phase-step.done{color:var(--em);}
+.phase-step.done::after{background:var(--em);}
+.phase-step:hover:not(.active){color:var(--gl);background:rgba(255,255,255,0.02);}
+.phase-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:600;border:1px solid;flex-shrink:0;}
+.phase-step .phase-num{border-color:var(--g);color:var(--g);}
+.phase-step.active .phase-num{border-color:var(--sprint);color:var(--sprint);background:var(--sprint-d);}
+.phase-step.done .phase-num{border-color:var(--em);color:var(--navy);background:var(--em);}
+
+/* ── MAIN LAYOUT ── */
+.main{position:relative;z-index:1;margin-top:110px;max-width:960px;margin-left:auto;margin-right:auto;padding:32px 32px 80px;}
+
+/* ── PHASE PANELS ── */
+.phase-panel{display:none;}
+.phase-panel.active{display:block;animation:fadeSlide 0.35s cubic-bezier(0.22,1,0.36,1);}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SECTION HEADERS ── */
+.phase-header{margin-bottom:32px;}
+.phase-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.22em;
+  color:var(--sprint);text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;}
+.phase-eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(79,195,247,0.3),transparent);}
+.phase-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,42px);font-weight:900;line-height:1.1;margin-bottom:8px;}
+.phase-title em{color:var(--gold);font-style:normal;}
+.phase-desc{font-size:14px;color:var(--g);line-height:1.75;max-width:600px;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:24px;margin-bottom:16px;}
+.card-sm{background:var(--card);border:1px solid var(--b);border-radius:10px;padding:18px;}
+.card-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--gold-d);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.card-title::after{content:'';flex:1;height:1px;background:rgba(201,168,76,0.1);}
+
+/* ── FORM ELEMENTS ── */
+.field{margin-bottom:16px;}
+.field-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:7px;}
+.field-hint{font-size:11px;color:var(--g);margin-top:5px;line-height:1.5;}
+.finp{width:100%;background:var(--navy3);border:1px solid rgba(201,168,76,0.18);border-radius:8px;
+  padding:11px 14px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;}
+.finp:focus{border-color:var(--gold);}
+.finp::placeholder{color:rgba(136,146,164,0.35);}
+.finp-dollar{position:relative;}
+.finp-dollar::before{content:'$';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:14px;pointer-events:none;z-index:1;}
+.finp-dollar .finp{padding-left:28px;}
+.fsel{width:100%;background:var(--navy3);border:1px solid rgba(201,168,76,0.18);border-radius:8px;
+  padding:11px 14px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;}
+.fsel option{background:var(--navy2);}
+.fgrid{display:grid;gap:14px;}
+.fgrid-2{grid-template-columns:1fr 1fr;}
+.fgrid-3{grid-template-columns:1fr 1fr 1fr;}
+
+/* ── CAPACITY METER ── */
+.capacity-meter{background:var(--card2);border:1px solid rgba(79,195,247,0.15);border-radius:12px;padding:22px;margin-bottom:20px;}
+.cm-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.cm-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;color:var(--g);text-transform:uppercase;}
+.cm-val{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--sprint);}
+.cm-val.danger{color:var(--danger);}
+.cm-val.warn{color:var(--warn);}
+.cm-val.safe{color:var(--safe);}
+.cm-bar-wrap{height:10px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;margin-bottom:12px;position:relative;}
+.cm-bar{height:100%;border-radius:5px;transition:width 0.5s cubic-bezier(0.22,1,0.36,1),background 0.3s;}
+.cm-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.cm-cell{text-align:center;padding:10px 6px;background:rgba(255,255,255,0.03);border-radius:7px;border:1px solid rgba(255,255,255,0.04);}
+.cm-cell-num{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;margin-bottom:2px;}
+.cm-cell-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;color:var(--g);}
+
+/* ── LOAD METER ── */
+.load-meter-wrap{position:sticky;top:110px;z-index:50;margin-bottom:24px;
+  background:rgba(7,17,31,0.95);backdrop-filter:blur(12px);
+  border:1px solid rgba(79,195,247,0.12);border-radius:12px;padding:16px 20px;}
+.lm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.lm-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--g);text-transform:uppercase;}
+.lm-stats{display:flex;gap:20px;align-items:center;}
+.lm-stat{text-align:right;}
+.lm-stat-num{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;}
+.lm-stat-lbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;}
+.lm-bar-track{height:14px;background:rgba(255,255,255,0.05);border-radius:7px;overflow:visible;position:relative;border:1px solid rgba(255,255,255,0.05);}
+.lm-bar-fill{height:100%;border-radius:6px;position:relative;transition:width 0.4s cubic-bezier(0.22,1,0.36,1),background 0.3s;min-width:0%;}
+.lm-marker{position:absolute;top:-4px;bottom:-4px;width:2px;background:rgba(255,255,255,0.2);border-radius:1px;}
+.lm-status{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;margin-top:8px;text-align:center;}
+
+/* ── CATEGORY ROWS ── */
+.cat-row{background:var(--card2);border:1px solid rgba(255,255,255,0.05);border-radius:10px;
+  padding:14px 16px;margin-bottom:8px;display:grid;
+  grid-template-columns:28px 1fr 140px 100px 90px;
+  gap:10px;align-items:center;transition:border-color 0.2s;}
+.cat-row:hover{border-color:rgba(201,168,76,0.15);}
+.cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cat-name{font-size:13px;font-weight:500;}
+.cat-name small{display:block;font-size:10px;color:var(--g);font-weight:300;}
+.cat-velocity{font-family:'DM Mono',monospace;font-size:11px;text-align:center;}
+.cat-alloc-wrap{position:relative;}
+.cat-alloc-wrap::before{content:'$';position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:12px;pointer-events:none;}
+.cat-alloc{width:100%;background:var(--navy3);border:1px solid rgba(201,168,76,0.15);border-radius:6px;
+  padding:7px 8px 7px 22px;color:var(--w);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
+.cat-alloc:focus{border-color:var(--gold);}
+.cat-remove{background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.15);
+  color:var(--red);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;transition:all 0.2s;white-space:nowrap;}
+.cat-remove:hover{background:rgba(224,85,85,0.18);}
+.add-cat-row{display:flex;gap:8px;margin-top:8px;}
+
+/* ── GOAL CARDS ── */
+.goal-card{background:var(--card2);border:1px solid rgba(45,212,160,0.15);border-radius:10px;padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:1fr 140px auto;gap:10px;align-items:center;}
+.goal-icon{font-size:20px;}
+.goal-name{font-size:13px;font-weight:500;}
+.goal-name small{font-size:10px;color:var(--g);display:block;margin-top:1px;}
+.goal-priority{font-family:'DM Mono',monospace;font-size:9px;color:var(--em);letter-spacing:0.1em;}
+
+/* ── TRIGGER ROWS ── */
+.trigger-row{background:var(--card2);border:1px solid rgba(240,160,80,0.1);border-radius:9px;
+  padding:13px 15px;margin-bottom:8px;display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center;}
+.ifthen{font-size:12px;color:var(--gl);}
+.ifthen strong{color:var(--amber);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;display:block;margin-bottom:2px;}
+
+/* ── BUTTONS ── */
+.btn{padding:12px 22px;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:all 0.2s;border:none;}
+.btn-primary{background:var(--gold);color:var(--navy);}
+.btn-primary:hover{background:var(--gold-l);transform:translateY(-1px);box-shadow:0 8px 20px rgba(201,168,76,0.3);}
+.btn-secondary{background:transparent;border:1px solid rgba(201,168,76,0.25);color:var(--gold);}
+.btn-secondary:hover{background:rgba(201,168,76,0.07);}
+.btn-sprint{background:var(--sprint);color:var(--navy);}
+.btn-sprint:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:6px;}
+.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
+
+/* ── DASHBOARD WIDGETS ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;}
+.widget{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:20px;}
+.widget-full{grid-column:1/-1;}
+.w-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--g);text-transform:uppercase;margin-bottom:14px;}
+.w-big{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;line-height:1;}
+.w-sub{font-size:11px;color:var(--g);margin-top:5px;}
+
+/* Health score ring */
+.health-ring-wrap{display:flex;align-items:center;gap:20px;}
+.health-ring{position:relative;width:90px;height:90px;flex-shrink:0;}
+.health-ring svg{transform:rotate(-90deg);}
+.health-ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.health-grade{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;}
+.health-score-num{font-family:'DM Mono',monospace;font-size:9px;color:var(--g);}
+
+/* Burndown chart */
+#burndown-canvas{width:100%;height:220px;display:block;}
+
+/* Category burn bars */
+.burn-bar-row{display:grid;grid-template-columns:120px 1fr 80px 70px;gap:10px;align-items:center;margin-bottom:10px;}
+.burn-bar-name{font-size:12px;color:var(--gl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.burn-bar-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.burn-bar-fill{height:100%;border-radius:4px;transition:width 0.5s;}
+.burn-bar-pct{font-family:'DM Mono',monospace;font-size:11px;text-align:right;}
+.burn-bar-remain{font-family:'DM Mono',monospace;font-size:10px;color:var(--g);text-align:right;}
+
+/* Backlog */
+.backlog-item{background:var(--card2);border:1px solid rgba(180,140,255,0.1);border-radius:9px;
+  padding:12px 14px;margin-bottom:7px;display:grid;grid-template-columns:1fr 100px 100px auto;gap:8px;align-items:center;}
+.backlog-name{font-size:13px;}
+.backlog-sprint{font-family:'DM Mono',monospace;font-size:10px;color:var(--pu);}
+.backlog-amt{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);}
+
+/* Implementation intentions */
+.intention-row{background:rgba(45,212,160,0.04);border:1px solid rgba(45,212,160,0.1);border-radius:9px;
+  padding:12px 14px;margin-bottom:7px;font-size:12px;color:var(--gl);line-height:1.6;}
+.intention-row .if{color:var(--amber);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;display:block;margin-bottom:3px;}
+.intention-row .then{color:var(--em);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;display:block;margin-top:6px;margin-bottom:3px;}
+
+/* Velocity badge */
+.vel-badge{display:inline-flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;
+  padding:2px 7px;border-radius:100px;letter-spacing:0.08em;}
+.vel-over{background:rgba(224,85,85,0.1);color:var(--red);border:1px solid rgba(224,85,85,0.2);}
+.vel-near{background:rgba(240,160,80,0.1);color:var(--amber);border:1px solid rgba(240,160,80,0.2);}
+.vel-good{background:rgba(45,212,160,0.1);color:var(--em);border:1px solid rgba(45,212,160,0.2);}
+.vel-new{background:rgba(255,255,255,0.05);color:var(--g);border:1px solid rgba(255,255,255,0.08);}
+
+/* Sprint number badge */
+.sprint-badge{background:var(--sprint-d);border:1px solid rgba(79,195,247,0.25);
+  color:var(--sprint);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;
+  padding:3px 12px;border-radius:100px;}
+
+/* Research footnote */
+.fn-box{border-top:1px solid rgba(201,168,76,0.08);margin-top:48px;padding-top:24px;}
+.fn-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--gold-d);text-transform:uppercase;margin-bottom:12px;}
+.fn{font-size:10px;color:var(--g);line-height:1.6;margin-bottom:5px;padding-left:22px;position:relative;}
+.fn sup{position:absolute;left:0;color:var(--gold-d);font-family:'DM Mono',monospace;}
+
+/* Separators */
+.divider{height:1px;background:linear-gradient(90deg,var(--gold-d),transparent);margin:24px 0;opacity:0.4;}
+
+/* Scroll */
+/* Sprint length buttons */
+.sprint-len-btn{flex:1;padding:9px 6px;border-radius:7px;font-family:'DM Mono',monospace;
+  font-size:11px;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;
+  background:var(--navy3);border:1px solid rgba(201,168,76,0.15);color:var(--g);}
+.sprint-len-btn:hover{border-color:var(--gold);color:var(--gold);}
+.sprint-len-btn.active{background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:600;}
+
+/* Calendar day cells */
+.cal-day{font-family:'DM Mono',monospace;font-size:11px;padding:5px 2px;border-radius:5px;
+  cursor:pointer;transition:all 0.18s;color:var(--gl);position:relative;}
+.cal-day:hover:not(.cal-empty):not(.cal-in-range){background:rgba(201,168,76,0.12);color:var(--gold);}
+.cal-day.cal-empty{cursor:default;}
+.cal-day.cal-start{background:var(--em);color:var(--navy);font-weight:700;border-radius:5px 0 0 5px;}
+.cal-day.cal-end{background:var(--lh);color:var(--navy);font-weight:700;border-radius:0 5px 5px 0;}
+.cal-day.cal-in-range{background:rgba(79,195,247,0.12);color:var(--sprint);border-radius:0;}
+.cal-day.cal-today{box-shadow:inset 0 0 0 1px rgba(201,168,76,0.4);}
+.cal-day.cal-start.cal-end{border-radius:5px;}
+
+
+/* ── MEMBERSHIP ── */
+.member-gate{position:fixed;inset:0;z-index:200;background:rgba(7,17,31,0.92);
+  backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;
+  padding:20px;}
+.member-modal{background:var(--card);border:1px solid rgba(201,168,76,0.25);border-radius:18px;
+  padding:36px;max-width:480px;width:100%;text-align:center;position:relative;}
+.member-modal h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;margin-bottom:8px;}
+.member-modal p{font-size:13px;color:var(--g);line-height:1.7;margin-bottom:22px;}
+.member-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:100px;
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;margin-bottom:18px;}
+.badge-free{background:rgba(136,146,164,0.1);border:1px solid rgba(136,146,164,0.2);color:var(--g);}
+.badge-paid{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);color:var(--gold);}
+.member-features{text-align:left;margin-bottom:22px;display:grid;gap:8px;}
+.member-feat{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--gl);padding:10px 12px;
+  background:var(--card2);border-radius:8px;border:1px solid rgba(255,255,255,0.04);}
+.member-feat .feat-icon{font-size:16px;flex-shrink:0;}
+.member-feat .feat-locked{color:var(--g);font-size:10px;}
+.tier-toggle{display:flex;gap:8px;margin-bottom:20px;background:var(--navy3);border-radius:10px;padding:4px;}
+.tier-btn{flex:1;padding:8px;border-radius:7px;font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:0.08em;cursor:pointer;border:none;transition:all 0.2s;color:var(--g);background:transparent;}
+.tier-btn.active{background:var(--gold);color:var(--navy);font-weight:600;}
+
+/* Member status bar */
+.member-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;height:38px;
+  background:rgba(7,17,31,0.97);border-top:1px solid var(--b);
+  display:flex;align-items:center;padding:0 24px;gap:14px;font-family:'DM Mono',monospace;font-size:10px;}
+.member-bar-status{color:var(--g);letter-spacing:0.1em;}
+.member-bar-status span{margin-left:6px;}
+.save-btn-bar{padding:5px 14px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:0.1em;cursor:pointer;border:1px solid;transition:all 0.2s;}
+.save-btn-enabled{background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.3);color:var(--gold);}
+.save-btn-enabled:hover{background:rgba(201,168,76,0.2);}
+.save-btn-disabled{background:transparent;border-color:rgba(136,146,164,0.15);color:var(--g);cursor:not-allowed;}
+.save-indicator{font-size:9px;color:var(--em);margin-left:auto;}
+
+/* ── THREE-SPRINT PLANNER ── */
+.sprint-tabs{display:flex;gap:6px;margin-bottom:20px;}
+.sprint-tab{flex:1;padding:10px 8px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:0.1em;cursor:pointer;border:1px solid rgba(255,255,255,0.06);
+  color:var(--g);background:var(--card2);transition:all 0.2s;text-align:center;}
+.sprint-tab.active{border-color:var(--sprint);color:var(--sprint);background:var(--sprint-d);}
+.sprint-tab.done{border-color:var(--em);color:var(--em);}
+.sprint-tab.locked{opacity:0.35;cursor:not-allowed;}
+.sprint-tab .st-num{font-size:16px;font-weight:700;display:block;margin-bottom:2px;
+  font-family:'Playfair Display',serif;}
+.sprint-tab .st-dates{font-size:8px;color:var(--g);}
+.sprint-switcher{background:var(--card2);border:1px solid rgba(79,195,247,0.12);border-radius:10px;
+  padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+
+/* ── PRINT STYLES ── */
+@media print {
+  body{background:#fff;color:#000;}
+  .nav,.phase-bar,.load-meter-wrap,.member-bar,.member-gate,
+  .btn-row,.btn,.sprint-tabs,.sprint-switcher,
+  #burndown-canvas,#health-ring-circle{display:none!important;}
+  .main{margin:0;padding:16px;max-width:100%;}
+  .phase-panel{display:block!important;}
+  .phase-panel:not(.print-target){display:none!important;}
+  .card,.widget,.capacity-meter{border:1px solid #ddd;border-radius:4px;margin-bottom:12px;padding:12px;}
+  .card-title{color:#333;border-bottom:1px solid #eee;padding-bottom:6px;margin-bottom:10px;}
+  .phase-title{color:#000;font-size:22px;}
+  .phase-eyebrow{color:#666;font-size:10px;}
+  .w-big,.cm-val,.lm-stat-num{color:#000;}
+  .finp,.fsel,.cat-alloc{border:1px solid #ccc;color:#000;background:#f9f9f9;}
+  .fn-box{border-top:1px solid #ddd;}
+  .fn{color:#444;}
+  body::before,body::after{display:none;}
+}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:var(--gold-d);border-radius:3px;}
+
+/* Responsive */
+@media(max-width:720px){
+  .fgrid-2,.fgrid-3{grid-template-columns:1fr;}
+  .cat-row{grid-template-columns:28px 1fr 90px;} 
+  .cat-row .cat-velocity{display:none;}
+  .cat-row .cat-remove{grid-column:3;}
+  .dash-grid,.dash-grid-3{grid-template-columns:1fr;}
+  .burn-bar-row{grid-template-columns:90px 1fr 60px;}
+  .burn-bar-remain{display:none;}
+  .main{padding:20px 16px 60px;}
+  .phase-step .phase-label{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<!-- ── MEMBERSHIP GATE MODAL ── -->
+<div class="member-gate" id="member-gate">
+  <div class="member-modal">
+    <div class="member-badge badge-free">FREE TIER</div>
+    <h2>Sprint Budget <em style="color:var(--gold)">Planner™</em></h2>
+    <p>Plan your financial sprint using agile methodology. Upgrade to Lean Dollar Pro to save your plans, plan three sprints ahead, and unlock full velocity history.</p>
+    <div class="tier-toggle">
+      <button class="tier-btn active" id="tier-free-btn" onclick="selectTier('free')">Free — Try It</button>
+      <button class="tier-btn" id="tier-paid-btn" onclick="selectTier('paid')">Lean Dollar Pro ★</button>
+    </div>
+    <div class="member-features">
+      <div class="member-feat"><div class="feat-icon">📋</div><div><strong>Sprint Planning</strong> — Build one sprint plan with full SFC™, BL™, SSL™ workflow</div></div>
+      <div class="member-feat"><div class="feat-icon">📊</div><div><strong>Sprint Dashboard</strong> — Live burndown chart, health score, category burn bars</div></div>
+      <div class="member-feat"><div class="feat-icon">🖨️</div><div><strong>Print Plan</strong> — Print your sprint plan as a clean one-pager</div></div>
+      <div class="member-feat" id="feat-save" style="opacity:0.4;">
+        <div class="feat-icon">💾</div>
+        <div><strong>Save Plans</strong> — Save up to 3 sprints to your account <span class="feat-locked">PRO ONLY</span></div>
+      </div>
+      <div class="member-feat" id="feat-3sprint" style="opacity:0.4;">
+        <div class="feat-icon">🗓️</div>
+        <div><strong>Three-Sprint Planner</strong> — Plan Sprint 1, 2, and 3 simultaneously <span class="feat-locked">PRO ONLY</span></div>
+      </div>
+      <div class="member-feat" id="feat-velocity" style="opacity:0.4;">
+        <div class="feat-icon">📈</div>
+        <div><strong>Velocity History</strong> — Track spending velocity across sprints <span class="feat-locked">PRO ONLY</span></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="enterPlanner()">Continue as Free →</button>
+    <button class="btn btn-sprint" style="width:100%;" onclick="selectTier('paid');enterPlanner()">Unlock Pro Features ★</button>
+    <div style="font-size:10px;color:var(--g);margin-top:12px;">No account required for free tier. Pro membership activates save & multi-sprint features.</div>
+  </div>
+</div>
+
+<!-- ── MEMBER STATUS BAR ── -->
+<div class="member-bar" id="member-bar" style="display:none;">
+  <div class="member-badge badge-free" id="member-bar-badge">FREE TIER</div>
+  <div class="member-bar-status">Sprint Budget Planner™ <span id="member-bar-tier">· Free</span></div>
+  <button class="save-btn-bar save-btn-disabled" id="save-btn" onclick="saveSprint()" title="Upgrade to Pro to save plans">💾 Save Sprint</button>
+  <button class="save-btn-bar save-btn-enabled" onclick="printPlan()" title="Print sprint plan">🖨️ Print</button>
+  <div class="save-indicator" id="save-indicator"></div>
+</div>
+
+<nav class="nav">
+  <div class="nav-brand">ScaledMoney|OS™<span>· Lean Dollar: Core</span></div>
+  <div class="nav-pill nav-scale">SCALE FRAMEWORK · A</div>
+  <div class="nav-pill nav-sprint" id="nav-sprint-num">SPRINT 1</div>
+</nav>
+
+<!-- PHASE PROGRESS -->
+<div class="phase-bar" id="phase-bar">
+  <div class="phase-step active" onclick="goPhase(0)" id="ps-0">
+    <div class="phase-num">S</div>
+    <span class="phase-label">Scan Setup</span>
+  </div>
+  <div class="phase-step" onclick="goPhase(1)" id="ps-1">
+    <div class="phase-num">G</div>
+    <span class="phase-label">Budget Lock™</span>
+  </div>
+  <div class="phase-step" onclick="goPhase(2)" id="ps-2">
+    <div class="phase-num">L</div>
+    <span class="phase-label">Sprint Spend Load</span>
+  </div>
+  <div class="phase-step" onclick="goPhase(3)" id="ps-3">
+    <div class="phase-num">R</div>
+    <span class="phase-label">Budget Risks</span>
+  </div>
+  <div class="phase-step" onclick="goPhase(4)" id="ps-4">
+    <div class="phase-num">D</div>
+    <span class="phase-label">Dashboard</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- THREE-SPRINT SWITCHER (Pro only, hidden for free) -->
+<div id="three-sprint-bar" style="display:none;margin-bottom:24px;">
+  <div class="sprint-switcher">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--sprint);letter-spacing:0.15em;margin-bottom:3px;">THREE-SPRINT PLANNER™ — PRO FEATURE</div>
+      <div style="font-size:12px;color:var(--g);">Plan up to three consecutive sprints. Switch between them below — each sprint saves independently.</div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--em);letter-spacing:0.1em;" id="active-sprint-label">SPRINT 1 ACTIVE</div>
+  </div>
+  <div class="sprint-tabs">
+    <div class="sprint-tab active" id="stab-0" onclick="switchActiveSprint(0)">
+      <span class="st-num">1</span>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;">SPRINT 1</div>
+      <div class="st-dates" id="stab-dates-0">Not planned</div>
+    </div>
+    <div class="sprint-tab" id="stab-1" onclick="switchActiveSprint(1)">
+      <span class="st-num">2</span>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;">SPRINT 2</div>
+      <div class="st-dates" id="stab-dates-1">Not planned</div>
+    </div>
+    <div class="sprint-tab" id="stab-2" onclick="switchActiveSprint(2)">
+      <span class="st-num">3</span>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;">SPRINT 3</div>
+      <div class="st-dates" id="stab-dates-2">Not planned</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 0 — SCAN: SPRINT SETUP
+════════════════════════════════════════════ -->
+<div class="phase-panel active" id="phase-0">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 1 of 5 · SCAN</div>
+    <h1 class="phase-title">Calculate Your <em>Sprint Fuel Capacity™</em></h1>
+    <p class="phase-desc">In agile, a team cannot commit to more work than their capacity allows. Your Sprint Fuel™ is the only number that matters — net income minus non-negotiable fixed costs. Everything discretionary must fit within this constraint.</p>
+  </div>
+
+  <!-- Sprint Identity -->
+  <div class="card">
+    <div class="card-title">Sprint Identity</div>
+
+    <!-- Row 1: sprint number + duration buttons -->
+    <div class="fgrid fgrid-2" style="margin-bottom:16px;">
+      <div class="field">
+        <label class="field-label">Sprint Number</label>
+        <input class="finp" type="number" id="sprint-num" placeholder="1" min="1" value="1" oninput="updateSprintBadge()">
+        <div class="field-hint">Which sprint is this in your sequence?</div>
+      </div>
+      <div class="field">
+        <label class="field-label">Sprint Length</label>
+        <div style="display:flex;gap:8px;">
+          <button class="sprint-len-btn active" id="len-1w" onclick="setSprintLength(7,this)">1 Week</button>
+          <button class="sprint-len-btn" id="len-2w" onclick="setSprintLength(14,this)">2 Weeks</button>
+          <button class="sprint-len-btn" id="len-custom" onclick="setSprintLength(0,this)">Custom</button>
+        </div>
+        <div class="field-hint" id="sprint-len-hint">7-day sprint · matches weekly paycheck cycles</div>
+      </div>
+    </div>
+
+    <!-- Row 2: mini calendar date picker -->
+    <div style="margin-bottom:16px;">
+      <label class="field-label">Sprint Start Date</label>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+        <!-- Mini calendar -->
+        <div id="sprint-cal" style="background:var(--navy3);border:1px solid rgba(201,168,76,0.18);border-radius:10px;padding:14px;min-width:260px;flex-shrink:0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <button onclick="calNav(-1)" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:16px;padding:2px 8px;">‹</button>
+            <span id="cal-month-label" style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--gl);"></span>
+            <button onclick="calNav(1)"  style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:16px;padding:2px 8px;">›</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;margin-bottom:6px;">
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);padding:3px 0;">Su</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);padding:3px 0;">Mo</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);padding:3px 0;">Tu</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);padding:3px 0;">We</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);padding:3px 0;">Th</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);padding:3px 0;">Fr</div>
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);padding:3px 0;">Sa</div>
+          </div>
+          <div id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;"></div>
+        </div>
+
+        <!-- Selected range display -->
+        <div style="flex:1;min-width:180px;">
+          <div id="sprint-range-display" style="background:var(--navy3);border:1px solid rgba(79,195,247,0.2);border-radius:10px;padding:16px;margin-bottom:10px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--sprint);letter-spacing:0.15em;margin-bottom:10px;">SPRINT WINDOW</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div>
+                <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);margin-bottom:3px;">STARTS</div>
+                <div id="range-start" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--em);">—</div>
+              </div>
+              <div style="height:1px;background:rgba(255,255,255,0.05);"></div>
+              <div>
+                <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);margin-bottom:3px;">ENDS</div>
+                <div id="range-end" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--lh);">—</div>
+              </div>
+              <div style="height:1px;background:rgba(255,255,255,0.05);"></div>
+              <div>
+                <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);margin-bottom:3px;">DURATION</div>
+                <div id="range-days" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--gold);">— days</div>
+              </div>
+            </div>
+          </div>
+          <!-- Custom end date (only shown for Custom mode) -->
+          <div id="custom-end-wrap" style="display:none;">
+            <label class="field-label">Custom End Date</label>
+            <input class="finp" type="date" id="custom-end-date" oninput="applyCustomEnd()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sprint Goal -->
+    <div class="field">
+      <label class="field-label">Sprint Goal (one sentence)</label>
+      <input class="finp" type="text" id="sprint-goal-txt" placeholder="e.g. Fund emergency account to $3,000 and eliminate dining overage by 30%">
+      <div class="field-hint">Your overarching intention for this sprint. Makes the plan concrete before a dollar is allocated.</div>
+    </div>
+  </div>
+
+  <!-- Income Sources -->
+  <div class="card">
+    <div class="card-title">Income Sources</div>
+    <div id="income-rows">
+      <div class="fgrid fgrid-3" style="margin-bottom:10px;">
+        <div class="field"><label class="field-label">Source</label><input class="finp inc-name" type="text" placeholder="Primary Salary"></div>
+        <div class="field"><label class="field-label">Gross Monthly</label><div class="finp-dollar"><input class="finp inc-gross" type="number" placeholder="5,833"></div></div>
+        <div class="field"><label class="field-label">Taxes &amp; Benefits %</label><input class="finp inc-rate" type="number" placeholder="28" min="0" max="60"> </div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="addIncomeRow()">+ Add Income Source</button>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--g);letter-spacing:0.12em;">TOTAL NET TAKE-HOME</span>
+      <span style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--em)" id="total-net">$0</span>
+    </div>
+  </div>
+
+  <!-- Fixed Committed Costs -->
+  <div class="card">
+    <div class="card-title">Fixed Committed Costs</div>
+    <p style="font-size:12px;color:var(--g);margin-bottom:16px;line-height:1.6;">Non-negotiable monthly obligations — housing, minimum debt payments, insurance, utilities. These reduce Sprint Fuel before any discretionary dollar is allocated. <sup style="color:var(--gold-d)">[1]</sup></p>
+    <div id="fixed-rows">
+      <div class="fgrid fgrid-3" style="margin-bottom:8px;">
+        <div><input class="finp fix-name" type="text" placeholder="Mortgage / Rent"></div>
+        <div class="finp-dollar"><input class="finp fix-amt" type="number" placeholder="1,800"></div>
+        <div><select class="fsel fix-cat">
+          <option value="housing">Housing</option>
+          <option value="debt">Debt Payment</option>
+          <option value="insurance">Insurance</option>
+          <option value="utilities">Utilities</option>
+          <option value="transport">Transport</option>
+          <option value="other">Other Fixed</option>
+        </select></div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="addFixedRow()">+ Add Fixed Cost</button>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--g);letter-spacing:0.12em;">TOTAL FIXED COSTS</span>
+      <span style="font-family:'DM Mono',monospace;font-size:16px;color:var(--red)" id="total-fixed">$0</span>
+    </div>
+    <div class="divider" style="margin:10px 0;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--sprint);letter-spacing:0.14em;margin-bottom:3px;">NET SPRINT FUEL™</div>
+        <div style="font-size:11px;color:var(--g);">The only number available for goals + discretionary spending</div>
+      </div>
+      <span style="font-family:'Playfair Display',serif;font-size:36px;font-weight:900;" id="sprint-fuel">$0</span>
+    </div>
+  </div>
+
+  <!-- Capacity Meter -->
+  <div class="capacity-meter" id="capacity-meter-p0">
+    <div class="cm-row">
+      <span class="cm-label">Sprint Fuel™ Breakdown</span>
+      <span class="sprint-badge" id="sprint-badge-p0">SPRINT 1 · JAN 2026</span>
+    </div>
+    <div class="cm-bar-wrap">
+      <div class="cm-bar" id="cm-bar-p0" style="width:0%;background:var(--safe)"></div>
+    </div>
+    <div class="cm-breakdown">
+      <div class="cm-cell">
+        <div class="cm-cell-num" style="color:var(--em)" id="cm-net">$0</div>
+        <div class="cm-cell-label">NET INCOME</div>
+      </div>
+      <div class="cm-cell">
+        <div class="cm-cell-num" style="color:var(--red)" id="cm-fixed">$0</div>
+        <div class="cm-cell-label">FIXED COSTS</div>
+      </div>
+      <div class="cm-cell">
+        <div class="cm-cell-num" style="color:var(--sprint)" id="cm-fuel">$0</div>
+        <div class="cm-cell-label">FUEL™</div>
+      </div>
+      <div class="cm-cell">
+        <div class="cm-cell-num" style="color:var(--g)" id="cm-pct">0%</div>
+        <div class="cm-cell-label">FIXED %</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="goPhase(1)">Set Budget Lock™ →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 1 — SPRINT GOALS (DoD)
+════════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-1">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 2 of 5 · BUDGET LOCK</div>
+    <h1 class="phase-title">Set Your <em>Budget Lock™</em></h1>
+    <p class="phase-desc">In agile, a Definition of Ready ensures goals meet clear criteria <em>before</em> work begins — not after. The Budget Lock™ (BL™) applies the same principle: these amounts are committed and locked in before a single discretionary dollar is allocated. Nothing enters the sprint until goals are funded. This is the behavioral core of the SCALE system. <sup style="font-size:10px;color:var(--gold-d)">[2]</sup></p>
+  </div>
+
+  <!-- Goal-first framing callout -->
+  <div style="background:rgba(45,212,160,0.05);border:1px solid rgba(45,212,160,0.2);border-radius:10px;padding:16px 18px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start;">
+    <div style="font-size:22px;flex-shrink:0;">🔒</div>
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--em);letter-spacing:0.14em;margin-bottom:5px;">PRECOMMITMENT PRINCIPLE</div>
+      <div style="font-size:13px;color:var(--gl);line-height:1.6;">Goals are funded first. The remaining Sprint Fuel after goal deductions is what's available for discretionary spending. You cannot "save what's left" — a habit that behavioral research shows results in zero savings 78% of the time. <sup style="color:var(--gold-d)">[3]</sup></div>
+    </div>
+  </div>
+
+  <!-- Capacity carryforward -->
+  <div class="card" style="border-color:rgba(79,195,247,0.2);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--sprint);letter-spacing:0.15em;margin-bottom:4px;">SPRINT FUEL™ AVAILABLE</div>
+        <div style="font-size:12px;color:var(--g);">Net income after fixed costs</div>
+      </div>
+      <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--sprint)" id="p1-fuel">$0</div>
+    </div>
+  </div>
+
+  <!-- Goal rows -->
+  <div class="card">
+    <div class="card-title">Sprint Goals — Budget Lock™ (BL™)</div>
+    <div id="goal-rows">
+      <div class="goal-card">
+        <div>
+          <div class="goal-name">🛡️ Emergency Fund Contribution<small>Priority 1 — Safety Net</small></div>
+        </div>
+        <div class="finp-dollar"><input class="finp goal-amt" type="number" placeholder="200" data-label="Emergency Fund" oninput="recalcGoals()"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--em);">LOCKED FIRST</div>
+      </div>
+      <div class="goal-card">
+        <div>
+          <div class="goal-name">💰 Savings / Sinking Funds<small>Priority 2 — Goals</small></div>
+        </div>
+        <div class="finp-dollar"><input class="finp goal-amt" type="number" placeholder="300" data-label="Savings" oninput="recalcGoals()"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--em);">LOCKED FIRST</div>
+      </div>
+      <div class="goal-card">
+        <div>
+          <div class="goal-name">📈 Investment Contribution<small>Priority 3 — Wealth</small></div>
+        </div>
+        <div class="finp-dollar"><input class="finp goal-amt" type="number" placeholder="400" data-label="Investment" oninput="recalcGoals()"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--em);">LOCKED FIRST</div>
+      </div>
+      <div class="goal-card">
+        <div>
+          <div class="goal-name">💳 Extra Debt Payment<small>Priority 4 — Debt Elimination</small></div>
+        </div>
+        <div class="finp-dollar"><input class="finp goal-amt" type="number" placeholder="150" data-label="Debt Extra" oninput="recalcGoals()"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--em);">LOCKED FIRST</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="addGoalRow()" style="margin-top:8px;">+ Add Goal</button>
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;margin-bottom:4px;">TOTAL GOALS COMMITTED</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--em)" id="total-goals">$0</div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--sprint);letter-spacing:0.12em;margin-bottom:4px;">REMAINING FOR DISCRETIONARY</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:900;" id="discretionary-avail">$0</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:7px;font-size:11px;color:var(--g);line-height:1.6;">
+      <strong style="color:var(--gold-d)">Savings rate:</strong> <span id="savings-rate-display">0%</span> of net income.
+      CFP guideline: 15–20% toward long-term financial goals. <sup style="color:var(--gold-d)">[4]</sup>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goPhase(0)">← Back</button>
+    <button class="btn btn-primary" onclick="goPhase(2)">Build Sprint Load →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 2 — LOAD BUILDER
+════════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-2">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 3 of 5 · SPRINT SSL™</div>
+    <h1 class="phase-title">Set Your <em>Sprint Spend Load™</em></h1>
+    <p class="phase-desc">Allocate your discretionary capacity across spending categories. The Sprint Spend Load meter shows load vs. capacity in real time. Historical velocity guides realistic allocations — if you've consistently spent $400 on dining, budgeting $200 is wishful thinking, not planning.</p>
+  </div>
+
+  <!-- Sticky load meter -->
+  <div class="load-meter-wrap" id="load-meter">
+    <div class="lm-header">
+      <div>
+        <div class="lm-title">SSL™ vs. SFC™</div>
+      </div>
+      <div class="lm-stats">
+        <div class="lm-stat">
+          <div class="lm-stat-num" id="lm-load" style="color:var(--gold)">$0</div>
+          <div class="lm-stat-lbl">SSL™</div>
+        </div>
+        <div style="width:1px;height:30px;background:rgba(255,255,255,0.08);"></div>
+        <div class="lm-stat">
+          <div class="lm-stat-num" id="lm-cap" style="color:var(--sprint)">$0</div>
+          <div class="lm-stat-lbl">FUEL™</div>
+        </div>
+        <div style="width:1px;height:30px;background:rgba(255,255,255,0.08);"></div>
+        <div class="lm-stat">
+          <div class="lm-stat-num" id="lm-remain">$0</div>
+          <div class="lm-stat-lbl">UNALLOCATED</div>
+        </div>
+      </div>
+    </div>
+    <div class="lm-bar-track">
+      <div class="lm-bar-fill" id="lm-bar" style="width:0%;background:var(--safe);"></div>
+      <div class="lm-marker" id="lm-100" style="left:100%;" title="Capacity limit"></div>
+    </div>
+    <div class="lm-status" id="lm-status" style="color:var(--g);">Enter your income and goals first, then allocate spending below.</div>
+  </div>
+
+  <!-- Category grid header -->
+  <div style="display:grid;grid-template-columns:28px 1fr 140px 100px 90px;gap:10px;padding:0 16px;margin-bottom:6px;">
+    <div></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;">CATEGORY</div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;text-align:center;">VELOCITY <sup title="Your historical avg spend — enter past actuals to enable">ℹ</sup></div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;text-align:right;">ALLOCATION</div>
+    <div></div>
+  </div>
+
+  <div id="cat-rows"></div>
+
+  <div class="add-cat-row">
+    <input class="finp" id="new-cat-name" type="text" placeholder="Category name..." style="flex:1">
+    <select class="fsel" id="new-cat-color" style="width:130px">
+      <option value="#c9a84c">Gold</option>
+      <option value="#2dd4a0">Emerald</option>
+      <option value="#ff8c69">Coral</option>
+      <option value="#4fc3f7">Blue</option>
+      <option value="#b48cff">Purple</option>
+      <option value="#e88fa0">Rose</option>
+      <option value="#f0a050">Amber</option>
+      <option value="#6ab4e8">Sky</option>
+    </select>
+    <button class="btn btn-secondary btn-sm" onclick="addCatRow()">+ Add Category</button>
+  </div>
+
+  <!-- Backlog -->
+  <div class="card" style="margin-top:24px;">
+    <div class="card-title">Budget Backlog — Not This Sprint</div>
+    <p style="font-size:12px;color:var(--g);margin-bottom:14px;line-height:1.6;">Items you want but can't fund this sprint. Not a rejection — a deferral to a future sprint. Research shows that deferring rather than denying reduces financial frustration and improves budget adherence by 22%. <sup style="color:var(--gold-d)">[5]</sup></p>
+    <div id="backlog-rows">
+      <div class="backlog-empty" style="text-align:center;padding:24px;color:var(--g);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;">BACKLOG EMPTY — ADD DEFERRED ITEMS BELOW</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <input class="finp" id="bl-name" type="text" placeholder="Item name" style="flex:2;min-width:140px;">
+      <div class="finp-dollar" style="flex:1;min-width:100px;"><input class="finp" id="bl-amt" type="number" placeholder="Amount"></div>
+      <select class="fsel" id="bl-sprint" style="flex:1;min-width:100px;">
+        <option value="Sprint +1">Next Sprint</option>
+        <option value="Sprint +2">Sprint +2</option>
+        <option value="Sprint +3">Sprint +3</option>
+        <option value="Q2">Q2</option>
+        <option value="Q3">Q3</option>
+        <option value="End of Year">End of Year</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="addBacklogItem()">Add</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goPhase(1)">← Back</button>
+    <button class="btn btn-primary" onclick="goPhase(3)">Set Budget Risks →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 3 — IMPEDIMENTS & TRIGGERS
+════════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-3">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 4 of 5 · SPRINT BUDGET RISKS</div>
+    <h1 class="phase-title">Surface Your <em>Sprint Budget Risks™</em></h1>
+    <p class="phase-desc">In agile, teams identify impediments before the sprint starts — not after they cause failure. Your spending triggers, high-risk scenarios, and implementation intentions are entered here to protect the sprint before it launches. <sup style="font-size:10px;color:var(--gold-d)">[6]</sup></p>
+  </div>
+
+  <!-- Implementation Intentions -->
+  <div class="card">
+    <div class="card-title">Implementation Intentions — If/Then Rules</div>
+    <p style="font-size:12px;color:var(--g);margin-bottom:16px;line-height:1.6;">Pre-written if/then behavioral rules. Research by Gollwitzer (1999) shows implementation intentions reduce impulsive behavior 20–30% more effectively than goal-setting alone. Write your rules now, before temptation. <sup style="color:var(--gold-d)">[6]</sup></p>
+
+    <div id="intention-rows">
+      <!-- Pre-populated examples -->
+      <div class="intention-row" id="int-0">
+        <span class="if">IF</span> I'm about to make an unplanned purchase over $50
+        <span class="then">THEN</span> I wait 24 hours and check my sprint load first
+        <button class="cat-remove" onclick="removeRow('int-0')" style="float:right;margin-top:-4px;">✕</button>
+      </div>
+      <div class="intention-row" id="int-1">
+        <span class="if">IF</span> I'm stressed or emotional and feel like spending
+        <span class="then">THEN</span> I add the item to the Budget Backlog and close the app
+        <button class="cat-remove" onclick="removeRow('int-1')" style="float:right;margin-top:-4px;">✕</button>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:8px;margin-top:14px;">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--amber);letter-spacing:0.1em;width:30px;flex-shrink:0;">IF</span>
+        <input class="finp" id="int-if" type="text" placeholder="triggering situation..." style="flex:1;">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--em);letter-spacing:0.1em;width:30px;flex-shrink:0;">THEN</span>
+        <input class="finp" id="int-then" type="text" placeholder="protective response..." style="flex:1;">
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="addIntention()" style="align-self:flex-start;">+ Add Rule</button>
+    </div>
+  </div>
+
+  <!-- Impediment Register -->
+  <div class="card">
+    <div class="card-title">Impediment Register — Known Sprint Risks</div>
+    <p style="font-size:12px;color:var(--g);margin-bottom:16px;line-height:1.6;">Known events or circumstances this sprint that could threaten your load targets. Surfacing impediments before they occur is the difference between reactive and proactive financial management.</p>
+    <div id="impediment-rows">
+      <div style="text-align:center;padding:20px;color:var(--g);font-family:'DM Mono',monospace;font-size:10px;" id="imp-empty">NO IMPEDIMENTS LOGGED</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <input class="finp" id="imp-desc" type="text" placeholder="Describe the risk..." style="flex:2;min-width:180px;">
+      <select class="fsel" id="imp-sev" style="flex:1;min-width:120px;">
+        <option value="high">High Risk</option>
+        <option value="med" selected>Medium Risk</option>
+        <option value="low">Low Risk</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="addImpediment()">Log Risk</button>
+    </div>
+  </div>
+
+  <!-- Habit Stack -->
+  <div class="card">
+    <div class="card-title">Habit Stack — Sprint Review Anchor</div>
+    <p style="font-size:12px;color:var(--g);margin-bottom:16px;line-height:1.6;">Pair your sprint check-in with an existing habit to ensure it happens. Habit stacking (Clear, 2018) attaches new behaviors to established routines, dramatically increasing follow-through. <sup style="color:var(--gold-d)">[7]</sup></p>
+    <div class="fgrid fgrid-2">
+      <div class="field">
+        <label class="field-label">Existing Habit (anchor)</label>
+        <input class="finp" id="habit-anchor" type="text" placeholder="e.g. Sunday morning coffee">
+      </div>
+      <div class="field">
+        <label class="field-label">Review Frequency</label>
+        <select class="fsel" id="habit-freq">
+          <option>Weekly (recommended)</option>
+          <option>Twice weekly</option>
+          <option>Daily</option>
+          <option>Bi-weekly</option>
+        </select>
+      </div>
+    </div>
+    <div style="padding:10px 14px;background:rgba(45,212,160,0.04);border:1px solid rgba(45,212,160,0.12);border-radius:7px;font-size:12px;color:var(--gl);line-height:1.6;" id="habit-preview">
+      After <strong style="color:var(--em)">your anchor habit</strong>, I run my sprint check-in.
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goPhase(2)">← Back</button>
+    <button class="btn btn-sprint" onclick="launchDashboard()">Launch Sprint Dashboard →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PHASE 4 — DASHBOARD
+════════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-4">
+  <div class="phase-header">
+    <div class="phase-eyebrow">Phase 5 of 5 · DASHBOARD</div>
+    <h1 class="phase-title">Sprint <em>Command Center</em></h1>
+    <p class="phase-desc">Your live sprint health view. Enter actuals as the month progresses to update the burndown. The goal: actual line stays above ideal — you're burning capacity slower than the sprint demands.</p>
+  </div>
+
+  <!-- Sprint summary top row -->
+  <div class="dash-grid-3" style="margin-bottom:16px;">
+    <div class="widget" style="border-color:rgba(79,195,247,0.2);">
+      <div class="w-label">NET SPRINT FUEL™</div>
+      <div class="w-big" style="color:var(--sprint)" id="d-fuel">$0</div>
+      <div class="w-sub">Available for goals + discretionary</div>
+    </div>
+    <div class="widget" style="border-color:rgba(45,212,160,0.2);">
+      <div class="w-label">GOALS COMMITTED</div>
+      <div class="w-big" style="color:var(--em)" id="d-goals">$0</div>
+      <div class="w-sub" id="d-savings-rate-lbl">0% savings rate</div>
+    </div>
+    <div class="widget" style="border-color:rgba(201,168,76,0.2);">
+      <div class="w-label">DISCRETIONARY LOAD</div>
+      <div class="w-big" style="color:var(--gold)" id="d-load">$0</div>
+      <div class="w-sub" id="d-load-status">Load vs. capacity</div>
+    </div>
+  </div>
+
+  <!-- Sprint Health Score + Burndown -->
+  <div class="dash-grid">
+    <!-- Health Score -->
+    <div class="widget" style="border-color:rgba(79,195,247,0.15);">
+      <div class="w-label">SPRINT HEALTH SCORE</div>
+      <div class="health-ring-wrap">
+        <div class="health-ring">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+            <circle cx="45" cy="45" r="38" fill="none" stroke-width="8"
+              stroke-dasharray="238.76" stroke-linecap="round"
+              id="health-ring-circle" stroke="var(--safe)" stroke-dashoffset="238.76"/>
+          </svg>
+          <div class="health-ring-label">
+            <div class="health-grade" id="health-grade" style="color:var(--safe)">A</div>
+            <div class="health-score-num" id="health-score-num">—/100</div>
+          </div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;margin-bottom:6px;" id="health-label">Calculating...</div>
+          <div style="font-size:12px;color:var(--g);line-height:1.6;" id="health-detail">Complete your sprint setup to see your health score.</div>
+        </div>
+      </div>
+      <div id="health-factors" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- Burndown Chart -->
+    <div class="widget" style="border-color:rgba(240,160,80,0.15);">
+      <div class="w-label">SPRINT BURNDOWN CHART</div>
+      <canvas id="burndown-canvas" width="400" height="220"></canvas>
+      <div style="font-size:10px;color:var(--g);margin-top:8px;line-height:1.5;">
+        <span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px;"><span style="width:20px;height:2px;background:var(--g);display:inline-block;border-top:2px dashed var(--g);"></span>Ideal</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:20px;height:2px;background:var(--sprint);display:inline-block;"></span>Projected</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Burndown Bars + Actuals Entry -->
+  <div class="widget widget-full" style="margin-bottom:16px;">
+    <div class="w-label">CATEGORY LOAD TRACKER — Enter Actuals to Update</div>
+    <div style="display:grid;grid-template-columns:120px 1fr 80px 70px 100px;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:10px;">
+      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;">CATEGORY</div>
+      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;">BURN</div>
+      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;text-align:right;">SPENT</div>
+      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;text-align:right;">LEFT</div>
+      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;text-align:right;">ACTUAL $</div>
+    </div>
+    <div id="burn-bars"></div>
+  </div>
+
+  <!-- Sprint Velocity History -->
+  <div class="dash-grid">
+    <div class="widget">
+      <div class="w-label">SPRINT VELOCITY HISTORY</div>
+      <div id="velocity-history" style="font-size:12px;color:var(--g);text-align:center;padding:20px;">
+        Complete additional sprints to build velocity data.
+      </div>
+    </div>
+    <div class="widget">
+      <div class="w-label">BUDGET BACKLOG — FUTURE SPRINTS</div>
+      <div id="d-backlog" style="font-size:12px;color:var(--g);">No backlog items.</div>
+    </div>
+  </div>
+
+  <!-- Sprint Goal reminder -->
+  <div style="background:rgba(79,195,247,0.04);border:1px solid rgba(79,195,247,0.12);border-radius:10px;padding:16px 18px;margin-bottom:16px;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--sprint);letter-spacing:0.15em;margin-bottom:6px;">SPRINT GOAL — BUDGET LOCK™</div>
+    <div style="font-size:14px;color:var(--gl);font-style:italic;" id="d-sprint-goal">"No sprint goal set."</div>
+  </div>
+
+  <!-- Evaluate + Evolve section -->
+  <div class="card" style="border-color:rgba(180,140,255,0.15);">
+    <div class="card-title" style="color:rgba(180,140,255,0.6);">Evaluate + Evolve — Sprint Retrospective</div>
+    <p style="font-size:12px;color:var(--g);margin-bottom:16px;line-height:1.6;">What worked this sprint? What needs to change? Your retrospective answers feed the next sprint's plan — this is the Evolve phase of the SCALE framework.</p>
+    <div class="fgrid">
+      <div class="field">
+        <label class="field-label" style="color:var(--em);">What Went Well</label>
+        <textarea class="finp" id="retro-well" rows="2" placeholder="Categories where you hit or beat your allocation..."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" style="color:var(--amber);">What to Improve</label>
+        <textarea class="finp" id="retro-improve" rows="2" placeholder="Categories that exceeded load or goals that slipped..."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" style="color:var(--sprint);">Evolve: Changes for Sprint <span id="next-sprint-num">2</span></label>
+        <textarea class="finp" id="retro-evolve" rows="2" placeholder="Allocation adjustments, new rules, backlog promotions..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+    <button class="btn btn-sprint" onclick="exportSprint()">⬇ Download Report</button>
+    <button class="btn btn-secondary" onclick="printPlan()">🖨️ Print Plan</button>
+    <button class="btn btn-secondary" id="retro-save-btn" onclick="saveSprint()" style="display:none;">💾 Save to Account</button>
+  </div>
+  </div>
+
+  <!-- Research footnotes -->
+  <div class="fn-box">
+    <div class="fn-title">Research References — Sprint Budget Planner™</div>
+    <p class="fn"><sup>[1]</sup> Shefrin, H.M. & Thaler, R.H. (1988). "The Behavioral Life-Cycle Hypothesis." <em>Journal of Economic Perspectives, 2</em>(4), 609–643. Fixed costs represent the "must-pay" mental account — the most rigid category in household budgeting, and the one that must be established before discretionary allocation can begin.</p>
+    <p class="fn"><sup>[2]</sup> Agile Sprint Planning principle: teams define the sprint goal before accepting backlog items into the sprint — the goal drives the work, not the reverse. The same sequencing principle applies to financial goal-setting: purpose precedes allocation.</p>
+    <p class="fn"><sup>[3]</sup> Lusardi, A. & Mitchell, O.S. (2014). "The Economic Importance of Financial Literacy." <em>Journal of Economic Literature, 52</em>(1), 5–44. Documents the "save what's left" failure pattern and the superiority of automatic, goal-first savings commitment.</p>
+    <p class="fn"><sup>[4]</sup> Certified Financial Planner Board of Standards (2023). Planning guidelines recommend 15–20% of gross income directed toward long-term financial goals including emergency reserves, retirement, and wealth accumulation.</p>
+    <p class="fn"><sup>[5]</sup> Ariely, D. & Wertenbroch, K. (2002). "Procrastination, Deadlines, and Performance." <em>Psychological Science, 13</em>(3), 219–224. Establishing a structured deferral mechanism (budget backlog) reduces the psychological cost of spending refusal and improves overall budget compliance.</p>
+    <p class="fn"><sup>[6]</sup> Gollwitzer, P.M. (1999). "Implementation Intentions: Strong Effects of Simple Plans." <em>American Psychologist, 54</em>(7), 493–503. If/then planning reduced unintended behavior rates by 20–30% across 94 independent studies. The most effective behavior change tool available for pre-commitment contexts.</p>
+    <p class="fn"><sup>[7]</sup> Clear, J. (2018). <em>Atomic Habits.</em> Avery. Habit stacking — linking a new behavior to an established habit cue — is among the highest-efficacy behavior installation techniques, particularly for review and reflection routines with low intrinsic reward.</p>
+    <div style="margin-top:16px;font-size:10px;color:var(--g);font-family:'DM Mono',monospace;letter-spacing:0.06em;line-height:1.6;">
+      DISCLAIMER: The Sprint Budget Planner™ and SCALE Framework™ are educational tools and do not constitute financial, investment, legal, or tax advice. Sprint Fuel Capacity™ (SFC™), Budget Lock™ (BL™), Sprint Spend Load™ (SSL™), and Sprint Budget Risks™ (SBR™) calculations use self-reported income and expense figures — actual financial situations vary. ScaledMoney|OS™, Lean Dollar®, SCALE Framework™, Sprint Budget Planner™, Sprint Fuel Capacity™, Budget Lock™, Sprint Spend Load™, Sprint Budget Risks™, and all related marks are proprietary. All rights reserved.
+    </div>
+  </div>
+
+</div><!-- end phase-4 -->
+</main>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+const state = {
+  phase: 0,
+  // Phase 0
+  sprintNum: 1,
+  sprintMonth: 'January',
+  sprintYear: 2026,
+  sprintGoalTxt: '',
+  incomeRows: [],
+  fixedRows: [],
+  // Computed
+  totalNet: 0,
+  totalFixed: 0,
+  sprintFuel: 0,
+  // Phase 1
+  goals: [],
+  totalGoals: 0,
+  discretionaryAvail: 0,
+  // Phase 2
+  categories: [],
+  totalLoad: 0,
+  backlog: [],
+  // Phase 3
+  intentions: [],
+  impediments: [],
+  habitAnchor: '',
+  habitFreq: 'Weekly',
+  // Phase 4 actuals
+  actuals: {},
+  // Retro
+  retroWell: '',
+  retroImprove: '',
+  retroEvolve: ''
+};
+
+// Default categories with colors and velocity placeholders
+const DEFAULT_CATS = [
+  { name: 'Groceries',     color: '#2dd4a0', velocity: null, alloc: 0, hint: 'Food at home' },
+  { name: 'Dining Out',    color: '#ff8c69', velocity: null, alloc: 0, hint: 'Restaurants, takeout' },
+  { name: 'Transportation',color: '#4fc3f7', velocity: null, alloc: 0, hint: 'Gas, rideshare, parking' },
+  { name: 'Entertainment', color: '#b48cff', velocity: null, alloc: 0, hint: 'Streaming, events, hobbies' },
+  { name: 'Personal Care', color: '#e88fa0', velocity: null, alloc: 0, hint: 'Health & beauty' },
+  { name: 'Clothing',      color: '#c9a84c', velocity: null, alloc: 0, hint: 'Apparel & accessories' },
+  { name: 'Miscellaneous', color: '#8892a4', velocity: null, alloc: 0, hint: 'Everything else' },
+];
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+function init() {
+  state.categories = DEFAULT_CATS.map(c => ({ ...c }));
+  renderCatRows();
+  renderCatRows(); // second call ensures load meter is fresh
+  addIncomeRow(true);
+  addFixedRow(true);
+  // Boot calendar to current month, pre-select today as start
+  const now = new Date(); now.setHours(0,0,0,0);
+  calState.viewYear  = now.getFullYear();
+  calState.viewMonth = now.getMonth();
+  calState.startDate = now;
+  calState.endDate   = new Date(now);
+  calState.endDate.setDate(calState.endDate.getDate() + 6); // default 1-week
+  renderCal();
+  updateRangeDisplay();
+  updateSprintBadge();
+  updateHabitPreview();
+  // Gate shows on load; member bar hidden until user enters
+  const bar = document.getElementById('member-bar');
+  if (bar) bar.style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════
+// PHASE NAVIGATION
+// ══════════════════════════════════════════════════════
+function goPhase(n) {
+  collectPhaseData(state.phase);
+  state.phase = n;
+  document.querySelectorAll('.phase-panel').forEach((p,i) => p.classList.toggle('active', i === n));
+  document.querySelectorAll('.phase-step').forEach((s,i) => {
+    s.classList.remove('active','done');
+    if (i === n) s.classList.add('active');
+    else if (i < n) s.classList.add('done');
+  });
+  if (n === 1) syncPhase1();
+  if (n === 2) syncPhase2();
+  if (n === 4) syncDashboard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function collectPhaseData(n) {
+  if (n === 3) {
+    state.habitAnchor = document.getElementById('habit-anchor').value;
+    state.habitFreq   = document.getElementById('habit-freq').value;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SPRINT BADGE
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// SPRINT CALENDAR
+// ══════════════════════════════════════════════════════
+const calState = {
+  viewYear:  new Date().getFullYear(),
+  viewMonth: new Date().getMonth(),
+  startDate: null,   // Date object
+  endDate:   null,   // Date object
+  length:    7,      // days (0 = custom)
+};
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+const MONTH_SHORT = ['JAN','FEB','MAR','APR','MAY','JUN',
+                     'JUL','AUG','SEP','OCT','NOV','DEC'];
+
+function setSprintLength(days, btn) {
+  calState.length = days;
+  document.querySelectorAll('.sprint-len-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const hints = { 7:'7-day sprint · matches weekly paycheck cycles', 14:'14-day sprint · matches bi-weekly paycheck cycles', 0:'Set a custom end date — any pay period length' };
+  document.getElementById('sprint-len-hint').textContent = hints[days] || '';
+  document.getElementById('custom-end-wrap').style.display = days === 0 ? 'block' : 'none';
+  if (days > 0 && calState.startDate) {
+    calState.endDate = new Date(calState.startDate);
+    calState.endDate.setDate(calState.endDate.getDate() + days - 1);
+  }
+  renderCal();
+  updateRangeDisplay();
+}
+
+function applyCustomEnd() {
+  const val = document.getElementById('custom-end-date').value;
+  if (!val) return;
+  const d = new Date(val + 'T00:00:00');
+  if (calState.startDate && d > calState.startDate) {
+    calState.endDate = d;
+    renderCal();
+    updateRangeDisplay();
+  }
+}
+
+function calNav(dir) {
+  calState.viewMonth += dir;
+  if (calState.viewMonth > 11) { calState.viewMonth = 0;  calState.viewYear++; }
+  if (calState.viewMonth < 0)  { calState.viewMonth = 11; calState.viewYear--; }
+  renderCal();
+}
+
+function selectCalDay(year, month, day) {
+  const clicked = new Date(year, month, day);
+  calState.startDate = clicked;
+  if (calState.length > 0) {
+    calState.endDate = new Date(clicked);
+    calState.endDate.setDate(calState.endDate.getDate() + calState.length - 1);
+  } else {
+    calState.endDate = null; // wait for custom end
+  }
+  renderCal();
+  updateRangeDisplay();
+  updateSprintBadge();
+}
+
+function renderCal() {
+  const { viewYear, viewMonth, startDate, endDate } = calState;
+  document.getElementById('cal-month-label').textContent =
+    MONTHS[viewMonth].toUpperCase() + ' ' + viewYear;
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let html = '';
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="cal-day cal-empty"></div>';
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const thisDate = new Date(viewYear, viewMonth, d);
+    let cls = 'cal-day';
+    if (thisDate.getTime() === today.getTime()) cls += ' cal-today';
+
+    if (startDate && thisDate.getTime() === startDate.getTime()) cls += ' cal-start';
+    else if (endDate && thisDate.getTime() === endDate.getTime())   cls += ' cal-end';
+    else if (startDate && endDate && thisDate > startDate && thisDate < endDate) cls += ' cal-in-range';
+
+    html += `<div class="${cls}" onclick="selectCalDay(${viewYear},${viewMonth},${d})">${d}</div>`;
+  }
+  document.getElementById('cal-days').innerHTML = html;
+}
+
+function updateRangeDisplay() {
+  const { startDate, endDate } = calState;
+  const fmt = d => d ? d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) : '—';
+  document.getElementById('range-start').textContent = fmt(startDate);
+  document.getElementById('range-end').textContent   = fmt(endDate);
+  const days = (startDate && endDate)
+    ? Math.round((endDate - startDate) / 86400000) + 1
+    : null;
+  document.getElementById('range-days').textContent = days ? days + (days === 1 ? ' day' : ' days') : '— days';
+}
+
+function updateSprintBadge() {
+  const num = document.getElementById('sprint-num').value || '1';
+  state.sprintNum = parseInt(num);
+  document.getElementById('nav-sprint-num').textContent = 'SPRINT ' + num;
+  document.getElementById('next-sprint-num').textContent = state.sprintNum + 1;
+
+  // Build badge label from date range
+  let label = 'SPRINT ' + num;
+  if (calState.startDate) {
+    const s = calState.startDate;
+    const mo = MONTH_SHORT[s.getMonth()];
+    const yr = s.getFullYear();
+    label = 'SPRINT ' + num + ' · ' + mo + ' ' + s.getDate() + ', ' + yr;
+    if (calState.endDate) {
+      const e = calState.endDate;
+      const emo = MONTH_SHORT[e.getMonth()];
+      label += ' – ' + emo + ' ' + e.getDate();
+    }
+  }
+  const b0 = document.getElementById('sprint-badge-p0');
+  if (b0) b0.textContent = label;
+}
+
+// ══════════════════════════════════════════════════════
+// INCOME ROWS
+// ══════════════════════════════════════════════════════
+function addIncomeRow(init) {
+  const wrap = document.getElementById('income-rows');
+  const id = 'inc-' + Date.now();
+  const div = document.createElement('div');
+  div.className = 'fgrid fgrid-3';
+  div.id = id;
+  div.style.marginBottom = '10px';
+  div.innerHTML = `
+    <div class="field"><input class="finp inc-name" type="text" placeholder="Income source"></div>
+    <div class="field"><div class="finp-dollar"><input class="finp inc-gross" type="number" placeholder="Gross monthly" oninput="recalcCapacity()"></div></div>
+    <div class="field" style="display:flex;gap:6px;align-items:flex-end;">
+      <input class="finp inc-rate" type="number" placeholder="Deduct %" min="0" max="60" style="flex:1" oninput="recalcCapacity()">
+      ${!init ? `<button class="cat-remove" onclick="this.closest('.fgrid').remove();recalcCapacity()">✕</button>` : ''}
+    </div>`;
+  wrap.appendChild(div);
+}
+
+// ══════════════════════════════════════════════════════
+// FIXED COST ROWS
+// ══════════════════════════════════════════════════════
+function addFixedRow(init) {
+  const wrap = document.getElementById('fixed-rows');
+  const id = 'fix-' + Date.now();
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'fgrid fgrid-3';
+  div.style.marginBottom = '8px';
+  div.innerHTML = `
+    <div><input class="finp fix-name" type="text" placeholder="Fixed cost name"></div>
+    <div class="finp-dollar"><input class="finp fix-amt" type="number" placeholder="Monthly amount" oninput="recalcCapacity()"></div>
+    <div style="display:flex;gap:6px;">
+      <select class="fsel fix-cat" style="flex:1">
+        <option value="housing">Housing</option>
+        <option value="debt">Debt Payment</option>
+        <option value="insurance">Insurance</option>
+        <option value="utilities">Utilities</option>
+        <option value="transport">Transport</option>
+        <option value="other">Other Fixed</option>
+      </select>
+      ${!init ? `<button class="cat-remove" onclick="this.closest('.fgrid').remove();recalcCapacity()">✕</button>` : ''}
+    </div>`;
+  wrap.appendChild(div);
+}
+
+// ══════════════════════════════════════════════════════
+// CAPACITY CALCULATION (Phase 0 core)
+// ══════════════════════════════════════════════════════
+function recalcCapacity() {
+  // Sum income rows
+  let net = 0;
+  document.querySelectorAll('.fgrid').forEach(row => {
+    const gross = parseFloat(row.querySelector('.inc-gross')?.value) || 0;
+    const rate  = parseFloat(row.querySelector('.inc-rate')?.value)  || 0;
+    if (gross > 0) net += gross * (1 - rate / 100);
+  });
+
+  // Sum fixed costs
+  let fixed = 0;
+  document.querySelectorAll('.fgrid').forEach(row => {
+    const amt = parseFloat(row.querySelector('.fix-amt')?.value) || 0;
+    if (amt > 0) fixed += amt;
+  });
+
+  state.totalNet   = net;
+  state.totalFixed = fixed;
+  state.sprintFuel = Math.max(0, net - fixed);
+
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const pct = net > 0 ? Math.round((fixed / net) * 100) : 0;
+
+  document.getElementById('total-net').textContent      = fmt(net);
+  document.getElementById('total-fixed').textContent    = fmt(fixed);
+  document.getElementById('sprint-fuel').textContent = fmt(state.sprintFuel);
+
+  // Capacity meter
+  const barPct = net > 0 ? Math.min(100, (fixed / net) * 100) : 0;
+  const bar = document.getElementById('cm-bar-p0');
+  bar.style.width = barPct + '%';
+  bar.style.background = pct > 70 ? 'var(--danger)' : pct > 50 ? 'var(--warn)' : 'var(--safe)';
+
+  document.getElementById('cm-net').textContent      = fmt(net);
+  document.getElementById('cm-fixed').textContent    = fmt(fixed);
+  document.getElementById('cm-fuel').textContent = fmt(state.sprintFuel);
+  document.getElementById('cm-pct').textContent      = pct + '%';
+
+  // Capacity color
+  const capEl = document.getElementById('sprint-fuel');
+  capEl.style.color = state.sprintFuel <= 0 ? 'var(--danger)' :
+                      state.sprintFuel < net * 0.2 ? 'var(--warn)' : 'var(--sprint)';
+}
+
+// Listen to all input changes via event delegation
+document.addEventListener('input', function(e) {
+  if (e.target.matches('.inc-gross,.inc-rate,.fix-amt')) recalcCapacity();
+  if (e.target.matches('.cat-alloc')) recalcLoad();
+  if (e.target.matches('.goal-amt'))  recalcGoals();
+  if (e.target.id === 'habit-anchor' || e.target.id === 'habit-freq') updateHabitPreview();
+});
+
+// ══════════════════════════════════════════════════════
+// PHASE 1 — GOALS
+// ══════════════════════════════════════════════════════
+function syncPhase1() {
+  document.getElementById('p1-fuel').textContent = '$' + Math.round(state.sprintFuel).toLocaleString();
+  recalcGoals();
+}
+
+function recalcGoals() {
+  let total = 0;
+  document.querySelectorAll('.goal-amt').forEach(inp => {
+    total += parseFloat(inp.value) || 0;
+  });
+  state.totalGoals       = total;
+  state.discretionaryAvail = Math.max(0, state.sprintFuel - total);
+  const savingsRate = state.totalNet > 0 ? ((total / state.totalNet) * 100).toFixed(1) : '0.0';
+
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  document.getElementById('total-goals').textContent         = fmt(total);
+  document.getElementById('discretionary-avail').textContent = fmt(state.discretionaryAvail);
+  document.getElementById('savings-rate-display').textContent = savingsRate + '%';
+
+  const savEl = document.getElementById('discretionary-avail');
+  savEl.style.color = state.discretionaryAvail < 0 ? 'var(--danger)' : 'var(--sprint)';
+}
+
+function addGoalRow() {
+  const wrap = document.getElementById('goal-rows');
+  const id = 'goal-' + Date.now();
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'goal-card';
+  div.innerHTML = `
+    <div>
+      <input class="finp goal-name-inp" type="text" placeholder="Goal name" style="background:transparent;border:none;font-size:13px;font-weight:500;color:var(--w);outline:none;width:100%;">
+      <small style="font-size:10px;color:var(--g);">Custom goal</small>
+    </div>
+    <div class="finp-dollar"><input class="finp goal-amt" type="number" placeholder="0" oninput="recalcGoals()"></div>
+    <button class="cat-remove" onclick="document.getElementById('${id}').remove();recalcGoals()">✕</button>`;
+  wrap.appendChild(div);
+}
+
+// ══════════════════════════════════════════════════════
+// PHASE 2 — LOAD BUILDER
+// ══════════════════════════════════════════════════════
+function syncPhase2() {
+  recalcLoad();
+}
+
+function renderCatRows() {
+  const wrap = document.getElementById('cat-rows');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  state.categories.forEach((cat, i) => {
+    const vel = cat.velocity;
+    let velBadge = '';
+    if (vel === null) {
+      velBadge = `<span class="vel-badge vel-new">No history</span>`;
+    } else {
+      const alloc = cat.alloc || 0;
+      const ratio = alloc > 0 ? vel / alloc : 0;
+      if (ratio > 1.1)      velBadge = `<span class="vel-badge vel-over">↑ $${Math.round(vel)}/mo avg</span>`;
+      else if (ratio > 0.85) velBadge = `<span class="vel-badge vel-near">~ $${Math.round(vel)}/mo avg</span>`;
+      else                   velBadge = `<span class="vel-badge vel-good">↓ $${Math.round(vel)}/mo avg</span>`;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+    row.id = 'cat-row-' + i;
+    row.innerHTML = `
+      <div class="cat-dot" style="background:${cat.color};border-radius:50%;"></div>
+      <div class="cat-name">${cat.name}<small>${cat.hint || ''}</small></div>
+      <div class="cat-velocity" style="text-align:center;">
+        ${velBadge}
+        <div style="margin-top:4px;">
+          <input class="finp" type="number" placeholder="Past avg" style="width:80px;padding:4px 8px;font-size:11px;background:var(--navy);border:1px solid rgba(255,255,255,0.06);"
+            value="${vel !== null ? vel : ''}"
+            oninput="updateVelocity(${i}, this.value)" title="Enter your historical average spend for this category">
+        </div>
+      </div>
+      <div class="cat-alloc-wrap">
+        <input class="cat-alloc" type="number" placeholder="0"
+          value="${cat.alloc || ''}"
+          oninput="updateCatAlloc(${i}, this.value)">
+      </div>
+      <button class="cat-remove" onclick="removeCat(${i})">Remove</button>`;
+    wrap.appendChild(row);
+  });
+  recalcLoad();
+}
+
+function updateCatAlloc(i, val) {
+  state.categories[i].alloc = parseFloat(val) || 0;
+  recalcLoad();
+}
+
+function updateVelocity(i, val) {
+  state.categories[i].velocity = val !== '' ? parseFloat(val) : null;
+  // Re-render just the velocity badge in that row
+  const row = document.getElementById('cat-row-' + i);
+  if (!row) return;
+  const vel = state.categories[i].velocity;
+  const alloc = state.categories[i].alloc || 0;
+  let badge = '';
+  if (vel === null) {
+    badge = `<span class="vel-badge vel-new">No history</span>`;
+  } else {
+    const ratio = alloc > 0 ? vel / alloc : 0;
+    if (ratio > 1.1)       badge = `<span class="vel-badge vel-over">↑ $${Math.round(vel)}/mo avg</span>`;
+    else if (ratio > 0.85) badge = `<span class="vel-badge vel-near">~ $${Math.round(vel)}/mo avg</span>`;
+    else                   badge = `<span class="vel-badge vel-good">↓ $${Math.round(vel)}/mo avg</span>`;
+  }
+  const velDiv = row.querySelector('.cat-velocity');
+  if (velDiv) {
+    const inp = velDiv.querySelector('input');
+    velDiv.innerHTML = badge + '<div style="margin-top:4px;"><input class="finp" type="number" placeholder="Past avg" style="width:80px;padding:4px 8px;font-size:11px;background:var(--navy);border:1px solid rgba(255,255,255,0.06);" oninput="updateVelocity(' + i + ', this.value)" title="Enter your historical average spend for this category"></div>';
+    if (inp) velDiv.querySelector('input').value = inp.value;
+  }
+}
+
+function removeCat(i) {
+  state.categories.splice(i, 1);
+  renderCatRows();
+}
+
+function addCatRow() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  if (!name) return;
+  const color = document.getElementById('new-cat-color').value;
+  state.categories.push({ name, color, velocity: null, alloc: 0, hint: '' });
+  document.getElementById('new-cat-name').value = '';
+  renderCatRows();
+}
+
+function recalcLoad() {
+  state.totalLoad = state.categories.reduce((s, c) => s + (c.alloc || 0), 0);
+  const cap     = state.discretionaryAvail || state.sprintFuel;
+  const remain  = cap - state.totalLoad;
+  const pct     = cap > 0 ? Math.min(140, (state.totalLoad / cap) * 100) : 0;
+
+  const fmt = n => '$' + Math.round(Math.abs(n)).toLocaleString();
+
+  const lmLoad   = document.getElementById('lm-load');
+  const lmCap    = document.getElementById('lm-cap');
+  const lmRemain = document.getElementById('lm-remain');
+  const lmBar    = document.getElementById('lm-bar');
+  const lmStatus = document.getElementById('lm-status');
+
+  if (lmLoad)   lmLoad.textContent   = '$' + Math.round(state.totalLoad).toLocaleString();
+  if (lmCap)    lmCap.textContent    = '$' + Math.round(cap).toLocaleString();
+  if (lmRemain) {
+    lmRemain.textContent  = (remain >= 0 ? '+' : '-') + fmt(remain);
+    lmRemain.style.color  = remain >= 0 ? 'var(--em)' : 'var(--danger)';
+  }
+
+  if (lmBar) {
+    lmBar.style.width      = Math.min(100, pct) + '%';
+    lmBar.style.background = pct > 100 ? 'var(--danger)' : pct > 85 ? 'var(--warn)' : 'var(--safe)';
+  }
+
+  if (lmStatus) {
+    if (cap === 0) {
+      lmStatus.textContent = 'Complete Scan phase first to see Sprint Fuel™.';
+      lmStatus.style.color = 'var(--g)';
+    } else if (pct > 100) {
+      lmStatus.textContent = `⚠ SPRINT OVERLOADED — Load exceeds capacity by ${fmt(Math.abs(remain))}. Reduce allocations or move items to Backlog.`;
+      lmStatus.style.color = 'var(--danger)';
+    } else if (pct > 85) {
+      lmStatus.textContent = `SSL™ at ${Math.round(pct)}% of capacity. ${fmt(remain)} unallocated — approaching limit.`;
+      lmStatus.style.color = 'var(--warn)';
+    } else if (pct > 0) {
+      lmStatus.textContent = `SSL™ at ${Math.round(pct)}% of capacity. ${fmt(remain)} remaining unallocated.`;
+      lmStatus.style.color = 'var(--safe)';
+    } else {
+      lmStatus.textContent = 'Enter allocations below to build your sprint load.';
+      lmStatus.style.color = 'var(--g)';
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// BACKLOG
+// ══════════════════════════════════════════════════════
+function addBacklogItem() {
+  const name   = document.getElementById('bl-name').value.trim();
+  const amt    = parseFloat(document.getElementById('bl-amt').value) || 0;
+  const sprint = document.getElementById('bl-sprint').value;
+  if (!name) return;
+  state.backlog.push({ name, amt, sprint });
+  document.getElementById('bl-name').value = '';
+  document.getElementById('bl-amt').value  = '';
+  renderBacklog();
+}
+
+function renderBacklog() {
+  const wrap = document.getElementById('backlog-rows');
+  if (!wrap) return;
+  if (!state.backlog.length) {
+    wrap.innerHTML = '<div class="backlog-empty" style="text-align:center;padding:24px;color:var(--g);font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.12em;">BACKLOG EMPTY</div>';
+    return;
+  }
+  wrap.innerHTML = state.backlog.map((item, i) =>
+    `<div class="backlog-item">
+      <div class="backlog-name">${item.name}</div>
+      <div class="backlog-sprint">${item.sprint}</div>
+      <div class="backlog-amt">$${Math.round(item.amt).toLocaleString()}</div>
+      <button class="cat-remove" onclick="removeBacklog(${i})">✕</button>
+    </div>`
+  ).join('');
+}
+
+function removeBacklog(i) {
+  state.backlog.splice(i, 1);
+  renderBacklog();
+}
+
+// ══════════════════════════════════════════════════════
+// PHASE 3 — IMPEDIMENTS
+// ══════════════════════════════════════════════════════
+function addIntention() {
+  const ifTxt   = document.getElementById('int-if').value.trim();
+  const thenTxt = document.getElementById('int-then').value.trim();
+  if (!ifTxt || !thenTxt) return;
+  const id = 'int-' + Date.now();
+  state.intentions.push({ if: ifTxt, then: thenTxt, id });
+  const div = document.createElement('div');
+  div.className = 'intention-row';
+  div.id = id;
+  div.innerHTML = `
+    <span class="if">IF</span> ${ifTxt}
+    <span class="then">THEN</span> ${thenTxt}
+    <button class="cat-remove" onclick="removeRow('${id}')" style="float:right;margin-top:-4px;">✕</button>`;
+  document.getElementById('intention-rows').appendChild(div);
+  document.getElementById('int-if').value   = '';
+  document.getElementById('int-then').value = '';
+}
+
+function addImpediment() {
+  const desc = document.getElementById('imp-desc').value.trim();
+  const sev  = document.getElementById('imp-sev').value;
+  if (!desc) return;
+  const id = 'imp-' + Date.now();
+  state.impediments.push({ desc, sev, id });
+  const empty = document.getElementById('imp-empty');
+  if (empty) empty.remove();
+  const colors = { high: 'var(--danger)', med: 'var(--amber)', low: 'var(--g)' };
+  const labels = { high: '🔴 HIGH', med: '🟡 MEDIUM', low: '🟢 LOW' };
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'background:var(--card2);border:1px solid rgba(240,160,80,0.12);border-radius:8px;padding:12px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;';
+  div.innerHTML = `
+    <div>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:${colors[sev]};letter-spacing:0.1em;">${labels[sev]} RISK</span>
+      <div style="font-size:13px;color:var(--gl);margin-top:3px;">${desc}</div>
+    </div>
+    <button class="cat-remove" onclick="removeRow('${id}')">✕</button>`;
+  document.getElementById('impediment-rows').appendChild(div);
+  document.getElementById('imp-desc').value = '';
+}
+
+function removeRow(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function updateHabitPreview() {
+  const anchor = document.getElementById('habit-anchor')?.value.trim() || 'your anchor habit';
+  const freq   = document.getElementById('habit-freq')?.value || 'Weekly';
+  const prev   = document.getElementById('habit-preview');
+  if (prev) prev.innerHTML = `After <strong style="color:var(--em)">${anchor}</strong>, I run my sprint check-in. <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--g);">(${freq})</span>`;
+}
+
+// ══════════════════════════════════════════════════════
+// LAUNCH DASHBOARD
+// ══════════════════════════════════════════════════════
+function launchDashboard() {
+  collectPhaseData(3);
+  goPhase(4);
+}
+
+// ══════════════════════════════════════════════════════
+// PHASE 4 — DASHBOARD
+// ══════════════════════════════════════════════════════
+function syncDashboard() {
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+
+  // Top stats
+  document.getElementById('d-fuel').textContent   = fmt(state.sprintFuel);
+  document.getElementById('d-goals').textContent      = fmt(state.totalGoals);
+  document.getElementById('d-load').textContent       = fmt(state.totalLoad);
+  const cap = state.discretionaryAvail || state.sprintFuel;
+  const loadPct = cap > 0 ? Math.round((state.totalLoad / cap) * 100) : 0;
+  document.getElementById('d-load-status').textContent = loadPct + '% of discretionary capacity';
+  const savRate = state.totalNet > 0 ? ((state.totalGoals / state.totalNet) * 100).toFixed(1) : '0.0';
+  document.getElementById('d-savings-rate-lbl').textContent = savRate + '% savings rate';
+
+  // Sprint goal
+  const goalTxt = document.getElementById('sprint-goal-txt')?.value || '';
+  document.getElementById('d-sprint-goal').textContent = goalTxt ? `"${goalTxt}"` : '"No sprint goal entered."';
+
+  // Health score
+  calcHealthScore();
+
+  // Burndown
+  drawBurndown();
+
+  // Category burn bars
+  renderBurnBars();
+
+  // Backlog in dashboard
+  const dbl = document.getElementById('d-backlog');
+  if (dbl) {
+    if (!state.backlog.length) {
+      dbl.innerHTML = '<div style="font-size:12px;color:var(--g);padding:10px 0;">No backlog items.</div>';
+    } else {
+      dbl.innerHTML = state.backlog.map(b =>
+        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;">
+          <span style="color:var(--gl);">${b.name}</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--pu);font-size:10px;">${b.sprint}</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--gold);">${fmt(b.amt)}</span>
+        </div>`
+      ).join('');
+    }
+  }
+}
+
+// ── Health Score ──────────────────────────────────────
+function calcHealthScore() {
+  let score = 0;
+  const factors = [];
+  const cap = state.discretionaryAvail || state.sprintFuel;
+
+  // Factor 1: Sprint Goal defined (15 pts)
+  const hasGoal = (document.getElementById('sprint-goal-txt')?.value || '').trim().length > 0;
+  const f1 = hasGoal ? 15 : 0;
+  score += f1;
+  factors.push({ label: 'Sprint Goal Defined', pts: f1, max: 15, color: f1 > 0 ? 'var(--em)' : 'var(--danger)' });
+
+  // Factor 2: Savings rate (25 pts)
+  const savRate = state.totalNet > 0 ? state.totalGoals / state.totalNet : 0;
+  const f2 = savRate >= 0.2 ? 25 : savRate >= 0.15 ? 22 : savRate >= 0.10 ? 16 : savRate >= 0.05 ? 8 : 0;
+  score += f2;
+  factors.push({ label: 'Savings Rate (' + (savRate * 100).toFixed(0) + '%)', pts: f2, max: 25, color: f2 >= 20 ? 'var(--em)' : f2 >= 10 ? 'var(--warn)' : 'var(--danger)' });
+
+  // Factor 3: Load vs Capacity (30 pts)
+  const loadRatio = cap > 0 ? state.totalLoad / cap : 1;
+  const f3 = loadRatio <= 0.90 ? 30 : loadRatio <= 1.0 ? 22 : loadRatio <= 1.10 ? 10 : 0;
+  score += f3;
+  factors.push({ label: 'Load vs. Capacity (' + Math.round(loadRatio * 100) + '%)', pts: f3, max: 30, color: f3 >= 25 ? 'var(--em)' : f3 >= 15 ? 'var(--warn)' : 'var(--danger)' });
+
+  // Factor 4: Velocity awareness (15 pts — has at least 1 velocity entered)
+  const velCount = state.categories.filter(c => c.velocity !== null).length;
+  const f4 = velCount >= 3 ? 15 : velCount >= 1 ? 8 : 0;
+  score += f4;
+  factors.push({ label: 'Velocity Data (' + velCount + ' categories)', pts: f4, max: 15, color: f4 >= 12 ? 'var(--em)' : f4 > 0 ? 'var(--warn)' : 'var(--g)' });
+
+  // Factor 5: Impediment register (15 pts)
+  const hasIntentions = document.querySelectorAll('.intention-row').length > 0;
+  const f5 = hasIntentions ? 15 : 0;
+  score += f5;
+  factors.push({ label: 'Implementation Intentions', pts: f5, max: 15, color: f5 > 0 ? 'var(--em)' : 'var(--g)' });
+
+  // Grade
+  let grade, label, color;
+  if      (score >= 88) { grade = 'A+'; label = 'Sprint Ready'; color = 'var(--em)'; }
+  else if (score >= 76) { grade = 'A';  label = 'Strong Plan';  color = 'var(--em)'; }
+  else if (score >= 62) { grade = 'B';  label = 'Solid Setup';  color = '#7dd4a0'; }
+  else if (score >= 48) { grade = 'C';  label = 'Needs Work';   color = 'var(--gold)'; }
+  else if (score >= 32) { grade = 'D';  label = 'At Risk';      color = 'var(--warn)'; }
+  else                  { grade = 'F';  label = 'Not Ready';    color = 'var(--danger)'; }
+
+  document.getElementById('health-grade').textContent       = grade;
+  document.getElementById('health-grade').style.color       = color;
+  document.getElementById('health-score-num').textContent   = score + '/100';
+  document.getElementById('health-label').textContent       = label;
+  document.getElementById('health-label').style.color       = color;
+
+  // Detail
+  const weakest = factors.filter(f => f.pts < f.max).map(f => f.label.split('(')[0].trim()).slice(0, 2);
+  document.getElementById('health-detail').textContent = weakest.length
+    ? 'Strengthen: ' + weakest.join(', ') + '.'
+    : 'All factors optimized — sprint is fully loaded and protected.';
+
+  // Ring
+  const circle = document.getElementById('health-ring-circle');
+  const circumference = 238.76;
+  const offset = circumference - (score / 100) * circumference;
+  circle.style.strokeDashoffset = offset;
+  circle.style.stroke = color;
+
+  // Factor bars
+  document.getElementById('health-factors').innerHTML = factors.map(f => {
+    const pct = Math.round((f.pts / f.max) * 100);
+    return `<div style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.08em;">${f.label}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:${f.color}">${f.pts}/${f.max}</span>
+      </div>
+      <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${f.color};border-radius:2px;transition:width 0.5s;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Burndown Chart ────────────────────────────────────
+function drawBurndown() {
+  const canvas = document.getElementById('burndown-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const daysInSprint = calState.length > 0 ? calState.length : (calState.startDate && calState.endDate ? Math.round((calState.endDate - calState.startDate)/86400000)+1 : 14);
+  const cap = state.discretionaryAvail || state.sprintFuel;
+  if (cap <= 0) {
+    ctx.fillStyle = 'rgba(136,146,164,0.3)';
+    ctx.font = '12px DM Sans, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Complete sprint setup to see burndown chart', W / 2, H / 2);
+    return;
+  }
+
+  const pad = { top: 16, right: 20, bottom: 36, left: 56 };
+  const cw = W - pad.left - pad.right;
+  const ch = H - pad.top - pad.bottom;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (ch / 4) * i;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke();
+    // Y label
+    const val = cap - (cap / 4) * i;
+    ctx.fillStyle = 'rgba(136,146,164,0.5)';
+    ctx.font = '9px DM Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('$' + Math.round(val / 1000) + 'k', pad.left - 6, y + 3);
+  }
+  for (let d = 0; d <= daysInSprint; d += 5) {
+    const x = pad.left + (cw / daysInSprint) * d;
+    ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + ch); ctx.stroke();
+    ctx.fillStyle = 'rgba(136,146,164,0.5)';
+    ctx.font = '9px DM Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('D' + d, x, pad.top + ch + 16);
+  }
+
+  // Ideal line (dashed, light gray)
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = 'rgba(136,146,164,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left + cw, pad.top + ch);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Projected line based on actuals + linear extrapolation
+  const today = new Date().getDate();
+  const spentSoFar = Object.values(state.actuals).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+  const dailyRate  = today > 0 ? spentSoFar / today : 0;
+
+  // Build projected curve
+  const pts = [];
+  for (let d = 0; d <= daysInSprint; d++) {
+    let remaining;
+    if (d <= today) {
+      remaining = cap - (dailyRate * d);
+    } else {
+      remaining = cap - spentSoFar - (dailyRate * (d - today));
+    }
+    remaining = Math.max(0, remaining);
+    const x = pad.left + (cw / daysInSprint) * d;
+    const y = pad.top + ch - (remaining / cap) * ch;
+    pts.push({ x, y });
+  }
+
+  // Gradient fill under projected line
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  grad.addColorStop(0, 'rgba(79,195,247,0.12)');
+  grad.addColorStop(1, 'rgba(79,195,247,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pad.top + ch);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length - 1].x, pad.top + ch);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Projected line
+  ctx.strokeStyle = 'var(--sprint)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.stroke();
+
+  // Today marker
+  const todayX = pad.left + (cw / daysInSprint) * Math.min(today, daysInSprint);
+  ctx.strokeStyle = 'rgba(201,168,76,0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(todayX, pad.top); ctx.lineTo(todayX, pad.top + ch); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'var(--gold)';
+  ctx.font = '9px DM Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('TODAY', todayX, pad.top - 2);
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(136,146,164,0.5)';
+  ctx.font = '9px DM Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPRINT DAY', pad.left + cw / 2, H - 4);
+}
+
+// ── Category Burn Bars ────────────────────────────────
+function renderBurnBars() {
+  const wrap = document.getElementById('burn-bars');
+  if (!wrap) return;
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+
+  wrap.innerHTML = state.categories.filter(c => c.alloc > 0).map((cat, i) => {
+    const actual  = parseFloat(state.actuals[cat.name] || 0);
+    const alloc   = cat.alloc;
+    const remain  = Math.max(0, alloc - actual);
+    const pct     = alloc > 0 ? Math.min(100, (actual / alloc) * 100) : 0;
+    const barColor = pct > 90 ? 'var(--danger)' : pct > 70 ? 'var(--warn)' : cat.color;
+    return `<div class="burn-bar-row">
+      <div class="burn-bar-name" title="${cat.name}">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cat.color};margin-right:6px;"></span>${cat.name}
+      </div>
+      <div class="burn-bar-track">
+        <div class="burn-bar-fill" style="width:${pct}%;background:${barColor};"></div>
+      </div>
+      <div class="burn-bar-pct" style="color:${barColor}">${Math.round(pct)}%</div>
+      <div class="burn-bar-remain" style="color:${remain < alloc * 0.1 ? 'var(--danger)' : 'var(--g)'}">${fmt(remain)}</div>
+      <div>
+        <div class="finp-dollar" style="position:relative;">
+          <input type="number" placeholder="0" min="0"
+            style="width:100%;background:var(--navy3);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:5px 6px 5px 20px;color:var(--w);font-family:'DM Mono',monospace;font-size:11px;outline:none;"
+            value="${actual || ''}"
+            oninput="updateActual('${cat.name}', this.value)">
+          <span style="position:absolute;left:6px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:11px;pointer-events:none;">$</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateActual(catName, val) {
+  state.actuals[catName] = parseFloat(val) || 0;
+  renderBurnBars();
+  drawBurndown();
+}
+
+// ══════════════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════════════
+function exportSprint() {
+  const mo    = document.getElementById('sprint-month')?.value || '';
+  const yr    = document.getElementById('sprint-year')?.value  || '';
+  const num   = document.getElementById('sprint-num')?.value   || '1';
+  const goal  = document.getElementById('sprint-goal-txt')?.value || 'None';
+  const fmt   = n => '$' + Math.round(n).toLocaleString();
+  const cap   = state.discretionaryAvail || state.sprintFuel;
+
+  const catLines = state.categories.filter(c => c.alloc > 0).map(c => {
+    const actual = state.actuals[c.name] || 0;
+    const pct    = c.alloc > 0 ? Math.round((actual / c.alloc) * 100) : 0;
+    return `  ${c.name}: Alloc ${fmt(c.alloc)} | Spent ${fmt(actual)} (${pct}%)`;
+  }).join('\n');
+
+  const backlogLines = state.backlog.length
+    ? state.backlog.map(b => `  [${b.sprint}] ${b.name} — ${fmt(b.amt)}`).join('\n')
+    : '  None';
+
+  const retroWell    = document.getElementById('retro-well')?.value    || '—';
+  const retroImprove = document.getElementById('retro-improve')?.value || '—';
+  const retroEvolve  = document.getElementById('retro-evolve')?.value  || '—';
+
+  const report = `SPRINT BUDGET PLANNER™ — SCALE FRAMEWORK
+ScaledMoney|OS™ · Lean Dollar: Core
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SPRINT ${num} · ${mo} ${yr}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SPRINT GOAL
+${goal}
+
+CAPACITY SUMMARY
+  Gross Income:       ${fmt(state.totalNet / 0.72)} (estimated)
+  Net Take-Home:      ${fmt(state.totalNet)}
+  Fixed Costs:        ${fmt(state.totalFixed)}
+  Sprint Fuel™:   ${fmt(state.sprintFuel)}
+  Goals Committed:    ${fmt(state.totalGoals)}
+  Discretionary Cap:  ${fmt(cap)}
+
+DISCRETIONARY LOAD
+  Total Load:         ${fmt(state.totalLoad)}
+  Load / Capacity:    ${cap > 0 ? Math.round((state.totalLoad / cap) * 100) : 0}%
+
+CATEGORY ALLOCATIONS + ACTUALS
+${catLines || '  None entered'}
+
+BUDGET BACKLOG
+${backlogLines}
+
+RETROSPECTIVE
+  What Went Well:    ${retroWell}
+  Improve Next:      ${retroImprove}
+  Evolve (Sprint ${parseInt(num) + 1}): ${retroEvolve}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generated by Sprint Budget Planner™
+ScaledMoney|OS™ · SCALE Framework™
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+  const blob = new Blob([report], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `Sprint-${num}-${mo}-${yr}-BudgetPlan.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════
+// MEMBERSHIP & TIER
+// ══════════════════════════════════════════════════════
+let memberTier = 'free'; // 'free' | 'paid'
+let activeSprint = 0;    // 0, 1, or 2
+const sprintSlots = [null, null, null]; // saved sprint snapshots for 3-sprint planner
+
+function selectTier(tier) {
+  memberTier = tier;
+  document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tier === 'paid' ? 'tier-paid-btn' : 'tier-free-btn').classList.add('active');
+  const proFeats = ['feat-save','feat-3sprint','feat-velocity'];
+  proFeats.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = tier === 'paid' ? '1' : '0.4';
+  });
+}
+
+function enterPlanner() {
+  document.getElementById('member-gate').style.display = 'none';
+  document.getElementById('member-bar').style.display  = 'flex';
+
+  if (memberTier === 'paid') {
+    // Update badge
+    const badge = document.getElementById('member-bar-badge');
+    badge.className = 'member-badge badge-paid';
+    badge.textContent = '★ PRO';
+    document.getElementById('member-bar-tier').textContent = '· Lean Dollar Pro';
+
+    // Enable save button
+    const saveBtn = document.getElementById('save-btn');
+    saveBtn.className = 'save-btn-bar save-btn-enabled';
+    saveBtn.title = 'Save this sprint plan';
+
+    // Show 3-sprint bar
+    document.getElementById('three-sprint-bar').style.display = 'block';
+
+    // Show retro save button
+    const retroSave = document.getElementById('retro-save-btn');
+    if (retroSave) retroSave.style.display = 'inline-flex';
+
+    // Try to load saved sprints
+    loadSavedSprints();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// SAVE / LOAD — uses window.storage (persistent)
+// ══════════════════════════════════════════════════════
+async function saveSprint() {
+  if (memberTier !== 'paid') {
+    showSaveIndicator('⚠ Pro feature — upgrade to save', '#f0a050');
+    return;
+  }
+  const snap = buildSnapshot(activeSprint);
+  const key  = 'sprint:slot:' + activeSprint;
+  try {
+    const result = await window.storage.set(key, JSON.stringify(snap), false);
+    if (result) {
+      sprintSlots[activeSprint] = snap;
+      updateSprintTabs();
+      showSaveIndicator('✓ Sprint ' + (activeSprint + 1) + ' saved', 'var(--em)');
+    } else {
+      showSaveIndicator('Save failed — try again', 'var(--danger)');
+    }
+  } catch(e) {
+    showSaveIndicator('Save error: ' + e.message, 'var(--danger)');
+  }
+}
+
+async function loadSavedSprints() {
+  for (let i = 0; i < 3; i++) {
+    try {
+      const result = await window.storage.get('sprint:slot:' + i, false);
+      if (result && result.value) {
+        sprintSlots[i] = JSON.parse(result.value);
+      }
+    } catch(e) { /* slot empty */ }
+  }
+  updateSprintTabs();
+}
+
+function buildSnapshot(slotIndex) {
+  // Collect all current form values into a plain object
+  const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  
+  const incRows = [];
+  document.querySelectorAll('#income-rows .fgrid').forEach(row => {
+    incRows.push({
+      name:  row.querySelector('.inc-name')?.value  || '',
+      gross: row.querySelector('.inc-gross')?.value || '',
+      rate:  row.querySelector('.inc-rate')?.value  || '',
+    });
+  });
+
+  const fixRows = [];
+  document.querySelectorAll('#fixed-rows .fgrid').forEach(row => {
+    fixRows.push({
+      name: row.querySelector('.fix-name')?.value || '',
+      amt:  row.querySelector('.fix-amt')?.value  || '',
+      cat:  row.querySelector('.fix-cat')?.value  || '',
+    });
+  });
+
+  const goalAmts = [];
+  document.querySelectorAll('.goal-amt').forEach(inp => goalAmts.push(inp.value || ''));
+
+  return {
+    slot:         slotIndex,
+    savedAt:      new Date().toISOString(),
+    sprintNum:    getVal('sprint-num'),
+    sprintGoal:   getVal('sprint-goal-txt'),
+    sprintLength: calState.length,
+    startDate:    calState.startDate ? calState.startDate.toISOString() : null,
+    endDate:      calState.endDate   ? calState.endDate.toISOString()   : null,
+    incRows,
+    fixRows,
+    goalAmts,
+    categories:   state.categories.map(c => ({ ...c })),
+    backlog:       state.backlog.map(b => ({ ...b })),
+    actuals:       { ...state.actuals },
+    retroWell:     getVal('retro-well'),
+    retroImprove:  getVal('retro-improve'),
+    retroEvolve:   getVal('retro-evolve'),
+    totalNet:      state.totalNet,
+    totalFixed:    state.totalFixed,
+    sprintFuel:    state.sprintFuel,
+    totalGoals:    state.totalGoals,
+    totalLoad:     state.totalLoad,
+  };
+}
+
+function restoreSnapshot(snap) {
+  if (!snap) return;
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('sprint-num',      snap.sprintNum);
+  setVal('sprint-goal-txt', snap.sprintGoal);
+
+  // Calendar
+  if (snap.startDate) {
+    calState.startDate = new Date(snap.startDate);
+    calState.viewYear  = calState.startDate.getFullYear();
+    calState.viewMonth = calState.startDate.getMonth();
+  }
+  if (snap.endDate)   calState.endDate = new Date(snap.endDate);
+  calState.length = snap.sprintLength || 7;
+
+  // Re-render calendar
+  renderCal();
+  updateRangeDisplay();
+
+  // Income rows — rebuild
+  const incWrap = document.getElementById('income-rows');
+  incWrap.innerHTML = '';
+  (snap.incRows || []).forEach((row, i) => {
+    addIncomeRow(i === 0);
+    const rows = incWrap.querySelectorAll('.fgrid');
+    const last = rows[rows.length - 1];
+    if (last) {
+      const nameEl  = last.querySelector('.inc-name');  if (nameEl)  nameEl.value  = row.name;
+      const grossEl = last.querySelector('.inc-gross'); if (grossEl) grossEl.value = row.gross;
+      const rateEl  = last.querySelector('.inc-rate');  if (rateEl)  rateEl.value  = row.rate;
+    }
+  });
+
+  // Fixed rows — rebuild
+  const fixWrap = document.getElementById('fixed-rows');
+  fixWrap.innerHTML = '';
+  (snap.fixRows || []).forEach((row, i) => {
+    addFixedRow(i === 0);
+    const rows = fixWrap.querySelectorAll('.fgrid');
+    const last = rows[rows.length - 1];
+    if (last) {
+      const nameEl = last.querySelector('.fix-name'); if (nameEl) nameEl.value = row.name;
+      const amtEl  = last.querySelector('.fix-amt');  if (amtEl)  amtEl.value  = row.amt;
+      const catEl  = last.querySelector('.fix-cat');  if (catEl)  catEl.value  = row.cat;
+    }
+  });
+
+  // Goals
+  const goalInps = document.querySelectorAll('.goal-amt');
+  (snap.goalAmts || []).forEach((v, i) => { if (goalInps[i]) goalInps[i].value = v; });
+
+  // Categories & backlog
+  if (snap.categories) state.categories = snap.categories;
+  if (snap.backlog)    state.backlog    = snap.backlog;
+  if (snap.actuals)    state.actuals    = snap.actuals;
+
+  // Retro
+  setVal('retro-well',    snap.retroWell    || '');
+  setVal('retro-improve', snap.retroImprove || '');
+  setVal('retro-evolve',  snap.retroEvolve  || '');
+
+  // Recalculate
+  recalcCapacity();
+  recalcGoals();
+  renderCatRows();
+  renderBacklog();
+  updateSprintBadge();
+}
+
+function showSaveIndicator(msg, color) {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = color;
+  setTimeout(() => { el.textContent = ''; }, 3500);
+}
+
+// ══════════════════════════════════════════════════════
+// THREE-SPRINT PLANNER
+// ══════════════════════════════════════════════════════
+function switchActiveSprint(idx) {
+  if (memberTier !== 'paid') return;
+
+  // Auto-save current sprint before switching
+  const currentSnap = buildSnapshot(activeSprint);
+  sprintSlots[activeSprint] = currentSnap;
+
+  activeSprint = idx;
+
+  // Update tab styles
+  document.querySelectorAll('.sprint-tab').forEach((t, i) => {
+    t.classList.remove('active');
+    if (i === idx) t.classList.add('active');
+  });
+  document.getElementById('active-sprint-label').textContent = 'SPRINT ' + (idx + 1) + ' ACTIVE';
+
+  // Restore saved snapshot for this slot (if any)
+  if (sprintSlots[idx]) {
+    restoreSnapshot(sprintSlots[idx]);
+  } else {
+    // Fresh sprint — auto-advance sprint number
+    const nextNum = idx + 1;
+    const numEl = document.getElementById('sprint-num');
+    if (numEl) { numEl.value = nextNum; updateSprintBadge(); }
+  }
+}
+
+function updateSprintTabs() {
+  for (let i = 0; i < 3; i++) {
+    const snap   = sprintSlots[i];
+    const datesEl = document.getElementById('stab-dates-' + i);
+    const tab    = document.getElementById('stab-' + i);
+    if (!datesEl || !tab) continue;
+
+    if (snap) {
+      tab.classList.add('done');
+      if (snap.startDate) {
+        const d = new Date(snap.startDate);
+        datesEl.textContent = d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+      }
+    } else {
+      tab.classList.remove('done');
+      datesEl.textContent = 'Not planned';
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// PRINT
+// ══════════════════════════════════════════════════════
+function printPlan() {
+  // Mark current phase panel for print targeting
+  document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('print-target'));
+  // Always print the dashboard (phase 4) summary + phase 0 capacity
+  document.getElementById('phase-4').classList.add('print-target');
+  window.print();
+}
+
+// ══════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Gap Audit™ — Lean Dollar: Core | ScaledMoney|OS™</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@200;300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#080d1a;--navy-mid:#0d1525;--navy-light:#131f35;--card:#0f1a2e;--card2:#0b1422;
+  --gold:#c9a84c;--gold-l:#e2c06a;--gold-d:#8a6f2e;--gold-bg:rgba(201,168,76,0.07);
+  --emerald:#2dd4a0;--em-d:#1a7a5e;--em-bg:rgba(45,212,160,0.07);
+  --purple:#b48cff;--pu-bg:rgba(180,140,255,0.07);
+  --red:#e05555;--red-bg:rgba(224,85,85,0.08);
+  --amber:#f0a050;--white:#f4f1ec;--gray:#8892a4;--gray-l:#bbc3d0;
+  --border:rgba(201,168,76,0.12);--border2:rgba(255,255,255,0.05);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(201,168,76,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.02) 1px,transparent 1px);background-size:56px 56px;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,168,76,0.06),transparent);}
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,13,26,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;padding:0 40px;gap:20px;}
+.logo{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:0.1em;white-space:nowrap;font-weight:500;}
+.logo span{color:var(--gray);font-size:10px;margin-left:6px;}
+.tool-name{font-family:'DM Mono',monospace;font-size:11px;color:var(--white);letter-spacing:0.1em;background:var(--gold-bg);border:1px solid rgba(201,168,76,0.2);padding:4px 14px;border-radius:100px;}
+.step-progress{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(136,146,164,0.25);transition:all 0.35s ease;}
+.step-dot.done{background:var(--emerald);}
+.step-dot.active{background:var(--gold);box-shadow:0 0 10px rgba(201,168,76,0.5);width:24px;border-radius:4px;}
+.step-connector{width:16px;height:1px;background:rgba(136,146,164,0.2);}
+.step-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.1em;margin-left:8px;}
+.page-wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:100px 24px 120px;}
+.step{display:none;}
+.step.active{display:block;animation:stepIn 0.45s cubic-bezier(0.22,1,0.36,1) both;}
+@keyframes stepIn{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+.step-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.step-eyebrow::before{content:'';width:32px;height:1px;background:var(--gold-d);}
+.step-num{font-family:'Playfair Display',serif;font-size:clamp(52px,8vw,90px);font-weight:900;line-height:0.9;color:rgba(201,168,76,0.08);position:absolute;right:0;top:-20px;pointer-events:none;user-select:none;}
+.step-header{position:relative;margin-bottom:10px;}
+.step-title{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,46px);font-weight:900;line-height:1.05;margin-bottom:10px;}
+.step-title em{color:var(--gold);font-style:normal;}
+.step-desc{font-size:15px;color:var(--gray-l);max-width:580px;margin-bottom:40px;line-height:1.75;}
+.field{margin-bottom:22px;}
+.field-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:8px;}
+.field-hint{font-size:11px;color:var(--gray);margin-top:5px;line-height:1.5;}
+.inp{width:100%;background:var(--navy-light);border:1px solid rgba(201,168,76,0.18);border-radius:10px;padding:13px 18px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.08);}
+.inp::placeholder{color:rgba(136,146,164,0.5);}
+.inp-prefix{position:relative;}
+.inp-prefix::before{content:attr(data-prefix);position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:16px;pointer-events:none;z-index:1;}
+.inp-prefix .inp{padding-left:34px;}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'▾';position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--gold);pointer-events:none;font-size:14px;}
+select.inp{appearance:none;cursor:pointer;}
+select.inp option{background:var(--navy-mid);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.btn-row{display:flex;gap:12px;align-items:center;margin-top:36px;flex-wrap:wrap;}
+.btn-primary{background:var(--gold);color:var(--navy);border:none;border-radius:10px;padding:14px 32px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:0.02em;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:var(--gold-l);transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,168,76,0.28);}
+.btn-secondary{background:transparent;color:var(--gray-l);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:13px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;cursor:pointer;transition:all 0.2s;}
+.btn-secondary:hover{border-color:rgba(201,168,76,0.3);color:var(--gold);}
+.cat-section{margin-bottom:40px;}
+.cat-section-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--gold-d);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.cat-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.2),transparent);}
+.cat-card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:22px 24px;margin-bottom:12px;transition:border-color 0.2s;}
+.cat-card:hover{border-color:rgba(201,168,76,0.15);}
+.cat-card.has-value{border-color:rgba(201,168,76,0.15);}
+.cat-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;}
+.cat-icon{font-size:24px;flex-shrink:0;width:40px;text-align:center;margin-top:2px;}
+.cat-info{flex:1;}
+.cat-name{font-size:15px;font-weight:500;color:var(--white);margin-bottom:2px;}
+.cat-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;padding:2px 8px;border-radius:100px;display:inline-block;margin-bottom:4px;}
+.tag-waste{background:rgba(224,85,85,0.12);color:var(--red);border:1px solid rgba(224,85,85,0.2);}
+.tag-forgotten{background:rgba(180,140,255,0.1);color:var(--purple);border:1px solid rgba(180,140,255,0.2);}
+.tag-optimize{background:rgba(240,160,80,0.1);color:var(--amber);border:1px solid rgba(240,160,80,0.2);}
+.tag-lifestyle{background:rgba(45,212,160,0.08);color:var(--emerald);border:1px solid rgba(45,212,160,0.2);}
+.cat-desc{font-size:12px;color:var(--gray);line-height:1.55;}
+.cat-input-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.cat-inp-wrap{display:flex;align-items:center;gap:8px;flex:0 0 auto;}
+.cat-inp-label{font-size:12px;color:var(--gray);white-space:nowrap;}
+.cat-inp{background:var(--navy-light);border:1px solid rgba(201,168,76,0.15);border-radius:8px;padding:9px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;width:110px;text-align:right;transition:border-color 0.2s;}
+.cat-inp:focus{border-color:var(--gold);}
+.cat-inp::placeholder{color:rgba(136,146,164,0.4);}
+.cat-dollar{color:var(--gold);font-size:15px;flex-shrink:0;}
+.benchmark-bar-wrap{flex:1;min-width:200px;}
+.bm-labels{display:flex;justify-content:space-between;margin-bottom:4px;}
+.bm-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.1em;}
+.bm-label.yours{color:var(--gold);}
+.bm-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;position:relative;overflow:visible;}
+.bm-fill-avg{position:absolute;inset:0 auto 0 0;border-radius:3px;background:rgba(136,146,164,0.3);transition:width 0.5s ease;}
+.bm-fill-you{position:absolute;inset:0 auto 0 0;height:100%;border-radius:3px;background:var(--gold);z-index:1;transition:width 0.5s ease;}
+.bm-fill-you.over{background:var(--red);}
+.bm-fill-you.under{background:var(--emerald);}
+.bm-marker-avg{position:absolute;top:-3px;bottom:-3px;width:2px;background:rgba(255,255,255,0.35);border-radius:1px;z-index:2;transition:left 0.5s ease;}
+.bm-verdict{font-size:11px;margin-top:6px;font-family:'DM Mono',monospace;letter-spacing:0.08em;}
+.bm-verdict.over{color:var(--red);}
+.bm-verdict.under{color:var(--emerald);}
+.bm-verdict.match{color:var(--gray);}
+.cat-stat{margin-top:10px;padding:10px 14px;background:rgba(224,85,85,0.06);border-radius:6px;border-left:3px solid rgba(224,85,85,0.3);font-size:12px;color:var(--gray-l);line-height:1.5;display:none;}
+.cat-stat.show{display:block;}
+.cat-stat strong{color:var(--red);}
+.nat-avg-badge{font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);white-space:nowrap;}
+.running-strip{position:sticky;bottom:0;left:0;right:0;z-index:50;background:rgba(8,13,26,0.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.rs-item{display:flex;flex-direction:column;gap:2px;}
+.rs-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.15em;}
+.rs-value{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);}
+.rs-value.good{color:var(--emerald);}
+.rs-value.bad{color:var(--red);}
+.rs-divider{width:1px;height:36px;background:var(--border2);}
+.whatif-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px 28px 24px;margin-bottom:18px;}
+.whatif-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:12px;}
+.whatif-name{font-size:15px;font-weight:500;margin-bottom:4px;}
+.whatif-current{font-family:'DM Mono',monospace;font-size:12px;color:var(--gray);}
+.whatif-saving{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--emerald);line-height:1;text-align:right;flex-shrink:0;}
+.whatif-saving-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--em-d);letter-spacing:0.12em;text-align:right;margin-top:2px;}
+.slider-row{display:flex;align-items:center;gap:16px;}
+.slider-label-l,.slider-label-r{font-size:12px;color:var(--gray);white-space:nowrap;flex-shrink:0;}
+.slider-label-r{font-family:'DM Mono',monospace;color:var(--gold);min-width:52px;text-align:right;}
+input[type=range].lean-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer;background:linear-gradient(90deg,var(--emerald) var(--pct,0%),rgba(255,255,255,0.08) var(--pct,0%));}
+input[type=range].lean-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--white);border:3px solid var(--emerald);cursor:pointer;box-shadow:0 0 12px rgba(45,212,160,0.3);transition:box-shadow 0.2s;}
+input[type=range].lean-slider::-webkit-slider-thumb:hover{box-shadow:0 0 20px rgba(45,212,160,0.5);}
+.scenario-tip{font-size:12px;color:var(--gray);margin-top:10px;line-height:1.55;}
+.projector-card{background:linear-gradient(135deg,rgba(45,212,160,0.06),rgba(201,168,76,0.04));border:1px solid rgba(45,212,160,0.2);border-radius:16px;padding:36px;margin-bottom:28px;}
+.projector-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.projector-sub{font-size:13px;color:var(--gray-l);margin-bottom:28px;}
+.compound-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.compound-cell{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:18px 16px;text-align:center;}
+.compound-years{font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.15em;margin-bottom:6px;}
+.compound-amount{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--emerald);line-height:1;}
+.compound-amount.gold{color:var(--gold);}
+.compound-desc{font-size:11px;color:var(--gray);margin-top:6px;line-height:1.4;}
+.compound-bar-row{display:flex;gap:6px;align-items:flex-end;height:60px;margin-top:16px;}
+.compound-bar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.compound-bar-fill{width:100%;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--emerald),var(--em-d));transition:height 0.8s cubic-bezier(0.34,1.56,0.64,1);min-height:4px;}
+.compound-bar-yr{font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.1em;}
+.rate-note{font-size:11px;color:var(--gray);text-align:center;margin-top:12px;line-height:1.5;}
+.gap-score-reveal{text-align:center;padding:60px 40px 48px;background:var(--card);border:1px solid var(--border);border-radius:20px;margin-bottom:32px;position:relative;overflow:hidden;}
+.gap-score-reveal::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 0%,rgba(201,168,76,0.06),transparent);pointer-events:none;}
+.score-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.22em;color:var(--gold-d);text-transform:uppercase;margin-bottom:16px;}
+.score-ring{display:inline-flex;align-items:center;justify-content:center;width:160px;height:160px;border-radius:50%;border:4px solid;margin-bottom:20px;position:relative;}
+.score-grade{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;line-height:1;}
+.score-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:8px;}
+.score-summary{font-size:15px;color:var(--gray-l);max-width:500px;margin:0 auto;line-height:1.7;}
+.grade-A{border-color:var(--emerald);color:var(--emerald);}
+.grade-B{border-color:var(--gold);color:var(--gold);}
+.grade-C{border-color:var(--amber);color:var(--amber);}
+.grade-D{border-color:var(--red);color:var(--red);}
+.action-list{margin-top:32px;}
+.action-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--gold-d);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.action-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.action-item{display:flex;align-items:flex-start;gap:16px;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:18px 20px;margin-bottom:10px;transition:all 0.2s;}
+.action-item:hover{border-color:rgba(201,168,76,0.2);transform:translateX(4px);}
+.action-rank{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;font-weight:700;background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid rgba(201,168,76,0.2);margin-top:2px;}
+.action-body{flex:1;}
+.action-name{font-size:14px;font-weight:500;margin-bottom:3px;}
+.action-detail{font-size:12px;color:var(--gray);line-height:1.55;}
+.action-impact{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--emerald);flex-shrink:0;text-align:right;}
+.action-impact-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--em-d);letter-spacing:0.1em;text-align:right;}
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:28px;}
+.stat-cell{background:var(--card);padding:20px 22px;text-align:center;}
+.stat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--gold);line-height:1;margin-bottom:4px;}
+.stat-desc{font-size:11px;color:var(--gray);line-height:1.5;}
+.cta-card{background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(180,140,255,0.05));border:1px solid rgba(201,168,76,0.2);border-radius:16px;padding:36px;text-align:center;margin-top:32px;}
+.cta-card h3{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:10px;}
+.cta-card p{font-size:14px;color:var(--gray-l);max-width:480px;margin:0 auto 24px;line-height:1.7;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:var(--gold-d);border-radius:3px;}
+@media(max-width:700px){
+  .top-bar{padding:0 16px;}
+  .tool-name{display:none;}
+  .page-wrap{padding:84px 16px 120px;}
+  .grid-2{grid-template-columns:1fr;}
+  .compound-grid{grid-template-columns:1fr 1fr;}
+  .stat-strip{grid-template-columns:1fr;}
+  .running-strip{padding:12px 16px;}
+  .cat-input-row{flex-direction:column;align-items:flex-start;}
+  .benchmark-bar-wrap{width:100%;}
+}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="logo">ScaledMoney|OS™<span>· Lean Dollar</span></div>
+  <div class="tool-name">THE GAP AUDIT™</div>
+  <div class="step-progress">
+    <div class="step-dot active" id="sd0"></div><div class="step-connector"></div>
+    <div class="step-dot" id="sd1"></div><div class="step-connector"></div>
+    <div class="step-dot" id="sd2"></div><div class="step-connector"></div>
+    <div class="step-dot" id="sd3"></div>
+    <span class="step-label" id="step-label-top">STEP 1 OF 4</span>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- STEP 1 -->
+<div class="step active" id="step-1">
+  <div class="step-header">
+    <div class="step-num">01</div>
+    <div class="step-eyebrow">The Gap Audit™ · Step 1 of 4</div>
+    <h1 class="step-title">Let's start with <em>your baseline.</em></h1>
+    <p class="step-desc">Two quick numbers — income and current savings rate. This establishes the Gap: the most important metric in your financial life.</p>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat-cell"><div class="stat-num">$1,479</div><div class="stat-desc">Average American monthly savings — before we help you find more</div></div>
+    <div class="stat-cell"><div class="stat-num">34%</div><div class="stat-desc">of Americans have less than $1,000 in emergency savings right now</div></div>
+    <div class="stat-cell"><div class="stat-num">$14K+</div><div class="stat-desc">average annual spend across audited categories — most of it optimizable</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="field">
+      <label class="field-label">Monthly Take-Home Income ($)</label>
+      <div class="inp-prefix" data-prefix="$"><input class="inp" type="number" id="income" placeholder="5,200" min="0"></div>
+      <div class="field-hint">After taxes. If variable, use your conservative average.</div>
+    </div>
+    <div class="field">
+      <label class="field-label">Household Size</label>
+      <div class="select-wrap"><select class="inp" id="hhsize">
+        <option value="1">Just me (1 person)</option>
+        <option value="2" selected>2 people</option>
+        <option value="3">3 people</option>
+        <option value="4">4 people</option>
+        <option value="5">5+ people</option>
+      </select></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="field">
+      <label class="field-label">Current Monthly Savings ($)</label>
+      <div class="inp-prefix" data-prefix="$"><input class="inp" type="number" id="current-savings" placeholder="200" min="0"></div>
+      <div class="field-hint">Include 401k, emergency fund, any savings accounts.</div>
+    </div>
+    <div class="field">
+      <label class="field-label">Your Age</label>
+      <input class="inp" type="number" id="age" placeholder="34" min="16" max="80">
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Housing Cost / Month ($)</label>
+    <div class="inp-prefix" data-prefix="$"><input class="inp" type="number" id="housing" placeholder="1,800" min="0"></div>
+    <div class="field-hint">Rent or mortgage. Excluded from audit — we focus on optimizable categories.</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="goStep(2)">Start the Spending Audit →</button>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step" id="step-2">
+  <div class="step-header">
+    <div class="step-num">02</div>
+    <div class="step-eyebrow">The Gap Audit™ · Step 2 of 4</div>
+    <h1 class="step-title">Where does your <em>money go?</em></h1>
+    <p class="step-desc">Enter your honest monthly spending. The bar shows how you compare to the national average for your household size. Leave blank if a category doesn't apply.</p>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-section-title">🍽 Food &amp; Drink</div>
+    <div class="cat-card" id="card-dining">
+      <div class="cat-top"><div class="cat-icon">🍔</div><div class="cat-info">
+        <div class="cat-name">Dining Out &amp; Takeout</div>
+        <div><span class="cat-tag tag-waste">HIGH WASTE ZONE</span></div>
+        <div class="cat-desc">Restaurants, fast food, delivery apps, work lunches. The #1 category where American households overspend vs. their actual budget.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="dining" placeholder="0" oninput="updateCat('dining',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-dining">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-dining"></div>
+      </div>
+      <div class="cat-stat" id="stat-dining"></div>
+    </div>
+
+    <div class="cat-card" id="card-groceries">
+      <div class="cat-top"><div class="cat-icon">🛒</div><div class="cat-info">
+        <div class="cat-name">Groceries</div>
+        <div><span class="cat-tag tag-optimize">OPTIMIZE</span></div>
+        <div class="cat-desc">Grocery store spending including household supplies. Meal planning cuts this 15–30% with no lifestyle impact.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="groceries" placeholder="0" oninput="updateCat('groceries',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-groceries">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-groceries"></div>
+      </div>
+      <div class="cat-stat" id="stat-groceries"></div>
+    </div>
+
+    <div class="cat-card" id="card-coffee">
+      <div class="cat-top"><div class="cat-icon">☕</div><div class="cat-info">
+        <div class="cat-name">Coffee Shops &amp; Cafés</div>
+        <div><span class="cat-tag tag-waste">HIGH WASTE ZONE</span></div>
+        <div class="cat-desc">Daily coffee, specialty drinks outside the home. Most people dramatically underestimate this number.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="coffee" placeholder="0" oninput="updateCat('coffee',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-coffee">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-coffee"></div>
+      </div>
+      <div class="cat-stat" id="stat-coffee"></div>
+    </div>
+
+    <div class="cat-card" id="card-alcohol">
+      <div class="cat-top"><div class="cat-icon">🍷</div><div class="cat-info">
+        <div class="cat-name">Alcohol &amp; Bars</div>
+        <div><span class="cat-tag tag-lifestyle">LIFESTYLE</span></div>
+        <div class="cat-desc">Beer, wine, spirits at home plus bar spending. Include both home consumption and going out.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="alcohol" placeholder="0" oninput="updateCat('alcohol',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-alcohol">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-alcohol"></div>
+      </div>
+      <div class="cat-stat" id="stat-alcohol"></div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-section-title">📱 Subscriptions &amp; Services</div>
+    <div class="cat-card" id="card-streaming">
+      <div class="cat-top"><div class="cat-icon">📺</div><div class="cat-info">
+        <div class="cat-name">Streaming Services</div>
+        <div><span class="cat-tag tag-forgotten">SUBSCRIPTION CREEP</span></div>
+        <div class="cat-desc">Netflix, Hulu, Disney+, HBO, Peacock, Paramount+, Apple TV+, Spotify, podcasts. Total all active subscriptions.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="streaming" placeholder="0" oninput="updateCat('streaming',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-streaming">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-streaming"></div>
+      </div>
+      <div class="cat-stat" id="stat-streaming"></div>
+    </div>
+
+    <div class="cat-card" id="card-gym">
+      <div class="cat-top"><div class="cat-icon">🏋️</div><div class="cat-info">
+        <div class="cat-name">Gym &amp; Fitness Memberships</div>
+        <div><span class="cat-tag tag-forgotten">FORGOTTEN SPEND</span></div>
+        <div class="cat-desc">Gym memberships, fitness apps, Peloton subscriptions, class packages. 67% of gym members stop going after month 3.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="gym" placeholder="0" oninput="updateCat('gym',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-gym">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-gym"></div>
+      </div>
+      <div class="cat-stat" id="stat-gym"></div>
+    </div>
+
+    <div class="cat-card" id="card-subscriptions">
+      <div class="cat-top"><div class="cat-icon">🔔</div><div class="cat-info">
+        <div class="cat-name">Other Subscriptions &amp; Memberships</div>
+        <div><span class="cat-tag tag-forgotten">SUBSCRIPTION CREEP</span></div>
+        <div class="cat-desc">Amazon Prime, delivery services (DoorDash+, Instacart+), software, apps, news subscriptions, box services, club memberships.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="subscriptions" placeholder="0" oninput="updateCat('subscriptions',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-subscriptions">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-subscriptions"></div>
+      </div>
+      <div class="cat-stat" id="stat-subscriptions"></div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-section-title">📋 Bills You Can Negotiate</div>
+    <div class="cat-card" id="card-insurance">
+      <div class="cat-top"><div class="cat-icon">🛡️</div><div class="cat-info">
+        <div class="cat-name">Auto &amp; Home/Renters Insurance</div>
+        <div><span class="cat-tag tag-optimize">NEGOTIATE ANNUALLY</span></div>
+        <div class="cat-desc">Car + homeowners or renters insurance. Most people pay 18–35% more than necessary by not shopping annually.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="insurance" placeholder="0" oninput="updateCat('insurance',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-insurance">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-insurance"></div>
+      </div>
+      <div class="cat-stat" id="stat-insurance"></div>
+    </div>
+
+    <div class="cat-card" id="card-phone">
+      <div class="cat-top"><div class="cat-icon">📱</div><div class="cat-info">
+        <div class="cat-name">Cell Phone Plan(s)</div>
+        <div><span class="cat-tag tag-optimize">OPTIMIZE</span></div>
+        <div class="cat-desc">Total monthly cell bill for all household lines. MVNOs (Mint, Visible, Cricket) offer identical coverage for 40–70% less than major carriers.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="phone" placeholder="0" oninput="updateCat('phone',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-phone">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-phone"></div>
+      </div>
+      <div class="cat-stat" id="stat-phone"></div>
+    </div>
+
+    <div class="cat-card" id="card-internet">
+      <div class="cat-top"><div class="cat-icon">🌐</div><div class="cat-info">
+        <div class="cat-name">Internet &amp; Cable / Satellite TV</div>
+        <div><span class="cat-tag tag-optimize">NEGOTIATE ANNUALLY</span></div>
+        <div class="cat-desc">Internet, cable/satellite TV, landline. Call annually and threaten to cancel — most carriers cut rates 20–40% to retain you.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="internet" placeholder="0" oninput="updateCat('internet',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-internet">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-internet"></div>
+      </div>
+      <div class="cat-stat" id="stat-internet"></div>
+    </div>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-section-title">🛍 Lifestyle &amp; Personal</div>
+    <div class="cat-card" id="card-clothing">
+      <div class="cat-top"><div class="cat-icon">👗</div><div class="cat-info">
+        <div class="cat-name">Clothing &amp; Apparel</div>
+        <div><span class="cat-tag tag-waste">HIGH WASTE ZONE</span></div>
+        <div class="cat-desc">All clothing purchases. Fast fashion items are worn an average of 7 times. Apply the True Cost Engine™ — fewer, better purchases nearly always cost less overall.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="clothing" placeholder="0" oninput="updateCat('clothing',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-clothing">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-clothing"></div>
+      </div>
+      <div class="cat-stat" id="stat-clothing"></div>
+    </div>
+
+    <div class="cat-card" id="card-personal">
+      <div class="cat-top"><div class="cat-icon">💅</div><div class="cat-info">
+        <div class="cat-name">Personal Care &amp; Beauty</div>
+        <div><span class="cat-tag tag-lifestyle">LIFESTYLE</span></div>
+        <div class="cat-desc">Haircuts, salon, nails, skincare, makeup, grooming products. Average household spends more here than they typically estimate.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="personal" placeholder="0" oninput="updateCat('personal',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-personal">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-personal"></div>
+      </div>
+      <div class="cat-stat" id="stat-personal"></div>
+    </div>
+
+    <div class="cat-card" id="card-entertainment">
+      <div class="cat-top"><div class="cat-icon">🎭</div><div class="cat-info">
+        <div class="cat-name">Entertainment &amp; Recreation</div>
+        <div><span class="cat-tag tag-lifestyle">LIFESTYLE</span></div>
+        <div class="cat-desc">Concerts, events, movies, hobbies, gaming, activities. Intentional entertainment is healthy — unexamined spending is not.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="entertainment" placeholder="0" oninput="updateCat('entertainment',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-entertainment">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-entertainment"></div>
+      </div>
+      <div class="cat-stat" id="stat-entertainment"></div>
+    </div>
+
+    <div class="cat-card" id="card-amazon">
+      <div class="cat-top"><div class="cat-icon">📦</div><div class="cat-info">
+        <div class="cat-name">Online Shopping (Amazon &amp; Others)</div>
+        <div><span class="cat-tag tag-waste">HIGH WASTE ZONE</span></div>
+        <div class="cat-desc">One-click purchases, impulse buys, unplanned online orders. This category is structurally designed to maximize your spending — and it works.</div>
+      </div></div>
+      <div class="cat-input-row">
+        <div class="cat-inp-wrap"><span class="cat-dollar">$</span><input class="cat-inp" type="number" data-cat="amazon" placeholder="0" oninput="updateCat('amazon',this.value)"><span class="cat-inp-label">/mo</span></div>
+        <div class="nat-avg-badge" id="avg-amazon">Avg: —</div>
+        <div class="benchmark-bar-wrap" id="bar-amazon"></div>
+      </div>
+      <div class="cat-stat" id="stat-amazon"></div>
+    </div>
+  </div>
+
+  <div class="btn-row" style="margin-bottom:80px;">
+    <button class="btn-primary" onclick="goStep(3)">Build What-If Scenarios →</button>
+    <button class="btn-secondary" onclick="goStep(1)">← Back</button>
+  </div>
+
+  <div class="running-strip" id="running-strip">
+    <div class="rs-item"><span class="rs-label">MONTHLY SPEND ENTERED</span><span class="rs-value" id="rs-total">$0</span></div>
+    <div class="rs-divider"></div>
+    <div class="rs-item"><span class="rs-label">VS. NATIONAL AVG</span><span class="rs-value" id="rs-vs-avg">—</span></div>
+    <div class="rs-divider"></div>
+    <div class="rs-item"><span class="rs-label">POTENTIAL SAVINGS / MO</span><span class="rs-value good" id="rs-savings">$0</span></div>
+    <div class="rs-divider"></div>
+    <div class="rs-item"><span class="rs-label">ANNUAL OPPORTUNITY</span><span class="rs-value good" id="rs-annual">$0</span></div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step" id="step-3">
+  <div class="step-header">
+    <div class="step-num">03</div>
+    <div class="step-eyebrow">The Gap Audit™ · Step 3 of 4</div>
+    <h1 class="step-title">What if you made <em>these changes?</em></h1>
+    <p class="step-desc">Drag each slider to your realistic target. Watch the monthly savings and compound impact update in real time. This is where the numbers become visceral.</p>
+  </div>
+  <div id="whatif-container"></div>
+  <div class="projector-card">
+    <div class="projector-title">The Compound Savings Projection</div>
+    <div class="projector-sub" id="proj-sub">Enter scenarios above to see your projection.</div>
+    <div class="compound-grid">
+      <div class="compound-cell"><div class="compound-years">10 YEARS</div><div class="compound-amount" id="proj-10">$0</div><div class="compound-desc">Consistent monthly contribution at 7% avg return</div></div>
+      <div class="compound-cell"><div class="compound-years">20 YEARS</div><div class="compound-amount gold" id="proj-20">$0</div><div class="compound-desc">The compounding acceleration zone</div></div>
+      <div class="compound-cell"><div class="compound-years">30 YEARS</div><div class="compound-amount gold" id="proj-30">$0</div><div class="compound-desc">Full compounding power realized</div></div>
+    </div>
+    <div class="compound-bar-row" id="compound-bars"></div>
+    <div class="rate-note">Projections use 7% average annual return (approximate historical S&P 500 inflation-adjusted average). For illustrative purposes only. Not financial advice.</div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="goStep(4)">Generate My Gap Score →</button>
+    <button class="btn-secondary" onclick="goStep(2)">← Back</button>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step" id="step-4">
+  <div class="step-header">
+    <div class="step-num">04</div>
+    <div class="step-eyebrow">The Gap Audit™ · Your Results</div>
+    <h1 class="step-title">Your <em>Gap Score.</em></h1>
+    <p class="step-desc">Based on your savings rate, spending patterns, and optimization opportunity. This score reflects where you are — not where you'll stay.</p>
+  </div>
+
+  <div class="gap-score-reveal">
+    <div class="score-label">YOUR LEAN DOLLAR GAP SCORE™</div>
+    <div class="score-ring grade-B" id="score-ring"><span class="score-grade grade-B" id="score-grade">—</span></div>
+    <div class="score-title" id="score-title">Calculating…</div>
+    <div class="score-summary" id="score-summary"></div>
+  </div>
+
+  <div class="stat-strip" id="results-stats"></div>
+
+  <div class="action-list">
+    <div class="action-title">Prioritized Action List — Ranked by Monthly Impact</div>
+    <div id="action-items"></div>
+  </div>
+
+  <div class="projector-card" style="margin-top:32px;">
+    <div class="projector-title">If You Act on These <span id="action-count">0</span> Changes…</div>
+    <div class="projector-sub" id="results-proj-sub"></div>
+    <div class="compound-grid">
+      <div class="compound-cell"><div class="compound-years">10 YEARS</div><div class="compound-amount" id="res-proj-10">$0</div><div class="compound-desc">At 7% avg annual return</div></div>
+      <div class="compound-cell"><div class="compound-years">20 YEARS</div><div class="compound-amount gold" id="res-proj-20">$0</div><div class="compound-desc">Compounding acceleration</div></div>
+      <div class="compound-cell"><div class="compound-years">30 YEARS</div><div class="compound-amount gold" id="res-proj-30">$0</div><div class="compound-desc">Full compounding realized</div></div>
+    </div>
+  </div>
+
+  <div class="cta-card">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(180,140,255,0.6);letter-spacing:0.2em;margin-bottom:14px;">THE NEXT STEP</div>
+    <h3>Audit complete.<br>Now build the system.</h3>
+    <p>The Gap Audit shows you what's possible. Lean Dollar: Core — with the Income Sprint, PDCA Dollar Cycle, and True Cost Engine™ — gives you the operating system to actually capture it.</p>
+    <button class="btn-primary" style="margin:0 auto;">Get Lean Dollar: Core →</button>
+    <div style="margin-top:16px;font-size:11px;color:var(--gray);">Includes the True Cost Engine™ calculator, Lifestyle Ledger, Sprint Workbook, and 6-module video curriculum.</div>
+  </div>
+
+  <div class="btn-row" style="justify-content:center;margin-top:28px;">
+    <button class="btn-secondary" onclick="goStep(3)">← Back to Scenarios</button>
+    <button class="btn-secondary" onclick="restartAudit()">Start Over</button>
+  </div>
+</div>
+</div><!-- /page-wrap -->
+<script>
+const HH_MULT={1:0.62,2:1.0,3:1.22,4:1.38,5:1.50};
+const BASE_AVG={dining:303,groceries:475,coffee:92,alcohol:49,streaming:67,gym:58,subscriptions:89,insurance:212,phone:127,internet:95,clothing:162,personal:64,entertainment:240,amazon:145};
+const CAT_META={
+  dining:{name:'Dining Out & Takeout',savePct:0.35,tip:'Americans who meal-prep just 2x per week save an average of $180/month on dining.'},
+  groceries:{name:'Groceries',savePct:0.20,tip:'Meal planning and store-brand substitution typically saves 15-25% with no quality loss.'},
+  coffee:{name:'Coffee Shops & Cafes',savePct:0.65,tip:'A $6 daily coffee = $2,190/year. A $100 home espresso machine pays for itself in under 3 weeks.'},
+  alcohol:{name:'Alcohol & Bars',savePct:0.30,tip:'Shifting 60% of bar consumption to home saves most households $80-$140/month.'},
+  streaming:{name:'Streaming Services',savePct:0.40,tip:'The average household pays for 4.5 streaming services but watches 2.3 regularly. Cut the unused ones.'},
+  gym:{name:'Gym & Fitness Memberships',savePct:0.60,tip:'67% of gym members stop going after month 3. Pause or cancel if you have not gone in 30 days.'},
+  subscriptions:{name:'Other Subscriptions',savePct:0.35,tip:'The average household has $219/month in subscriptions — 30-40% unnoticed. Run a full audit.'},
+  insurance:{name:'Auto & Home Insurance',savePct:0.22,tip:'Shopping insurance annually saves an average of $450/year. Set a calendar reminder every 12 months.'},
+  phone:{name:'Cell Phone Plans',savePct:0.45,tip:'MVNOs like Mint Mobile and Visible offer identical coverage for $15-$35/month vs. $80-$100 at major carriers.'},
+  internet:{name:'Internet & Cable',savePct:0.28,tip:'Calling your provider annually and threatening to cancel results in retention discounts 73% of the time.'},
+  clothing:{name:'Clothing & Apparel',savePct:0.40,tip:'Fast fashion is worn 7 times on average. Fewer, better purchases cost less overall (True Cost Engine™).'},
+  personal:{name:'Personal Care & Beauty',savePct:0.25,tip:'Brand switching for skincare and household products saves 20-35% with comparable quality.'},
+  entertainment:{name:'Entertainment & Recreation',savePct:0.20,tip:'Intentional entertainment is healthy. Unexamined entertainment spending is not. Track it first.'},
+  amazon:{name:'Online Shopping',savePct:0.45,tip:'The 24-hour rule: add to cart, wait 24 hours. 55% of impulse cart additions are abandoned after reflection.'}
+};
+
+let state={income:0,savings:0,housing:0,age:34,hhSize:2,spending:{},scenarios:{},step:1};
+
+function goStep(n){
+  if(n===1){showStep(1);return;}
+  if(n===2){
+    state.income=parseFloat(document.getElementById('income').value)||0;
+    state.savings=parseFloat(document.getElementById('current-savings').value)||0;
+    state.housing=parseFloat(document.getElementById('housing').value)||0;
+    state.age=parseInt(document.getElementById('age').value)||34;
+    state.hhSize=parseInt(document.getElementById('hhsize').value)||2;
+    if(!state.income){alert('Please enter your monthly take-home income to continue.');return;}
+    initAudit();showStep(2);
+  }else if(n===3){buildWhatIf();showStep(3);}
+  else if(n===4){buildResults();showStep(4);}
+}
+
+function showStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step-'+n).classList.add('active');
+  state.step=n;
+  updateStepDots(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateStepDots(n){
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById('sd'+i);
+    dot.classList.remove('active','done');
+    if(i+1<n)dot.classList.add('done');
+    else if(i+1===n)dot.classList.add('active');
+  }
+  document.getElementById('step-label-top').textContent='STEP '+n+' OF 4';
+}
+
+function restartAudit(){
+  state={income:0,savings:0,housing:0,age:34,hhSize:2,spending:{},scenarios:{},step:1};
+  document.querySelectorAll('.cat-inp').forEach(inp=>{inp.value='';});
+  ['income','current-savings','housing','age'].forEach(id=>{document.getElementById(id).value='';});
+  showStep(1);
+}
+
+function getAvg(cat){return Math.round(BASE_AVG[cat]*(HH_MULT[state.hhSize]||1));}
+
+function initAudit(){
+  Object.keys(BASE_AVG).forEach(cat=>{
+    const avg=getAvg(cat);
+    const el=document.getElementById('avg-'+cat);
+    if(el)el.textContent='Avg: $'+avg+'/mo';
+    renderBar(cat,state.spending[cat]||null);
+  });
+}
+
+function updateCat(cat,val){
+  const v=parseFloat(val)||0;
+  state.spending[cat]=v;
+  const card=document.getElementById('card-'+cat);
+  if(card){if(v>0)card.classList.add('has-value');else card.classList.remove('has-value');}
+  renderBar(cat,v);
+  updateRunningTotal();
+  renderStat(cat,v);
+}
+
+function renderBar(cat,val){
+  const el=document.getElementById('bar-'+cat);
+  if(!el)return;
+  if(val===null||val===undefined){el.innerHTML='';return;}
+  const avg=getAvg(cat);
+  const max=avg*2.8;
+  const avgPct=Math.min(100,(avg/max)*100);
+  const youPct=Math.min(100,(val/max)*100);
+  const isOver=val>avg*1.1;
+  const isUnder=val<avg*0.85&&val>0;
+  const cls=isOver?'over':isUnder?'under':'match';
+  const diff=val-avg;
+  const diffTxt=diff>10?'$'+Math.round(diff)+' OVER avg':diff<-10?'$'+Math.abs(Math.round(diff))+' UNDER avg':'Near average';
+  el.innerHTML=`<div class="bm-labels"><span class="bm-label">$0</span><span class="bm-label yours">You: $${Math.round(val)}</span><span class="bm-label">$${Math.round(max)}</span></div>
+    <div class="bm-track">
+      <div class="bm-fill-avg" style="width:${avgPct}%"></div>
+      <div class="bm-fill-you ${cls}" style="width:${youPct}%"></div>
+      <div class="bm-marker-avg" style="left:${avgPct}%"></div>
+    </div>
+    <div class="bm-verdict ${cls}">${diffTxt} · Avg: $${avg}/mo</div>`;
+}
+
+function renderStat(cat,val){
+  const el=document.getElementById('stat-'+cat);
+  if(!el)return;
+  const avg=getAvg(cat);
+  const meta=CAT_META[cat];
+  const excess=val-avg;
+  if(val>0&&excess>avg*0.25){
+    el.classList.add('show');
+    el.innerHTML='<strong>$'+Math.round(excess)+'/month over national average.</strong> '+meta.tip;
+  }else{el.classList.remove('show');}
+}
+
+function updateRunningTotal(){
+  let total=0,avgTotal=0,pot=0;
+  Object.keys(state.spending).forEach(cat=>{
+    const v=state.spending[cat]||0;
+    const avg=getAvg(cat);
+    const meta=CAT_META[cat];
+    total+=v;avgTotal+=avg;
+    if(v>avg)pot+=(v-avg);
+    else if(v>0)pot+=v*meta.savePct*0.3;
+  });
+  state._potentialSavings=pot;
+  document.getElementById('rs-total').textContent='$'+Math.round(total).toLocaleString();
+  const diff=total-avgTotal;
+  const rsEl=document.getElementById('rs-vs-avg');
+  if(Object.keys(state.spending).filter(k=>state.spending[k]>0).length===0){rsEl.textContent='—';rsEl.className='rs-value';}
+  else if(diff>20){rsEl.textContent='+$'+Math.round(diff).toLocaleString();rsEl.className='rs-value bad';}
+  else if(diff<-20){rsEl.textContent='-$'+Math.abs(Math.round(diff)).toLocaleString();rsEl.className='rs-value good';}
+  else{rsEl.textContent='On avg';rsEl.className='rs-value';}
+  document.getElementById('rs-savings').textContent='$'+Math.round(pot).toLocaleString();
+  document.getElementById('rs-annual').textContent='$'+Math.round(pot*12).toLocaleString();
+}
+
+function buildWhatIf(){
+  const container=document.getElementById('whatif-container');
+  container.innerHTML='';
+  const cats=Object.entries(state.spending).filter(([,v])=>v>0).map(([cat,val])=>{
+    const avg=getAvg(cat);const meta=CAT_META[cat];
+    const reduction=val>avg?(val-avg)+avg*meta.savePct*0.5:val*meta.savePct;
+    const target=Math.max(0,Math.round(val-reduction));
+    return{cat,val,avg,meta,maxSave:val-target,target};
+  }).sort((a,b)=>b.maxSave-a.maxSave);
+
+  if(!cats.length){container.innerHTML='<p style="color:var(--gray);text-align:center;padding:40px 20px;">Go back to Step 2 and enter your spending amounts to see what-if scenarios.</p>';updateCompound();return;}
+
+  cats.forEach(({cat,val,avg,meta,target})=>{
+    state.scenarios[cat]={original:val,target,saving:val-target};
+    const div=document.createElement('div');
+    div.className='whatif-card';div.id='wi-'+cat;
+    const initialSave=Math.round(val-target);
+    const initialPct=val>0?Math.round((initialSave/val)*100):0;
+    div.innerHTML=`<div class="whatif-header">
+      <div><div class="whatif-name">${meta.name}</div>
+      <div class="whatif-current">Currently: <strong style="color:var(--white)">$${Math.round(val)}/mo</strong> · National avg: $${avg}/mo</div></div>
+      <div><div class="whatif-saving" id="wi-save-${cat}">$${initialSave}</div><div class="whatif-saving-label">MONTHLY SAVINGS</div></div>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label-l">$0</span>
+      <input type="range" class="lean-slider" id="wi-slider-${cat}" min="0" max="${Math.round(val)}" step="5" value="${target}"
+        oninput="updateWhatIf('${cat}',this.value,${val})">
+      <span class="slider-label-r" id="wi-target-${cat}">$${target}/mo</span>
+    </div>
+    <div class="scenario-tip">${meta.tip}</div>`;
+    container.appendChild(div);
+    // Set initial pct
+    const sl=document.getElementById('wi-slider-'+cat);
+    if(sl)sl.style.setProperty('--pct',initialPct+'%');
+  });
+  updateCompound();
+}
+
+function updateWhatIf(cat,newVal,original){
+  const v=parseFloat(newVal);
+  const saving=original-v;
+  state.scenarios[cat]={...state.scenarios[cat],target:v,saving};
+  document.getElementById('wi-target-'+cat).textContent='$'+Math.round(v)+'/mo';
+  document.getElementById('wi-save-'+cat).textContent='$'+Math.round(saving);
+  const sl=document.getElementById('wi-slider-'+cat);
+  if(sl){const pct=original>0?((original-v)/original*100).toFixed(1):0;sl.style.setProperty('--pct',pct+'%');}
+  updateCompound();
+}
+
+function getTotalScenarioSavings(){return Object.values(state.scenarios).reduce((s,sc)=>s+(sc.saving||0),0);}
+
+function compoundFV(monthly,years,rate=0.07){
+  if(monthly<=0)return 0;
+  const r=rate/12,n=years*12;
+  return monthly*((Math.pow(1+r,n)-1)/r);
+}
+
+function fmtMoney(n){
+  if(n>=1000000)return '$'+(n/1000000).toFixed(2)+'M';
+  if(n>=1000)return '$'+Math.round(n/1000)+'K';
+  return '$'+Math.round(n).toLocaleString();
+}
+
+function updateCompound(){
+  const monthly=getTotalScenarioSavings();
+  document.getElementById('proj-sub').textContent='Redirecting $'+Math.round(monthly)+'/month in identified savings at 7% avg annual return.';
+  document.getElementById('proj-10').textContent=fmtMoney(compoundFV(monthly,10));
+  document.getElementById('proj-20').textContent=fmtMoney(compoundFV(monthly,20));
+  document.getElementById('proj-30').textContent=fmtMoney(compoundFV(monthly,30));
+  const barEl=document.getElementById('compound-bars');
+  if(!barEl)return;
+  const years=[5,10,15,20,25,30];
+  const vals=years.map(y=>compoundFV(monthly,y));
+  const maxV=Math.max(...vals,1);
+  barEl.innerHTML=years.map((yr,i)=>{
+    const h=Math.max(4,Math.round((vals[i]/maxV)*52));
+    return`<div class="compound-bar-item"><div class="compound-bar-fill" style="height:${h}px"></div><div class="compound-bar-yr">${yr}yr</div></div>`;
+  }).join('');
+}
+
+function buildResults(){
+  const income=state.income,currentSavings=state.savings;
+  const savingsRate=income>0?(currentSavings/income)*100:0;
+  const scenarioSavings=getTotalScenarioSavings();
+  const newSavingsRate=income>0?((currentSavings+scenarioSavings)/income)*100:0;
+  const enteredCats=Object.keys(state.spending).filter(k=>state.spending[k]>0).length;
+
+  let grade,cls,title,summary;
+  if(savingsRate>=20&&scenarioSavings<150){
+    grade='A';cls='grade-A';title='Exceptional Financial Discipline';
+    summary=`You're already saving ${savingsRate.toFixed(1)}% of take-home income. Spending is close to benchmark across most categories. Focus now on growing the Gap and building toward Level 2.`;
+  }else if(savingsRate>=15||(savingsRate>=10&&scenarioSavings<250)){
+    grade='B';cls='grade-B';title='Strong Foundation, Room to Optimize';
+    summary=`Saving ${savingsRate.toFixed(1)}% with targeted opportunities to find an additional $${Math.round(scenarioSavings)}/month. The system is working — refine it.`;
+  }else if(savingsRate>=5||scenarioSavings>300){
+    grade='C';cls='grade-C';title='Gap Exists — Significant Opportunity Ahead';
+    summary=`Current savings rate of ${savingsRate.toFixed(1)}% leaves real room to grow. The audit identified $${Math.round(scenarioSavings)}/month in realistic savings. Redirected consistently, this changes your financial trajectory materially.`;
+  }else{
+    grade='D';cls='grade-D';title='Critical Gap — Immediate Action Required';
+    summary=`Savings rate of ${savingsRate.toFixed(1)}% means the Gap isn't being built. This audit identified $${Math.round(scenarioSavings)}/month in savings opportunity. The system to capture it starts with Lean Dollar: Core.`;
+  }
+
+  const ring=document.getElementById('score-ring');
+  ring.className='score-ring '+cls;
+  const gradeEl=document.getElementById('score-grade');
+  gradeEl.textContent=grade;gradeEl.className='score-grade '+cls;
+  document.getElementById('score-title').textContent=title;
+  document.getElementById('score-summary').textContent=summary;
+
+  const srColor=savingsRate>=15?'var(--emerald)':savingsRate>=10?'var(--gold)':'var(--red)';
+  document.getElementById('results-stats').innerHTML=`
+    <div class="stat-cell"><div class="stat-num" style="color:${srColor}">${savingsRate.toFixed(1)}%</div><div class="stat-desc">Current savings rate<br>(target: 15–20%)</div></div>
+    <div class="stat-cell"><div class="stat-num" style="color:var(--emerald)">$${Math.round(scenarioSavings)}</div><div class="stat-desc">Monthly savings opportunity<br>found in this audit</div></div>
+    <div class="stat-cell"><div class="stat-num" style="color:var(--gold)">${newSavingsRate.toFixed(1)}%</div><div class="stat-desc">Projected savings rate<br>after capturing opportunities</div></div>`;
+
+  const actions=Object.entries(state.scenarios).filter(([,sc])=>sc.saving>5).sort(([,a],[,b])=>b.saving-a.saving).slice(0,6);
+  document.getElementById('action-count').textContent=actions.length;
+  document.getElementById('action-items').innerHTML=actions.map(([cat,sc],i)=>{
+    const meta=CAT_META[cat];const avg=getAvg(cat);
+    const detail=sc.original>avg
+      ?`You're spending $${Math.round(sc.original)}/mo vs. $${avg}/mo national average. Targeting $${Math.round(sc.target)}/mo saves $${Math.round(sc.saving)}/month.`
+      :`Reducing from $${Math.round(sc.original)}/mo to $${Math.round(sc.target)}/mo. ${meta.tip.split('.')[0]}.`;
+    return`<div class="action-item">
+      <div class="action-rank">${i+1}</div>
+      <div class="action-body"><div class="action-name">${meta.name}</div><div class="action-detail">${detail}</div></div>
+      <div><div class="action-impact">$${Math.round(sc.saving)}</div><div class="action-impact-label">PER MONTH</div><div class="action-impact-label" style="color:var(--gold-d)">$${Math.round(sc.saving*12)}/YR</div></div>
+    </div>`;
+  }).join('');
+
+  const totalMonthly=scenarioSavings+currentSavings;
+  document.getElementById('results-proj-sub').textContent='$'+Math.round(scenarioSavings)+'/mo new savings + $'+Math.round(currentSavings)+'/mo existing = $'+Math.round(totalMonthly)+'/mo total invested at 7% avg return.';
+  document.getElementById('res-proj-10').textContent=fmtMoney(compoundFV(totalMonthly,10));
+  document.getElementById('res-proj-20').textContent=fmtMoney(compoundFV(totalMonthly,20));
+  document.getElementById('res-proj-30').textContent=fmtMoney(compoundFV(totalMonthly,30));
+}
+
+// Init on load
+initAudit();
+</script>
+</body>
+</html>

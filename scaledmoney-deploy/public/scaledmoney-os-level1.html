@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lean Dollar: Core — A ScaledMoney|OS™ Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy-mid: #111827;
+    --navy-light: #1a2540;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --gold-dim: #8a6f2e;
+    --emerald: #2dd4a0;
+    --emerald-dim: #1a7a5e;
+    --white: #f5f3ef;
+    --gray: #8892a4;
+    --gray-light: #c5cad4;
+    --card-bg: #141c2e;
+    --card-border: rgba(201,168,76,0.15);
+    --modal-bg: #0d1424;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LEVEL NAV ── */
+  .level-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,15,30,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+  }
+
+  .brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+
+  .level-pills {
+    display: flex;
+    gap: 6px;
+  }
+
+  .level-pill {
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .level-pill.active {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+  }
+
+  .level-pill.locked {
+    background: transparent;
+    color: var(--gray);
+    border-color: rgba(136,146,164,0.3);
+    cursor: not-allowed;
+    position: relative;
+  }
+
+  .level-pill.locked::after {
+    content: '🔒';
+    margin-left: 5px;
+    font-size: 9px;
+  }
+
+  .pdca-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--emerald);
+    letter-spacing: 0.1em;
+    border: 1px solid rgba(45,212,160,0.3);
+    padding: 4px 12px;
+    border-radius: 4px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 60px 40px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--gold-dim);
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+
+  .hero h1 span { color: var(--gold); }
+
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--gray-light);
+    max-width: 600px;
+    margin: 20px auto 0;
+    font-weight: 300;
+  }
+
+  .hero-oneliner {
+    margin: 40px auto 0;
+    display: inline-block;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--gold);
+    padding: 16px 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--gold-light);
+    letter-spacing: 0.06em;
+    border-radius: 4px;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+
+  .section-label-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .section-label-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--white);
+  }
+
+  .section-desc {
+    color: var(--gray);
+    font-size: 15px;
+    margin-bottom: 40px;
+    max-width: 680px;
+  }
+
+  /* ── LAWS GRID ── */
+  .laws-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+
+  .law-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 28px 22px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .law-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    transform: scaleX(0);
+    transition: transform 0.25s;
+    transform-origin: left;
+  }
+
+  .law-card:hover {
+    border-color: rgba(201,168,76,0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(201,168,76,0.08);
+  }
+
+  .law-card:hover::before { transform: scaleX(1); }
+
+  .law-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dim);
+    letter-spacing: 0.15em;
+    margin-bottom: 14px;
+  }
+
+  .law-icon {
+    font-size: 32px;
+    margin-bottom: 14px;
+    display: block;
+    filter: saturate(0.8);
+  }
+
+  .law-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .law-tagline {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+
+  .card-hint {
+    margin-top: 14px;
+    font-size: 10px;
+    color: var(--gold-dim);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── STEPS ── */
+  .steps-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .steps-connector {
+    position: absolute;
+    top: 54px;
+    left: calc(12.5% + 32px);
+    right: calc(12.5% + 32px);
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-dim));
+    z-index: 0;
+  }
+
+  .steps-connector::after {
+    content: '';
+    position: absolute;
+    top: -3px; right: -6px;
+    border: 4px solid transparent;
+    border-left: 8px solid var(--gold);
+  }
+
+  .step-card {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    padding: 0 12px 32px;
+  }
+
+  .step-card:hover .step-circle {
+    background: var(--gold);
+    color: var(--navy);
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(201,168,76,0.4);
+  }
+
+  .step-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 20px;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .step-number {
+    position: absolute;
+    top: -2px;
+    right: calc(50% - 44px);
+    width: 18px;
+    height: 18px;
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .step-content {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 22px 18px;
+    transition: all 0.25s;
+  }
+
+  .step-card:hover .step-content {
+    border-color: rgba(201,168,76,0.4);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+  }
+
+  .step-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .step-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ── ROLES ── */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .role-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .role-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--emerald), transparent);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .role-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(45,212,160,0.3);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+
+  .role-card:hover::after { transform: scaleX(1); }
+
+  .role-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--emerald);
+    border: 1px solid rgba(45,212,160,0.3);
+    padding: 3px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  .role-icon { font-size: 36px; margin-bottom: 12px; display: block; }
+
+  .role-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .role-abbr {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .role-desc {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ── PDCA STRIP ── */
+  .pdca-strip {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, var(--navy-light), var(--card-bg));
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    padding: 50px 40px;
+    margin-bottom: 80px;
+  }
+
+  .pdca-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .pdca-cycle {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-top: 32px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+  }
+
+  .pdca-step {
+    padding: 28px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .pdca-step:nth-child(1) { background: rgba(201,168,76,0.12); }
+  .pdca-step:nth-child(2) { background: rgba(45,212,160,0.08); }
+  .pdca-step:nth-child(3) { background: rgba(201,168,76,0.06); }
+  .pdca-step:nth-child(4) { background: rgba(45,212,160,0.12); }
+
+  .pdca-step:hover { filter: brightness(1.3); }
+
+  .pdca-letter {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 8px;
+    color: var(--gold-light);
+    opacity: 0.7;
+  }
+
+  .pdca-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--emerald);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .pdca-cadence {
+    font-size: 10px;
+    color: var(--gold-dim);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .pdca-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+
+  /* ── GRADUATION ── */
+  .grad-box {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 44px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .grad-criteria {
+    list-style: none;
+  }
+
+  .grad-criteria li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    font-size: 14px;
+    color: var(--gray-light);
+  }
+
+  .grad-criteria li:last-child { border-bottom: none; }
+
+  .check-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(45,212,160,0.15);
+    border: 1px solid var(--emerald-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--emerald);
+  }
+
+  .grad-right {
+    text-align: center;
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05), rgba(45,212,160,0.05));
+    border-radius: 12px;
+    border: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .grad-icon { font-size: 56px; margin-bottom: 16px; }
+
+  .grad-months {
+    font-family: 'DM Mono', monospace;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .grad-months-label {
+    font-size: 13px;
+    color: var(--gray);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  .level-progress {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .prog-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .prog-dot.active { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+  .prog-dot.locked { background: rgba(136,146,164,0.3); }
+
+  .prog-arrow {
+    width: 20px;
+    height: 1px;
+    background: var(--gray);
+    position: relative;
+  }
+  .prog-arrow::after {
+    content: '';
+    position: absolute;
+    right: 0; top: -3px;
+    border: 3px solid transparent;
+    border-left: 5px solid var(--gray);
+  }
+
+  .prog-label {
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  /* ── FOOTNOTES ── */
+  .footnotes {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    padding: 0 40px;
+  }
+
+  .footnotes-box {
+    border-top: 1px solid var(--card-border);
+    padding-top: 32px;
+  }
+
+  .footnotes-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .footnote {
+    font-size: 11px;
+    color: var(--gray);
+    line-height: 1.6;
+    margin-bottom: 8px;
+    padding-left: 24px;
+    position: relative;
+  }
+
+  .footnote sup {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--gold-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 18, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--modal-bg);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 16px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 44px;
+    position: relative;
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(201,168,76,0.05);
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--gray);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { color: var(--white); border-color: var(--gold); }
+
+  .modal-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .modal-icon { font-size: 44px; margin-bottom: 16px; display: block; }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .modal-subtitle {
+    color: var(--gold);
+    font-style: italic;
+    font-size: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .modal-body {
+    font-size: 14px;
+    color: var(--gray-light);
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .modal-body p { margin-bottom: 14px; }
+
+  .modal-quote {
+    background: rgba(201,168,76,0.06);
+    border-left: 3px solid var(--gold);
+    padding: 18px 22px;
+    border-radius: 0 8px 8px 0;
+    margin: 24px 0;
+  }
+
+  .modal-quote blockquote {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--gold-light);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .modal-quote cite {
+    font-size: 12px;
+    color: var(--gray);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+  }
+
+  .modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  .modal-tag {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--gold-dim);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+  }
+
+  .ref-num {
+    color: var(--gold-dim);
+    font-size: 10px;
+    vertical-align: super;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero { animation: fadeUp 0.8s ease both; }
+  .laws-grid { animation: fadeUp 0.8s 0.1s ease both; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .laws-grid { grid-template-columns: repeat(3, 1fr); }
+    .steps-container { grid-template-columns: repeat(2, 1fr); }
+    .steps-connector { display: none; }
+    .roles-grid { grid-template-columns: 1fr 1fr; }
+    .pdca-cycle { grid-template-columns: repeat(2, 1fr); }
+    .grad-box { grid-template-columns: 1fr; }
+    .level-nav { padding: 0 20px; }
+    .hero { padding: 100px 20px 60px; }
+    .section { padding: 0 20px 60px; }
+  }
+
+  @media (max-width: 600px) {
+    .laws-grid { grid-template-columns: repeat(2, 1fr); }
+    .roles-grid { grid-template-columns: 1fr; }
+    .level-pills { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LEVEL NAV -->
+<nav class="level-nav">
+  <div class="brand">ScaledMoney|OS™ <span style="color:var(--gray);font-size:10px;margin-left:6px;letter-spacing:0.05em;">· Lean Dollar</span></div>
+  <div class="level-pills">
+    <span class="level-pill active">Lean Dollar: Core</span>
+    <span class="level-pill locked">Lean Dollar: Flow</span>
+    <span class="level-pill locked">Lean Dollar: Vault</span>
+  </div>
+  <div class="pdca-badge">Evaluate + Evolve Engine Active</div>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.1em;margin-left:16px;">v1.0</span>
+</nav>
+
+<!-- BRAND HIERARCHY BANNER -->
+<div style="position:relative;z-index:1;background:rgba(201,168,76,0.04);border-bottom:1px solid rgba(201,168,76,0.08);padding:10px 40px;margin-top:60px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-dim);letter-spacing:0.12em;">SCALEDMONEY|OS™</span>
+  <span style="color:var(--gold-dim);font-size:10px;">→</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:0.12em;">LEAN DOLLAR</span>
+  <span style="color:var(--gold-dim);font-size:10px;">→</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--white);letter-spacing:0.12em;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);padding:2px 10px;border-radius:4px;">CORE</span>
+  <span style="color:rgba(136,146,164,0.4);font-size:10px;margin-left:4px;">·</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.12em;padding:2px 10px;border-radius:4px;border:1px solid rgba(136,146,164,0.15);">FLOW 🔒</span>
+  <span style="color:rgba(136,146,164,0.4);font-size:10px;">·</span>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.12em;padding:2px 10px;border-radius:4px;border:1px solid rgba(136,146,164,0.15);">VAULT 🔒</span>
+  <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.08em;">ENTERPRISE CERTIFICATION TRACK · COMING SOON</span>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Lean Dollar: Core · The Operating System for Your Money</div>
+  <h1>Lean Dollar: <span>Core</span></h1>
+  <p class="hero-subtitle">Level 1 of the ScaledMoney|OS™ framework. Five phases — Scan, Calculate, Allocate, Launch, and Evaluate + Evolve — running as one integrated operating system. Each phase has a signature tool. Each tool reinforces the next.</p>
+  <div class="hero-oneliner">S · C · A · L · E — <span style="color:var(--gold)">Scan · Calculate · Allocate · Launch · Evaluate</span></div>
+</div>
+
+<!-- SCALE FRAMEWORK -->
+<section class="section" style="padding-bottom:28px;">
+  <div class="section-label">
+    <span class="section-label-text">The S.C.A.L.E. Framework™</span>
+    <span class="section-label-line"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-dim);">FIVE-PHASE OPERATING SYSTEM</span>
+  </div>
+  <p style="font-size:14px;color:var(--gray);line-height:1.75;max-width:700px;margin-bottom:28px;">Every phase has a signature tool. Work them in sequence — the output of each phase is the input to the next. This is not a collection of tips. This is an operating system.</p>
+
+  <!-- S + C row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+
+    <!-- S — Scan -->
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-top:3px solid var(--emerald);border-radius:12px;padding:24px;position:relative;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(45,212,160,0.12);border:1px solid rgba(45,212,160,0.25);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--emerald);">S</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--emerald);letter-spacing:0.15em;border:1px solid rgba(45,212,160,0.2);padding:2px 8px;border-radius:100px;">PHASE 1</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--emerald);letter-spacing:0.15em;margin-bottom:6px;">SCAN</div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">Diagnose Your Baseline</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:16px;">Identify where your money goes, surface hidden waste, and benchmark your spending against BLS Consumer Expenditure data. The Gap Audit™ produces your Gap Score — the diagnostic that drives everything downstream.</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.1em;margin-bottom:10px;">SIGNATURE TOOL</div>
+      <a href="lean-dollar-gap-audit.html" style="display:inline-flex;align-items:center;gap:8px;background:rgba(45,212,160,0.1);border:1px solid rgba(45,212,160,0.25);color:var(--emerald);padding:9px 16px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(45,212,160,0.2)'" onmouseout="this.style.background='rgba(45,212,160,0.1)'">
+        🔍 Gap Audit™ — Launch Tool →
+      </a>
+    </div>
+
+    <!-- C — Calculate -->
+    <div style="background:var(--card-bg);border:1px solid rgba(180,140,255,0.25);border-top:3px solid #b48cff;border-radius:12px;padding:24px;position:relative;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(180,140,255,0.12);border:1px solid rgba(180,140,255,0.25);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#b48cff;">C</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;color:#b48cff;letter-spacing:0.15em;border:1px solid rgba(180,140,255,0.2);padding:2px 8px;border-radius:100px;">PHASE 2</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#b48cff;letter-spacing:0.15em;margin-bottom:6px;">CALCULATE</div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;">Know the True Cost of Everything</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:16px;">Score purchases against your income, your budget category, and your Life Hour Index™ — how many hours of your life each purchase actually costs. Stops bad spending decisions before they happen.</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.1em;margin-bottom:10px;">SIGNATURE TOOL</div>
+      <a href="lean-dollar-true-cost-engine-v2.html" style="display:inline-flex;align-items:center;gap:8px;background:rgba(180,140,255,0.1);border:1px solid rgba(180,140,255,0.25);color:#b48cff;padding:9px 16px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(180,140,255,0.2)'" onmouseout="this.style.background='rgba(180,140,255,0.1)'">
+        ⚙️ True Cost Engine™ v2 — Launch Tool →
+      </a>
+    </div>
+  </div>
+
+  <!-- A + L + E row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+
+    <!-- A — Allocate -->
+    <div style="background:var(--card-bg);border:1px solid rgba(79,195,247,0.25);border-top:3px solid #4fc3f7;border-radius:12px;padding:24px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(79,195,247,0.12);border:1px solid rgba(79,195,247,0.25);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#4fc3f7;">A</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;color:#4fc3f7;letter-spacing:0.15em;border:1px solid rgba(79,195,247,0.2);padding:2px 8px;border-radius:100px;">PHASE 3</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#4fc3f7;letter-spacing:0.15em;margin-bottom:6px;">ALLOCATE</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--white);margin-bottom:8px;">Plan Your Sprint</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:16px;">Convert Scan findings into a sprint plan. Lock goals first with the Budget Lock™ (BL™), build Sprint Spend Load™ (SSL™) against Sprint Fuel Capacity™ (SFC™), and watch burndown in real time.</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.1em;margin-bottom:10px;">SIGNATURE TOOL</div>
+      <a href="lean-dollar-sprint-budget-planner.html" style="display:inline-flex;align-items:center;gap:8px;background:rgba(79,195,247,0.1);border:1px solid rgba(79,195,247,0.25);color:#4fc3f7;padding:9px 16px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(79,195,247,0.2)'" onmouseout="this.style.background='rgba(79,195,247,0.1)'">
+        🗓 Sprint Budget Planner™ →
+      </a>
+    </div>
+
+    <!-- L — Launch -->
+    <div style="background:var(--card-bg);border:1px solid var(--card-border);border-top:3px solid var(--gold);border-radius:12px;padding:24px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.25);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--gold);">L</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--gold-dim);letter-spacing:0.15em;border:1px solid rgba(201,168,76,0.2);padding:2px 8px;border-radius:100px;">PHASE 4</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-dim);letter-spacing:0.15em;margin-bottom:6px;">LAUNCH</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--white);margin-bottom:8px;">Execute the Sprint</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:16px;">Run the Income Sprint System — obligations first, Gap contribution locked, Sprint Fuel deployed. The Three-Account Architecture makes execution automatic, not willpower-dependent.</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.1em;margin-bottom:10px;">CORE SYSTEM</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.18);color:var(--gold-dim);padding:9px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;">
+        🚀 Income Sprint System · Module 2
+      </div>
+    </div>
+
+    <!-- E — Evaluate + Evolve -->
+    <div style="background:var(--card-bg);border:1px solid rgba(255,140,105,0.25);border-top:3px solid #ff8c69;border-radius:12px;padding:24px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(255,140,105,0.12);border:1px solid rgba(255,140,105,0.25);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#ff8c69;">E</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;color:#ff8c69;letter-spacing:0.15em;border:1px solid rgba(255,140,105,0.2);padding:2px 8px;border-radius:100px;">PHASE 5</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:#ff8c69;letter-spacing:0.15em;margin-bottom:6px;">EVALUATE + EVOLVE</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--white);margin-bottom:8px;">Learn. Adjust. Repeat.</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:16px;">Weekly Dollar Standup (Evaluate) feeds the Monthly Retro (Evolve). One intentional adjustment per cycle compounds into a fundamentally different financial life inside 12 months.</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gray);letter-spacing:0.1em;margin-bottom:10px;">CORE SYSTEM</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,140,105,0.07);border:1px solid rgba(255,140,105,0.18);color:#ff8c69;padding:9px 14px;border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;">
+        📊 Dollar Standup + Monthly Retro · Modules 4–5
+      </div>
+    </div>
+  </div>
+
+  <!-- SCALE flow indicator -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-top:20px;flex-wrap:wrap;">
+    <div style="text-align:center;padding:8px 14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--emerald);">S</div>
+      <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--gray);letter-spacing:0.08em;">SCAN</div>
+    </div>
+    <div style="color:var(--gray);font-size:14px;padding:0 4px;">→</div>
+    <div style="text-align:center;padding:8px 14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:#b48cff;">C</div>
+      <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--gray);letter-spacing:0.08em;">CALCULATE</div>
+    </div>
+    <div style="color:var(--gray);font-size:14px;padding:0 4px;">→</div>
+    <div style="text-align:center;padding:8px 14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:#4fc3f7;">A</div>
+      <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--gray);letter-spacing:0.08em;">ALLOCATE</div>
+    </div>
+    <div style="color:var(--gray);font-size:14px;padding:0 4px;">→</div>
+    <div style="text-align:center;padding:8px 14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--gold);">L</div>
+      <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--gray);letter-spacing:0.08em;">LAUNCH</div>
+    </div>
+    <div style="color:var(--gray);font-size:14px;padding:0 4px;">→</div>
+    <div style="text-align:center;padding:8px 14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:#ff8c69;">E</div>
+      <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--gray);letter-spacing:0.08em;">EVALUATE</div>
+    </div>
+    <div style="color:var(--gray);font-size:14px;padding:0 4px;">↺</div>
+  </div>
+</section>
+
+<!-- FOUNDATIONAL LAWS -->
+<section class="section">
+  <div class="section-label">
+    <span class="section-label-text">Foundational Laws</span>
+    <span class="section-label-line"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-dim);">5 LAWS · CLICK TO EXPAND</span>
+  </div>
+  <h2 class="section-title">The Five Laws of Lean Dollar: Core</h2>
+  <p class="section-desc">Mental models, not rules. Short, memorable, and load-bearing. Every tactic in this system flows from one of these laws.</p>
+
+  <div class="laws-grid">
+    <div class="law-card" onclick="openModal('law1')">
+      <div class="law-number">LAW 01</div>
+      <span class="law-icon">⚖️</span>
+      <div class="law-name">The First Law of Dollar Physics</div>
+      <div class="law-tagline">Spend less than you earn. No exceptions, no asterisks.</div>
+      <div class="card-hint">↗ CLICK FOR DETAIL</div>
+    </div>
+    <div class="law-card" onclick="openModal('law2')">
+      <div class="law-number">LAW 02</div>
+      <span class="law-icon">📐</span>
+      <div class="law-name">The Gap Is the Product</div>
+      <div class="law-tagline">The difference between earn and spend is your most valuable asset.</div>
+      <div class="card-hint">↗ CLICK FOR DETAIL</div>
+    </div>
+    <div class="law-card" onclick="openModal('law3')">
+      <div class="law-number">LAW 03</div>
+      <span class="law-icon">⚙️</span>
+      <div class="law-name">Automate Before You Tempt</div>
+      <div class="law-tagline">Willpower depletes. Automated architecture doesn't.</div>
+      <div class="card-hint">↗ CLICK FOR DETAIL</div>
+    </div>
+    <div class="law-card" onclick="openModal('law4')">
+      <div class="law-number">LAW 04</div>
+      <span class="law-icon">🧱</span>
+      <div class="law-name">Simplicity Compounds</div>
+      <div class="law-tagline">A simple system you follow beats a perfect system you abandon.</div>
+      <div class="card-hint">↗ CLICK FOR DETAIL</div>
+    </div>
+    <div class="law-card" onclick="openModal('law5')">
+      <div class="law-number">LAW 05</div>
+      <span class="law-icon">🎯</span>
+      <div class="law-name">Every Dollar Needs a Job</div>
+      <div class="law-tagline">Unassigned money disappears. Purpose is protection.</div>
+      <div class="card-hint">↗ CLICK FOR DETAIL</div>
+    </div>
+  </div>
+</section>
+
+<!-- THE 4-STEP SYSTEM -->
+<section class="section">
+  <div class="section-label">
+    <span class="section-label-text">The Dollar Foundation System</span>
+    <span class="section-label-line"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-dim);">4 STEPS · SEQUENTIAL</span>
+  </div>
+  <h2 class="section-title">Four Steps. One Paycheck at a Time.</h2>
+  <p class="section-desc">Each step runs inside every Income Sprint. Execute them in order, every cycle, without exception.</p>
+
+  <div class="steps-container">
+    <div class="steps-connector"></div>
+
+    <div class="step-card" onclick="openModal('step1')">
+      <div class="step-circle">
+        <span>🗓</span>
+        <div class="step-number">1</div>
+      </div>
+      <div class="step-content">
+        <div class="step-label">Step 01</div>
+        <div class="step-title">Income Sprint Setup</div>
+        <div class="step-desc">Align your planning cycle to your paycheck. One Sprint = One paycheck cycle. Assign every dollar before it arrives.</div>
+        <div class="card-hint" style="text-align:left;font-size:10px;color:var(--gold-dim);font-family:'DM Mono',monospace;margin-top:10px;">↗ CLICK FOR DETAIL</div>
+      </div>
+    </div>
+
+    <div class="step-card" onclick="openModal('step2')">
+      <div class="step-circle">
+        <span>🏦</span>
+        <div class="step-number">2</div>
+      </div>
+      <div class="step-content">
+        <div class="step-label">Step 02</div>
+        <div class="step-title">Three-Account Architecture</div>
+        <div class="step-desc">Operations. The Gap. Sprint Wallet. Structural separation removes the need for willpower.</div>
+        <div class="card-hint" style="text-align:left;font-size:10px;color:var(--gold-dim);font-family:'DM Mono',monospace;margin-top:10px;">↗ CLICK FOR DETAIL</div>
+      </div>
+    </div>
+
+    <div class="step-card" onclick="openModal('step3')">
+      <div class="step-circle">
+        <span>📊</span>
+        <div class="step-number">3</div>
+      </div>
+      <div class="step-content">
+        <div class="step-label">Step 03</div>
+        <div class="step-title">Dollar Standup</div>
+        <div class="step-desc">10 minutes. Weekly. Same day, same time. Three questions that keep the sprint on track.</div>
+        <div class="card-hint" style="text-align:left;font-size:10px;color:var(--gold-dim);font-family:'DM Mono',monospace;margin-top:10px;">↗ CLICK FOR DETAIL</div>
+      </div>
+    </div>
+
+    <div class="step-card" onclick="openModal('step4')">
+      <div class="step-circle">
+        <span>🔄</span>
+        <div class="step-number">4</div>
+      </div>
+      <div class="step-content">
+        <div class="step-label">Step 04</div>
+        <div class="step-title">Monthly Retro</div>
+        <div class="step-desc">20 minutes. One change per month. The PDCA engine applied to your household finances.</div>
+        <div class="card-hint" style="text-align:left;font-size:10px;color:var(--gold-dim);font-family:'DM Mono',monospace;margin-top:10px;">↗ CLICK FOR DETAIL</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section class="section">
+  <div class="section-label">
+    <span class="section-label-text">Household Roles</span>
+    <span class="section-label-line"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-dim);">3 ROLES · CLICK TO EXPAND</span>
+  </div>
+  <h2 class="section-title">The Dollar Foundation Team</h2>
+  <p class="section-desc">Agile works because of clear ownership. Financial systems fail because no one owns the process. Assign these roles explicitly.</p>
+
+  <div class="roles-grid">
+    <div class="role-card" onclick="openModal('role1')">
+      <div class="role-badge">ROLE · STRATEGIC</div>
+      <span class="role-icon">🏛️</span>
+      <div class="role-title">Chief Family Officer</div>
+      <div class="role-abbr">CFO</div>
+      <div class="role-desc">Owns the financial vision. Makes the call on Level 2 and 3 decisions. Sets the quarterly strategic direction.</div>
+      <div class="card-hint" style="font-size:10px;color:var(--emerald-dim);font-family:'DM Mono',monospace;margin-top:14px;letter-spacing:0.1em;">↗ CLICK FOR DETAIL</div>
+    </div>
+
+    <div class="role-card" onclick="openModal('role2')">
+      <div class="role-badge">ROLE · PROCESS</div>
+      <span class="role-icon">🔑</span>
+      <div class="role-title">Dollar Scrum Master</div>
+      <div class="role-abbr">DSM</div>
+      <div class="role-desc">Protects the process. Runs standups and retros. Calls it out when the system drifts. Not the budget police — the system guardian.</div>
+      <div class="card-hint" style="font-size:10px;color:var(--emerald-dim);font-family:'DM Mono',monospace;margin-top:14px;letter-spacing:0.1em;">↗ CLICK FOR DETAIL</div>
+    </div>
+
+    <div class="role-card" onclick="openModal('role3')">
+      <div class="role-badge">ROLE · ACCOUNTABILITY</div>
+      <span class="role-icon">🪞</span>
+      <div class="role-title">Financial Mirror</div>
+      <div class="role-abbr">FM · SOLO TRACK</div>
+      <div class="role-desc">For solo operators. The structured self-audit system that replaces an accountability partner with a system of visible KPIs.</div>
+      <div class="card-hint" style="font-size:10px;color:var(--emerald-dim);font-family:'DM Mono',monospace;margin-top:14px;letter-spacing:0.1em;">↗ CLICK FOR DETAIL</div>
+    </div>
+  </div>
+</section>
+
+<!-- PDCA ENGINE -->
+<div class="pdca-strip">
+  <div class="pdca-inner">
+    <div class="section-label">
+      <span class="section-label-text">The Dollar Cycle · Evaluate + Evolve Engine</span>
+      <span class="section-label-line"></span>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--emerald-dim);">RUNS ACROSS CORE · FLOW · VAULT</span>
+    </div>
+    <h2 class="section-title">Continuous Improvement at Level 1 Cadence</h2>
+    <p class="section-desc">The PDCA engine keeps the system alive. At Level 1, it operates on a weekly pulse with a monthly close loop.</p>
+
+    <div class="pdca-cycle">
+      <div class="pdca-step" onclick="openModal('pdca1')">
+        <div class="pdca-letter">P</div>
+        <div class="pdca-word">Plan</div>
+        <div class="pdca-cadence">PRE-SPRINT · ~15 MIN</div>
+        <div class="pdca-desc">Assign every dollar before the sprint begins. Prioritize the Dollar Backlog. Set Sprint targets.</div>
+      </div>
+      <div class="pdca-step" onclick="openModal('pdca2')">
+        <div class="pdca-letter">D</div>
+        <div class="pdca-word">Do</div>
+        <div class="pdca-cadence">DURING SPRINT · DAILY</div>
+        <div class="pdca-desc">Execute the plan. Capture actual spending. No judgment — just data. The system corrects in Check.</div>
+      </div>
+      <div class="pdca-step" onclick="openModal('pdca3')">
+        <div class="pdca-letter">C</div>
+        <div class="pdca-word">Check</div>
+        <div class="pdca-cadence">WEEKLY STANDUP · 10 MIN</div>
+        <div class="pdca-desc">Review variance. Is the Gap funded? Any sprint overruns? Three questions, honest answers.</div>
+      </div>
+      <div class="pdca-step" onclick="openModal('pdca4')">
+        <div class="pdca-letter">A</div>
+        <div class="pdca-word">Adjust</div>
+        <div class="pdca-cadence">MONTHLY RETRO · 20 MIN</div>
+        <div class="pdca-desc">One change. Not ten. Identify the highest-leverage adjustment and apply it next sprint.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRUE COST ENGINE -->
+<section class="section">
+  <div class="section-label">
+    <span class="section-label-text">Phase 4 · LAUNCHII · The True Cost Engine™</span>
+    <span class="section-label-line"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(180,140,255,0.6);">SIGNATURE METHODOLOGY · UNIQUE TO SCALEDMONEY|OS™</span>
+  </div>
+  <h2 class="section-title">Every Purchase Has a True Incremental Cost.<br>Most People Never Calculate It.</h2>
+  <p class="sec-desc" style="font-size:15px;color:var(--gray);margin-bottom:36px;max-width:720px;">Most financial systems teach you how to track spending. The True Cost Engine™ teaches you how to <em>think</em> about spending — by breaking down every purchase into its real unit cost per day, per use, and per year. It turns buying decisions into data-driven analysis instead of impulse and regret.</p>
+
+  <!-- Formula banner -->
+  <div style="background:var(--card-bg);border:1px solid rgba(180,140,255,0.2);border-left:4px solid #b48cff;border-radius:8px;padding:20px 28px;margin-bottom:32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(180,140,255,0.5);letter-spacing:0.15em;flex-shrink:0;">THE FORMULA</div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-family:'DM Mono',monospace;font-size:13px;">
+      <span style="color:var(--gold-light);">Purchase Price</span>
+      <span style="color:var(--gray);">÷</span>
+      <span style="color:var(--gold-light);">Expected Life</span>
+      <span style="color:var(--gray);">×</span>
+      <span style="color:var(--gold-light);">Quality Multiplier</span>
+      <span style="color:var(--gray);">=</span>
+      <span style="color:#b48cff;font-weight:500;">True Incremental Cost</span>
+    </div>
+    <div style="margin-left:auto;font-size:12px;color:var(--gray);font-style:italic;">"Price is what you pay. Cost is what you live with."</div>
+  </div>
+
+  <!-- TCE 3 components -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
+    <div onclick="openModal('tce1')" style="background:var(--card-bg);border:1px solid rgba(180,140,255,0.15);border-radius:12px;padding:26px 22px;cursor:pointer;transition:all 0.25s;" onmouseover="this.style.borderColor='rgba(180,140,255,0.4)';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(180,140,255,0.15)';this.style.transform='translateY(0)'">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(180,140,255,0.5);letter-spacing:0.15em;margin-bottom:10px;">COMPONENT 01</div>
+      <div style="font-size:28px;margin-bottom:12px;">📐</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px;">The Incremental Dollar Principle</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;">The sticker price is almost never the real cost. Every purchase has a per-use, per-day, and per-year cost that only becomes visible when you calculate it.</div>
+      <div style="margin-top:14px;font-size:10px;color:rgba(180,140,255,0.4);font-family:'DM Mono',monospace;letter-spacing:0.1em;">↗ CLICK FOR DETAIL</div>
+    </div>
+    <div onclick="openModal('tce2')" style="background:var(--card-bg);border:1px solid rgba(180,140,255,0.15);border-radius:12px;padding:26px 22px;cursor:pointer;transition:all 0.25s;" onmouseover="this.style.borderColor='rgba(180,140,255,0.4)';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(180,140,255,0.15)';this.style.transform='translateY(0)'">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(180,140,255,0.5);letter-spacing:0.15em;margin-bottom:10px;">COMPONENT 02</div>
+      <div style="font-size:28px;margin-bottom:12px;">⚖️</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px;">The Quality Multiplier</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;">Why cheap is often expensive. Quality score adjusts true cost-per-use — a $160 shoe worn 500 times beats a $40 shoe worn 80 times. Every time.</div>
+      <div style="margin-top:14px;font-size:10px;color:rgba(180,140,255,0.4);font-family:'DM Mono',monospace;letter-spacing:0.1em;">↗ CLICK FOR DETAIL</div>
+    </div>
+    <div onclick="openModal('tce3')" style="background:var(--card-bg);border:2px solid rgba(180,140,255,0.3);border-radius:12px;padding:26px 22px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;" onmouseover="this.style.borderColor='rgba(180,140,255,0.6)';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='rgba(180,140,255,0.3)';this.style.transform='translateY(0)'">
+      <div style="position:absolute;top:10px;right:10px;background:rgba(180,140,255,0.15);border:1px solid rgba(180,140,255,0.3);color:#b48cff;padding:2px 8px;border-radius:100px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;">SIGNATURE</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(180,140,255,0.5);letter-spacing:0.15em;margin-bottom:10px;">COMPONENT 03</div>
+      <div style="font-size:28px;margin-bottom:12px;">📋</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px;">The Lifestyle Ledger</div>
+      <div style="font-size:12px;color:var(--gray);line-height:1.6;">A living catalog of everything you own with its true monthly depreciation cost. Most people have never seen this number — the hidden monthly cost of their material life.</div>
+      <div style="margin-top:14px;font-size:10px;color:rgba(180,140,255,0.4);font-family:'DM Mono',monospace;letter-spacing:0.1em;">↗ CLICK FOR DETAIL</div>
+    </div>
+  </div>
+
+  <!-- 4-outcome decision grid -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-radius:12px;overflow:hidden;border:1px solid var(--card-border);">
+    <div style="padding:20px 18px;background:rgba(45,212,160,0.10);text-align:center;">
+      <div style="font-size:22px;margin-bottom:8px;">✅</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--emerald);letter-spacing:0.12em;margin-bottom:6px;">OUTCOME 1</div>
+      <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px;">Buy with Confidence</div>
+      <div style="font-size:11px;color:var(--gray);line-height:1.5;">True cost fits Sprint Allocation. Quality ≥ 7. Long life confirmed.</div>
+    </div>
+    <div style="padding:20px 18px;background:rgba(201,168,76,0.10);text-align:center;">
+      <div style="font-size:22px;margin-bottom:8px;">⏳</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:6px;">OUTCOME 2</div>
+      <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px;">Defer & Save</div>
+      <div style="font-size:11px;color:var(--gray);line-height:1.5;">Right item, wrong timing. Build a sinking fund. Buy when funded.</div>
+    </div>
+    <div style="padding:20px 18px;background:rgba(201,168,76,0.06);text-align:center;">
+      <div style="font-size:22px;margin-bottom:8px;">🔄</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold-dim);letter-spacing:0.12em;margin-bottom:6px;">OUTCOME 3</div>
+      <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px;">Find the Better Version</div>
+      <div style="font-size:11px;color:var(--gray);line-height:1.5;">Cost-per-use is poor. The upgrade is often cheaper long-term.</div>
+    </div>
+    <div style="padding:20px 18px;background:rgba(224,85,85,0.08);text-align:center;">
+      <div style="font-size:22px;margin-bottom:8px;">🚫</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#e05555;letter-spacing:0.12em;margin-bottom:6px;">OUTCOME 4</div>
+      <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:6px;">Eliminate</div>
+      <div style="font-size:11px;color:var(--gray);line-height:1.5;">High cost, low use, low quality. Remove from the Sprint plan.</div>
+    </div>
+  </div>
+
+  <!-- CTA to calculator -->
+  <div style="margin-top:24px;background:linear-gradient(135deg,rgba(180,140,255,0.06),rgba(201,168,76,0.06));border:1px solid rgba(180,140,255,0.2);border-radius:12px;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(180,140,255,0.6);letter-spacing:0.15em;margin-bottom:6px;">INTERACTIVE TOOL</div>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:4px;">The True Cost Engine™ Calculator</div>
+      <div style="font-size:13px;color:var(--gray);">Single Analyzer · Compare Two Items · Lifestyle Ledger — all three tools in one interactive module.</div>
+    </div>
+    <a href="lean-dollar-true-cost-engine-v2.html" style="background:#b48cff;color:var(--navy);padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;transition:all 0.2s;display:inline-block;" onmouseover="this.style.background='#c8a8ff'" onmouseout="this.style.background='#b48cff'">Open the Calculator →</a>
+  </div>
+</section>
+
+<!-- GRADUATION -->
+<section class="section">
+  <div class="section-label">
+    <span class="section-label-text">Level Advancement</span>
+    <span class="section-label-line"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gold-dim);">UNLOCK LEAN DOLLAR: FLOW</span>
+  </div>
+  <h2 class="section-title">Lean Dollar: Core — Graduation Criteria</h2>
+  <p class="section-desc">Three consecutive months of execution before advancing to Lean Dollar: Flow. Not perfection — consistency. The Core must hold before you build.</p>
+
+  <div class="grad-box">
+    <div>
+      <ul class="grad-criteria">
+        <li>
+          <div class="check-icon">✓</div>
+          <div><strong style="color:var(--white)">Gap Contribution funded every sprint</strong> — treated as a bill, not an afterthought. No sprint closes without it.</div>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <div><strong style="color:var(--white)">Zero late payments on fixed obligations</strong> — three consecutive months clean. Operations account is predictable.</div>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <div><strong style="color:var(--white)">Dollar Standup running weekly</strong> — same day, same time. The habit is the metric, not just the data.</div>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <div><strong style="color:var(--white)">Three-Account Architecture operational</strong> — accounts set up, automation flowing, Sprint Wallet defined and live.</div>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <div><strong style="color:var(--white)">Monthly Retro completed each month</strong> — PDCA loop is closing. At least one adjustment documented per cycle.</div>
+        </li>
+        <li>
+          <div class="check-icon" style="background:rgba(180,140,255,0.15);border-color:rgba(180,140,255,0.4);color:#b48cff;">✓</div>
+          <div><strong style="color:var(--white)">True Cost Engine™ applied to at least 3 purchases</strong> — Lifestyle Ledger started. Incremental cost analysis is part of your decision process.</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="grad-right">
+      <div class="grad-icon">📜</div>
+      <div class="grad-months">3</div>
+      <div class="grad-months-label">CONSECUTIVE MONTHS</div>
+      <p style="font-size:13px;color:var(--gray);margin-top:16px;line-height:1.6;">Three months of consistent execution at Lean Dollar: Core is the load-bearing foundation for Flow and Vault.</p>
+      <div class="level-progress" style="flex-direction:column;gap:4px;margin-top:24px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="prog-dot active"></div>
+          <div class="prog-arrow"></div>
+          <div class="prog-dot locked"></div>
+          <div class="prog-arrow"></div>
+          <div class="prog-dot locked"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <div class="prog-label" style="width:40px;font-size:8px">CORE</div>
+          <div style="width:28px"></div>
+          <div class="prog-label" style="width:40px;font-size:8px">FLOW</div>
+          <div style="width:28px"></div>
+          <div class="prog-label" style="width:40px;font-size:8px">VAULT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTNOTES -->
+<div class="footnotes">
+  <div class="footnotes-box">
+    <div class="footnotes-title">Research Foundation & Source Citations</div>
+    <p class="footnote"><sup>[1]</sup> Munger, C. (2007). Poor Charlie's Almanack: The Wit and Wisdom of Charles T. Munger. Donning Co. "Spend less than you earn" is cited as the first principle of financial wisdom across multiple Munger public addresses including the 2007 USC Law School commencement.</p>
+    <p class="footnote"><sup>[2]</sup> Baumeister, R.F., Bratslavsky, E., Muraven, M., & Tice, D.M. (1998). "Ego depletion: Is the active self a limited resource?" Journal of Personality and Social Psychology, 74(5), 1252–1265. Foundation for Law 3 (Automate Before You Tempt) — willpower as a finite resource.</p>
+    <p class="footnote"><sup>[3]</sup> Thaler, R.H., & Sunstein, C.R. (2008). Nudge: Improving Decisions About Health, Wealth, and Happiness. Yale University Press. Behavioral architecture, automatic enrollment, and default savings settings underpin the Three-Account Architecture design.</p>
+    <p class="footnote"><sup>[4]</sup> Lusardi, A., & Mitchell, O.S. (2014). "The Economic Importance of Financial Literacy: Theory and Evidence." Journal of Economic Literature, 52(1), 5–44. Households with structured financial review habits demonstrate significantly higher savings rates and lower financial stress outcomes.</p>
+    <p class="footnote"><sup>[5]</sup> Clear, J. (2018). Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones. Avery. Law 4 (Simplicity Compounds) draws on the 1% improvement model and identity-based habit formation applied to financial behavior.</p>
+    <p class="footnote"><sup>[6]</sup> Deming, W.E. (1986). Out of the Crisis. MIT Press. Original formulation of the PDCA (Plan-Do-Check-Act) continuous improvement cycle, adapted here as the Dollar Cycle at Level 1 cadence.</p>
+    <p class="footnote"><sup>[7]</sup> Schwaber, K., & Sutherland, J. (2020). The Scrum Guide. Scrum.org. Sprint-based execution, retrospective practice, and time-boxed planning cycles adapted for household financial management in the Income Sprint model.</p>
+    <p class="footnote"><sup>[8]</sup> Ariely, D. (2008). Predictably Irrational: The Hidden Forces That Shape Our Decisions. HarperCollins. Research on mental accounting and the importance of named/designated accounts supports the Three-Account Architecture and the Every Dollar Needs a Job law.</p>
+    <p class="footnote"><sup>[9]</sup> Fernbach, P.M., Kan, C., & Lynch, J.G. (2015). "Squeezed: Coping with Constraint Through Efficiency and Prioritization." Journal of Consumer Research, 41(5), 1204–1227. Dollar Backlog prioritization framework draws on research into constraint-based financial decision making.</p>
+  </div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
+  <div class="modal" id="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-inner"></div>
+  </div>
+</div>
+
+<script>
+  const modals = {
+    law1: {
+      eyebrow: "FOUNDATIONAL LAW 01",
+      icon: "⚖️",
+      title: "The First Law of Dollar Physics",
+      subtitle: '"Spend less than you earn. Always. No exceptions."',
+      body: `<p>This is the load-bearing wall. Every financial strategy, investment framework, and wealth-building system in existence collapses without this principle intact. It is not new. It is not sophisticated. It is simply true — and most people treat it as optional.</p>
+      <p>Charlie Munger, Warren Buffett's partner and one of the greatest practical thinkers in financial history, returned to this principle repeatedly across decades of speeches, letters, and interviews. Not because it was profound, but because its violation is the single most common cause of financial failure at every income level.</p>
+      <p>The Law of Dollar Physics doesn't ask you to be frugal. It asks you to be structural. The gap between income and spending is not determined by how much you earn — it is determined by how deliberately you engineer the difference.</p>`,
+      quote: { text: "Spend each day trying to be a little wiser than you were when you woke up. Discharge your duties faithfully and well. Step by step you get ahead, but not necessarily in fast spurts. But you build discipline by preparing for fast spurts.", author: "— Charlie Munger, Poor Charlie's Almanack, 2007" },
+      tags: ["MUNGER", "BEHAVIORAL FINANCE", "LEVEL 1 FOUNDATION", "CASH FLOW"],
+      refs: "[1]"
+    },
+    law2: {
+      eyebrow: "FOUNDATIONAL LAW 02",
+      icon: "📐",
+      title: "The Gap Is the Product",
+      subtitle: '"Your most valuable financial asset is the distance between what you earn and what you spend."',
+      body: `<p>Most people think income is the product. It isn't. Income is the input. The Gap — the margin between income and total spending — is the actual output of everything you do at Level 1.</p>
+      <p>A household earning $120K with a $5K monthly gap is in a stronger financial position than a household earning $180K with a $2K monthly gap. The number on the pay stub is irrelevant without understanding the Gap it produces.</p>
+      <p>At Level 1, your entire focus is on identifying your current Gap, protecting it from lifestyle creep, and incrementally widening it over time. Every decision at this level either widens or narrows the Gap. There is no neutral.</p>
+      <p>The Gap funds the emergency reserve. The Gap funds debt paydown. The Gap is the raw material for Level 3's Dollar Vault. Protect it fiercely.</p>`,
+      quote: { text: "It's not what you make, it's what you keep. The building of wealth begins with the gap between your income and your expenses — not with the income itself.", author: "— Thomas J. Stanley, The Millionaire Next Door, 1996" },
+      tags: ["SAVINGS RATE", "NET WORTH", "WEALTH BUILDING", "GAP PROTECTION"],
+      refs: "[4]"
+    },
+    law3: {
+      eyebrow: "FOUNDATIONAL LAW 03",
+      icon: "⚙️",
+      title: "Automate Before You Tempt",
+      subtitle: '"Money you never see, you never spend. Build the architecture — don\'t rely on the willpower."',
+      body: `<p>Behavioral economics has demonstrated conclusively that willpower is a finite, depletable resource. Every decision you make throughout the day draws from the same cognitive reservoir — and financial decisions are among the most psychologically taxing. Relying on discipline to save, pay obligations, and resist spending is a system designed to fail.</p>
+      <p>The solution is architectural, not motivational. Before any discretionary dollars hit your Operations Account, your Gap Contribution should already be moved. Before you have a chance to "borrow" from savings, friction should make that nearly impossible. Before your bill is late, the payment should already be scheduled.</p>
+      <p>The Three-Account Architecture (Step 2) is the primary implementation of this law. Separate banks for the Gap Account create psychological and mechanical distance. Automatic transfers scheduled for payday execute without your involvement. The system works even on your worst day.</p>`,
+      quote: { text: "The goal is to make the right behavior automatic and the wrong behavior effortful. Don't rely on motivation. Design your environment so the default choice is the good choice.", author: "— Richard Thaler & Cass Sunstein, Nudge, 2008" },
+      tags: ["AUTOMATION", "BEHAVIORAL ARCHITECTURE", "EGO DEPLETION", "SYSTEM DESIGN"],
+      refs: "[2][3]"
+    },
+    law4: {
+      eyebrow: "FOUNDATIONAL LAW 04",
+      icon: "🧱",
+      title: "Simplicity Compounds",
+      subtitle: '"A simple system you follow beats a perfect system you abandon."',
+      body: `<p>The personal finance industry is built around complexity. Apps with 47 categories, spreadsheets with cascading formulas, systems that require 90-minute monthly maintenance sessions. Most people quit these systems within 60 days — not because they lack discipline, but because the cognitive overhead exceeds the available bandwidth of normal life.</p>
+      <p>ScaledMoney|OS Level 1 is deliberately minimal. Three accounts, four steps, five laws, one 10-minute weekly standup, one 20-minute monthly retro. That is the entire operational surface area. It is designed to be boring. Boring means it runs.</p>
+      <p>Small consistent improvements compound dramatically over time. A 1% monthly improvement in Gap ratio, applied consistently for 24 months, produces outcomes that no complex system abandoned at month three can match. The framework draws explicitly from James Clear's identity-based habit formation model and W. Edwards Deming's insight that process consistency is the prerequisite for improvement.</p>`,
+      quote: { text: "You do not rise to the level of your goals. You fall to the level of your systems.", author: "— James Clear, Atomic Habits, 2018" },
+      tags: ["HABIT FORMATION", "SYSTEM DESIGN", "COMPOUND IMPROVEMENT", "BEHAVIORAL CHANGE"],
+      refs: "[5][6]"
+    },
+    law5: {
+      eyebrow: "FOUNDATIONAL LAW 05",
+      icon: "🎯",
+      title: "Every Dollar Needs a Job",
+      subtitle: '"Unassigned money disappears. Give every dollar a purpose before the sprint begins."',
+      body: `<p>Dan Ariely's research on mental accounting demonstrates that money held in undifferentiated accounts is subject to dramatically higher discretionary spending. When dollars have no explicit assignment, the brain defaults to treating them as available — regardless of what they were "supposed" to be for.</p>
+      <p>This law is the foundation of the Income Sprint Setup (Step 1). Before the sprint begins, every dollar arriving in the paycheck is assigned to one of four categories: Fixed Obligations, Gap Contribution, Sprint Fuel, or Quality of Life Allocation. Not restricted — assigned. There is a critical psychological difference.</p>
+      <p>Restriction creates resistance. Assignment creates purpose. A dollar assigned to "Quality of Life — dinner with family" is not a guilty expenditure. It is an intentional, pre-approved deployment of a resource. The shift from "I shouldn't spend this" to "this dollar's job is X" transforms the emotional relationship with money.</p>`,
+      quote: { text: "Give every dollar a name before the month begins. Not because money is scarce, but because intention is powerful and attention follows assignment.", author: "— Jesse Mecham, You Need a Budget, 2017" },
+      tags: ["ZERO-BASED BUDGETING", "MENTAL ACCOUNTING", "INTENTIONAL SPENDING", "SPRINT PLANNING"],
+      refs: "[8]"
+    },
+    step1: {
+      eyebrow: "SYSTEM · STEP 01",
+      icon: "🗓",
+      title: "Income Sprint Setup",
+      subtitle: "One Sprint = One paycheck cycle. Assign every dollar before it arrives.",
+      body: `<p>The Income Sprint is the fundamental unit of execution at Level 1. Rather than planning by calendar month — which rarely aligns with how money actually arrives — the Sprint aligns your planning cycle to your actual pay cadence.</p>
+      <p>Bi-weekly pay? Two-week sprints. Semi-monthly? Two sprints per month. This alignment eliminates the math distortion of "some months have an extra paycheck" and keeps your financial picture accurate to reality.</p>
+      <p><strong style="color:var(--white)">The Sprint Sequencing Order (non-negotiable):</strong></p>
+      <p>1. <strong style="color:var(--gold-light)">Fixed Obligations</strong> — Rent/mortgage, utilities, insurance, loan minimums. These are not negotiable. They auto-clear first.</p>
+      <p>2. <strong style="color:var(--gold-light)">Gap Contribution</strong> — Treated as a bill. Transfers automatically on payday. This is the non-negotiable savings pull that funds the Gap Account.</p>
+      <p>3. <strong style="color:var(--gold-light)">Sprint Fuel</strong> — Groceries, gas, household essentials. The operational baseline of the household.</p>
+      <p>4. <strong style="color:var(--gold-light)">Quality of Life Allocation</strong> — What remains after the above. Pre-approved, guilt-free, intentionally sized. This is where "wants" live — deliberately, not accidentally.</p>
+      <p>The sequencing is everything. Every other budget system funds lifestyle first and saves what's left. Level 1 reverses this completely.</p>`,
+      quote: { text: "Pay yourself first. Don't save what is left after spending — spend what is left after saving.", author: "— Warren Buffett, Berkshire Hathaway Annual Letter" },
+      tags: ["SPRINT PLANNING", "PAYCHECK CYCLE", "DOLLAR SEQUENCING", "PAY YOURSELF FIRST"],
+      refs: "[7]"
+    },
+    step2: {
+      eyebrow: "SYSTEM · STEP 02",
+      icon: "🏦",
+      title: "Three-Account Architecture",
+      subtitle: "Structure does what willpower cannot. Three accounts, three jobs, zero confusion.",
+      body: `<p>The Three-Account Architecture is the structural implementation of Law 3 (Automate Before You Tempt). It uses physical separation of dollars to create behavioral separation of decisions.</p>
+      <p><strong style="color:var(--white)">Account 1 — Operations Account (Checking)</strong><br/>Where income lands. Where bills pull from. This is your financial command center. Fixed obligations and Sprint Fuel both route through here via automatic payments and a debit card.</p>
+      <p><strong style="color:var(--white)">Account 2 — The Gap Account (High-Yield Savings)</strong><br/>Separate institution preferred. The friction of a transfer delay is a feature, not a bug. This account receives its Gap Contribution automatically on every payday before you interact with the money. Emergency fund and savings accumulation live here. Out of sight, compounding.</p>
+      <p><strong style="color:var(--white)">Account 3 — Sprint Wallet (Dedicated Debit or Cash)</strong><br/>A fixed weekly or bi-weekly allocation for Quality of Life spending. When the Sprint Wallet is empty, the sprint's discretionary allocation is spent. No overdraft. No borrowing from Operations. The limit is structural, not emotional.</p>
+      <p>Research by Thaler and Sunstein confirms that physical separation of accounts produces measurably higher savings rates than single-account budgeting, even when the dollar amounts are identical.</p>`,
+      quote: { text: "The best financial systems are ones where the right thing happens automatically, and you'd have to actively work to undermine them.", author: "— Richard Thaler, Nobel Prize Lecture, 2017" },
+      tags: ["ACCOUNT ARCHITECTURE", "BEHAVIORAL DESIGN", "AUTOMATION", "HIGH-YIELD SAVINGS"],
+      refs: "[3][8]"
+    },
+    step3: {
+      eyebrow: "SYSTEM · STEP 03",
+      icon: "📊",
+      title: "Dollar Standup",
+      subtitle: "10 minutes. Weekly. Same day. Same time. Three questions.",
+      body: `<p>The Dollar Standup is the weekly pulse check of your Income Sprint. Drawn directly from the Scrum daily standup model, it is time-boxed, structured, and designed to surface problems early — before they become month-end surprises.</p>
+      <p>It is not a deep analysis session. It is a 10-minute status check that answers three questions:</p>
+      <p><strong style="color:var(--gold-light)">Question 1:</strong> Where did dollars go this sprint so far?<br/>Not a judgment call — a data pull. Review the Operations Account and Sprint Wallet. Categorize actuals against plan.</p>
+      <p><strong style="color:var(--gold-light)">Question 2:</strong> Is the Gap Contribution on track?<br/>Confirm the automatic transfer executed. Confirm the Gap Account balance reflects the expected deposit.</p>
+      <p><strong style="color:var(--gold-light)">Question 3:</strong> Any upcoming obligations that need planning next sprint?<br/>Preview the next 2 weeks. Flag anything that will strain the Operations Account.</p>
+      <p>The ritual of showing up to the standup is the metric — not the perfection of the data. Households that maintain a weekly financial check-in demonstrate significantly stronger outcomes than those that check finances reactively. The habit of visibility is the intervention.</p>`,
+      quote: { text: "A short daily discipline of reviewing what matters beats an annual resolution that's forgotten by February. The standup is not about the data — it's about maintaining the relationship with the data.", author: "— Ken Schwaber, Scrum.org" },
+      tags: ["WEEKLY CADENCE", "FINANCIAL VISIBILITY", "SPRINT REVIEW", "HABIT FORMATION"],
+      refs: "[7][4]"
+    },
+    step4: {
+      eyebrow: "SYSTEM · STEP 04",
+      icon: "🔄",
+      title: "Monthly Retro",
+      subtitle: "20 minutes. PDCA close loop. One change. Not ten.",
+      body: `<p>The Monthly Retro is where the PDCA engine closes its loop at Level 1. It is the Adjust phase — the moment where accumulated sprint data produces a single, specific improvement to apply in the next cycle.</p>
+      <p>The retro is structured around five questions, adapted from the Agile retrospective format:</p>
+      <p><strong style="color:var(--gold-light)">1. What went well?</strong> — Identify what the system did right. Reinforce it explicitly.</p>
+      <p><strong style="color:var(--gold-light)">2. What didn't go according to plan?</strong> — Data only. No blame. Variance is information.</p>
+      <p><strong style="color:var(--gold-light)">3. What surprised us?</strong> — Unplanned expenses, income variability, behavior patterns you didn't expect.</p>
+      <p><strong style="color:var(--gold-light)">4. What are we changing?</strong> — One change. Identify the single highest-leverage adjustment. Write it down. This becomes next month's sprint adjustment.</p>
+      <p><strong style="color:var(--gold-light)">5. What are we celebrating?</strong> — Progress is earned. Name it explicitly. The Gap grew. A bill was paid off. The standup ran every week. Whatever it is — acknowledge it.</p>
+      <p>The "one change" constraint is deliberate. Making ten simultaneous changes produces no ability to learn what worked. One change, applied consistently, produces attributable learning.</p>`,
+      quote: { text: "Without data, you're just another person with an opinion. The retro is where opinion becomes evidence.", author: "— W. Edwards Deming, Out of the Crisis, 1986" },
+      tags: ["PDCA", "RETROSPECTIVE", "CONTINUOUS IMPROVEMENT", "BEHAVIORAL CHANGE"],
+      refs: "[6][7]"
+    },
+    role1: {
+      eyebrow: "HOUSEHOLD ROLE · STRATEGIC",
+      icon: "🏛️",
+      title: "Chief Family Officer",
+      subtitle: "The CFO owns the vision. The strategic layer. The long-horizon thinking.",
+      body: `<p>In every functioning organization, someone owns the vision. At the household level, the Chief Family Officer (CFO) is the role responsible for financial direction-setting — not day-to-day execution, but strategic intent.</p>
+      <p><strong style="color:var(--white)">Core Responsibilities:</strong></p>
+      <p>Sets the household's quarterly financial objectives and connects them to longer-term goals (Level 2 and 3 work). Owns the decision on major financial changes — account restructuring, debt payoff strategy shifts, significant purchases. Communicates the "why" behind financial priorities to maintain household alignment.</p>
+      <p><strong style="color:var(--white)">In a Couple:</strong> The CFO role can be held by one person or rotated annually. The key is explicit assignment. "We both sort of manage it" is not an assigned role — it's a recipe for financial drift and conflict.</p>
+      <p><strong style="color:var(--white)">For Solo Operators:</strong> You hold the CFO role by default. The distinction matters because it forces you to have a strategic conversation with yourself — not just execute tactically — at least once per quarter.</p>
+      <p>The CFO calls the Quarterly Dollar PI (Planning Increment) — the 60-90 minute session every quarter that reviews all three levels and resets financial objectives.</p>`,
+      quote: { text: "Leadership is getting people to do what needs to be done, when it needs to be done, in the way it needs to be done, when they don't want to do it. The CFO's job is to make the household want to.", author: "— Peter Drucker" },
+      tags: ["STRATEGIC PLANNING", "COUPLE FINANCE", "VISION SETTING", "QUARTERLY PI"],
+      refs: "[4]"
+    },
+    role2: {
+      eyebrow: "HOUSEHOLD ROLE · PROCESS",
+      icon: "🔑",
+      title: "Dollar Scrum Master",
+      subtitle: "The DSM protects the process. Not the budget police — the system guardian.",
+      body: `<p>The Dollar Scrum Master (DSM) is the most important operational role in the ScaledMoney|OS household team. Drawn from the Agile Scrum Master role, the DSM's job is not to control spending — it is to protect the integrity of the process that produces good financial outcomes.</p>
+      <p><strong style="color:var(--white)">Core Responsibilities:</strong></p>
+      <p>Schedules and facilitates the weekly Dollar Standup and monthly Retro. Flags when the system is drifting — standups being skipped, Gap Contributions being "borrowed," Sprint Wallet overruns going unacknowledged. Removes process impediments by problem-solving structural issues, not by willpower enforcement.</p>
+      <p><strong style="color:var(--white)">In a Couple:</strong> The DSM role works best as a rotating assignment — typically quarterly — to prevent it from calcifying into one person being the "budget nag." When the role rotates, the accountability is structural, not personal. Both partners have owned the process.</p>
+      <p><strong style="color:var(--white)">Critical Distinction:</strong> The DSM does not adjudicate spending decisions. The DSM ensures the process runs so that the system produces the right spending decisions automatically. Process first. Outcomes follow.</p>`,
+      quote: { text: "A good Scrum Master is not a police officer, and a good Dollar Scrum Master is not a budget enforcer. Both are process champions. The goal is to make doing the right thing easy, not to make doing the wrong thing shameful.", author: "— adapted from Ken Schwaber, Scrum.org" },
+      tags: ["ACCOUNTABILITY", "PROCESS GUARDIAN", "COUPLE FINANCE", "AGILE ROLES"],
+      refs: "[7]"
+    },
+    role3: {
+      eyebrow: "HOUSEHOLD ROLE · SOLO TRACK",
+      icon: "🪞",
+      title: "Financial Mirror",
+      subtitle: "For solo operators: the structured self-audit that replaces an accountability partner.",
+      body: `<p>Solo financial management fails for a predictable reason: without an external witness, it's easy to quietly renegotiate commitments with yourself and never account for the drift. The Financial Mirror protocol replaces the external accountability partner with a designed-in visibility system.</p>
+      <p><strong style="color:var(--white)">The Mirror System:</strong></p>
+      <p>At the start of each quarter, define 3–5 personal financial KPIs that matter to you. Not generic metrics — your metrics. Examples: Gap Contribution streak (weeks funded in a row), Sprint Wallet variance (actual vs. planned), Gap Account balance growth, standup completion rate.</p>
+      <p>Each week during the Dollar Standup, score yourself on each KPI. Write the scores on paper or in a simple tracker. The act of making the score visible is the accountability mechanism. Humans are naturally averse to declining scores on metrics they've named and chosen.</p>
+      <p><strong style="color:var(--white)">The Mirror Rule:</strong> Never argue with the data. The score is what it is. The Retro is where you respond to it. The Standup is where you witness it.</p>
+      <p>Research confirms that self-monitoring of named personal metrics produces behavior change comparable in effect size to external accountability, particularly when the metrics are self-defined and intrinsically motivated.</p>`,
+      quote: { text: "Measurement is the first step that leads to control and eventually to improvement. If you can't measure something, you can't understand it. If you can't understand it, you can't control it.", author: "— W. Edwards Deming" },
+      tags: ["SOLO FINANCE", "SELF-ACCOUNTABILITY", "KPI TRACKING", "BEHAVIORAL CHANGE"],
+      refs: "[6][4]"
+    },
+    pdca1: {
+      eyebrow: "PDCA ENGINE · PLAN",
+      icon: "📋",
+      title: "Plan — Pre-Sprint Dollar Assignment",
+      subtitle: "Every dollar gets a job before the sprint begins. No exceptions.",
+      body: `<p>The Plan phase of the Dollar Cycle happens before each Income Sprint begins — ideally the day before or day of your paycheck arriving. It is a 15-minute allocation session, not a long budgeting ceremony.</p>
+      <p>Open your Operations Account, review the incoming paycheck amount, and work through the Sprint Sequencing Order: Fixed Obligations → Gap Contribution → Sprint Fuel → Quality of Life Allocation.</p>
+      <p>The output of the Plan phase is a simple, written sprint plan. It does not need to be digital. A notepad works. The act of writing it is more important than the tool used to write it.</p>
+      <p>At Level 1, the Plan phase also includes a forward-look: are there any irregular obligations in the next sprint that need to be pre-funded? Quarterly insurance? Annual renewal? These should be surfaced in Plan and pre-allocated, not discovered at the Point of due date.</p>`,
+      quote: { text: "Plans are useless, but planning is indispensable.", author: "— Dwight D. Eisenhower" },
+      tags: ["SPRINT PLANNING", "DOLLAR ASSIGNMENT", "PRE-SPRINT", "15 MINUTES"],
+      refs: "[6][7]"
+    },
+    pdca2: {
+      eyebrow: "PDCA ENGINE · DO",
+      icon: "⚡",
+      title: "Do — Sprint Execution",
+      subtitle: "Execute the plan. Capture actuals. No judgment — just data.",
+      body: `<p>The Do phase is the sprint itself — your active paycheck cycle. The system is running. Obligations are auto-paying. The Gap Contribution transferred on payday. The Sprint Wallet is funded and active.</p>
+      <p>Your job in the Do phase is simple: live the plan you built, and capture actual spending data without judgment. You are not grading yourself during the sprint. You are collecting information that will inform the Check phase.</p>
+      <p>The most important behavioral discipline in the Do phase is not corrective action — it is data capture. If you overspend the Sprint Wallet, note it. Don't punish yourself, don't borrow from Operations, don't "make it up next sprint." Just note it. That data informs your Retro adjustment.</p>
+      <p>The Do phase is where most financial systems ask you to be perfectly disciplined. ScaledMoney|OS does not. It asks you to be honest about what actually happened.</p>`,
+      quote: { text: "In God we trust. All others bring data.", author: "— W. Edwards Deming" },
+      tags: ["SPRINT EXECUTION", "DATA CAPTURE", "BEHAVIORAL DISCIPLINE", "ACTUALS"],
+      refs: "[6]"
+    },
+    pdca3: {
+      eyebrow: "PDCA ENGINE · CHECK",
+      icon: "🔍",
+      title: "Check — Weekly Dollar Standup",
+      subtitle: "10 minutes. Three questions. Same day every week.",
+      body: `<p>The Check phase operationalizes at the weekly Dollar Standup. This is where plan meets actuals — not monthly, not when something feels wrong, but every week as a standing practice.</p>
+      <p>Three questions. Always the same three questions. The consistency of the format is what makes it a check — not a reactive crisis response.</p>
+      <p>The Check phase catches sprint drift early, when it's still correctable. A $200 Sprint Wallet overrun discovered at Week 2 is a course-correction. The same overrun discovered at Month 3 is a pattern that has become a new baseline.</p>
+      <p>In the Check phase, you are looking for two things: variance from the Sprint Plan, and signals about what the Adjust phase should address. You are not making changes during Check — you are building the evidence base for Adjust.</p>`,
+      quote: { text: "Inspection without adaptation is meaningless. Adaptation without inspection is reckless.", author: "— Jeff Sutherland, Co-creator of Scrum" },
+      tags: ["WEEKLY STANDUP", "VARIANCE REVIEW", "EARLY WARNING", "DATA REVIEW"],
+      refs: "[7]"
+    },
+    pdca4: {
+      eyebrow: "PDCA ENGINE · ADJUST",
+      icon: "🔧",
+      title: "Adjust — Monthly Retro & One Change",
+      subtitle: "One change. Not ten. Applied consistently, it compounds.",
+      body: `<p>The Adjust phase is the payoff of the entire PDCA cycle. It runs once monthly, during the Monthly Retro, and produces one specific, written adjustment to the next sprint cycle.</p>
+      <p>The one-change constraint is not a limitation — it is a precision mechanism. When you make ten simultaneous changes to a system, you cannot determine which change produced the outcome. When you make one change, you learn something. That learning accumulates into genuine financial intelligence about your household's specific patterns and behaviors.</p>
+      <p>The Adjust phase answers: given everything we observed in Check over the last month, what is the single highest-leverage change we can make to improve our Level 1 system performance?</p>
+      <p>Over 12 months, 12 deliberate adjustments — each informed by real data — produce a system that is genuinely calibrated to your household. Not a generic budget. Not someone else's advice. Your system, refined by your data, producing your outcomes.</p>`,
+      quote: { text: "Improvement usually means doing something that we have never done before.", author: "— Shigeo Shingo, architect of the Toyota Production System" },
+      tags: ["CONTINUOUS IMPROVEMENT", "ONE CHANGE", "MONTHLY RETRO", "SYSTEM REFINEMENT"],
+      refs: "[6]"
+    },
+    tce1: {
+      eyebrow: "TRUE COST ENGINE™ · COMPONENT 01",
+      icon: "📐",
+      title: "The Incremental Dollar Principle",
+      subtitle: '"The sticker price is what you pay once. The true cost is what you pay every month for years."',
+      body: `<p>Every significant purchase you make carries a hidden ongoing cost that the sticker price completely obscures. A $1,200 laptop isn't a $1,200 expense — it's a $25/month commitment for four years. A $34,000 vehicle kept for eight years is a $354/month asset depreciation, before insurance, fuel, or maintenance.</p>
+      <p>The Incremental Dollar Principle applies a concept from business accounting — depreciation — to personal purchase decisions. In business, accountants spread the cost of a capital asset over its useful life because that's when the cost is actually being consumed. The True Cost Engine applies this same logic to every significant consumer purchase.</p>
+      <p>The practical effect is transformative. When you evaluate a $2,000 quality sofa over a 15-year life, you're actually deciding about $11/month — less than a streaming subscription. When you evaluate a $600 budget sofa with a 4-year life, you're deciding about $12.50/month — and you'll do it again in four years. The "cheap" option is actually more expensive.</p>
+      <p>This reframing changes every purchase decision from an emotional sticker shock reaction to a rational unit economics analysis. It is the single most powerful mental model in the Lean Dollar: Core system — and it is unique to ScaledMoney|OS™.</p>`,
+      quote: { text: "Price is what you pay. Value is what you get. The Incremental Dollar Principle makes value calculable instead of subjective.", author: "— adapted from Warren Buffett, Berkshire Hathaway Annual Letter" },
+      tags: ["UNIT ECONOMICS", "DEPRECIATION", "PURCHASE DECISIONS", "MENTAL MODEL"],
+      refs: "[B1][B7]"
+    },
+    tce2: {
+      eyebrow: "TRUE COST ENGINE™ · COMPONENT 02",
+      icon: "⚖️",
+      title: "The Quality Multiplier",
+      subtitle: '"Cheap is often expensive. The math makes this undeniable."',
+      body: `<p>The Quality Multiplier is the counterintuitive heart of the True Cost Engine. It quantifies what most people sense but cannot prove: that buying quality is frequently the more economical decision, not the indulgent one.</p>
+      <p>The mechanism works through cost-per-use. A $160 pair of running shoes worn six days a week for two years produces 624 uses — a cost-per-use of $0.26. A $40 pair worn twice a week for eight months produces 64 uses — a cost-per-use of $0.63. The cheap shoe costs 2.4x more per use. You also need to buy it seven times over the same period.</p>
+      <p>The Quality Multiplier assigns a score of 1–10 to a purchase's quality level, which adjusts the calculated cost-per-use to reflect real-world durability, reliability, and longevity. A quality score of 8 on a $500 suit worn over eight years produces a dramatically different true cost than a quality score of 4 on a $150 suit worn for eighteen months.</p>
+      <p>The implication for Sprint planning is significant: quality purchases often belong in the Defer & Save category, not the Eliminate category. The True Cost Engine gives you the numbers to make that case to yourself — and to a skeptical spouse — without relying on taste or intuition.</p>`,
+      quote: { text: "It is unwise to pay too much, but it is worse to pay too little. When you pay too much, you lose a little money — that is all. When you pay too little, you sometimes lose everything, because the thing you bought was incapable of doing what it was bought to do.", author: "— John Ruskin, 1860s" },
+      tags: ["QUALITY SCORE", "COST-PER-USE", "DURABILITY", "VALUE ANALYSIS"],
+      refs: "[B2][B6]"
+    },
+    tce3: {
+      eyebrow: "TRUE COST ENGINE™ · COMPONENT 03",
+      icon: "📋",
+      title: "The Lifestyle Ledger",
+      subtitle: '"Most people have never seen the monthly cost of everything they own. This number changes everything."',
+      body: `<p>The Lifestyle Ledger is the most powerful and unique element of the True Cost Engine — and one of the most distinctive features in the entire ScaledMoney|OS framework. It answers a question almost no financial system has ever asked: what does your material life cost you per month, in aggregate, across everything you already own?</p>
+      <p>The process is straightforward. You catalog every significant possession — car, electronics, appliances, furniture, clothing — and calculate its true monthly depreciation cost using the True Cost Engine formula. Then you total them. The result is your Lifestyle Depreciation Number: the hidden monthly cost embedded in your existing possessions, before a single discretionary dollar is spent.</p>
+      <p>Most people who run this calculation are shocked. A household with two financed vehicles, standard appliances, a sofa, TV, laptops, and smartphones can easily carry $800–$1,200/month in Lifestyle Depreciation — a number that appears nowhere in their budget because it is spread invisibly across purchase dates, not monthly line items.</p>
+      <p>The Lifestyle Ledger becomes a decision engine for the future. When something on the ledger reaches end-of-life, you know exactly when it is coming, what it will cost, and whether to replace with same, upgrade, or eliminate. It transforms reactive, emotionally-driven replacement purchases into planned, funded, data-driven decisions.</p>
+      <p>This is the living document at the heart of Level 2 Dollar Flow planning — where the Lifestyle Ledger feeds directly into the Dollar Backlog and quarterly PI planning process.</p>`,
+      quote: { text: "Most people don't have a spending problem. They have a visibility problem. The Lifestyle Ledger makes the invisible visible — and what becomes visible becomes manageable.", author: "— ScaledMoney|OS™ Core Methodology" },
+      tags: ["LIFESTYLE LEDGER", "DEPRECIATION", "MATERIAL COST", "DECISION PLANNING"],
+      refs: "[B3][B4][B5]"
+    }
+  };
+
+  function openModal(id) {
+    const d = modals[id];
+    if (!d) return;
+    document.getElementById('modal-inner').innerHTML = `
+      <div class="modal-eyebrow">${d.eyebrow} <span class="ref-num">${d.refs}</span></div>
+      <span class="modal-icon">${d.icon}</span>
+      <h2>${d.title}</h2>
+      <div class="modal-subtitle">${d.subtitle}</div>
+      <div class="modal-body">${d.body}</div>
+      <div class="modal-quote">
+        <blockquote>${d.quote.text}</blockquote>
+        <cite>${d.quote.author}</cite>
+      </div>
+      <div class="modal-tags">${d.tags.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>
+    `;
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function closeModalOnBg(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
