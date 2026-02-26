@@ -1,51 +1,51 @@
 {
-      "version": 2,
-      "name": "scaledmoney-os",
-      "redirects": [
-              { "source": "/tool/sprint",    "destination": "/tools/sprint-planner", "permanent": true },
-              { "source": "/tool/gap",       "destination": "/tools/gap-audit",      "permanent": true },
-              { "source": "/tool/truecost",  "destination": "/tools/true-cost",      "permanent": true }
-      ],
-      "rewrites": [
-              { "source": "/tools/sprint-planner", "destination": "/public/tools/lean-dollar-sprint-budget-planner.html" },
-              { "source": "/tools/gap-audit",      "destination": "/public/tools/lean-dollar-gap-audit.html" },
-              { "source": "/tools/true-cost",      "destination": "/public/tools/lean-dollar-true-cost-engine-v2.html" },
-              { "source": "/framework",            "destination": "/public/scaledmoney-os-level1.html" },
-              { "source": "/login",                "destination": "/public/login.html" },
-              { "source": "/logout",               "destination": "/public/logout.html" },
-              { "source": "/api/:path*",           "destination": "/api/:path*" },
-              { "source": "/lib/:path*",           "destination": "/public/lib/:path*" },
-              { "source": "/:path*",               "destination": "/public/:path*" }
-      ],
-      "headers": [
-              {
-                        "source": "/(.*)",
-                        "headers": [
-                                    { "key": "X-Frame-Options",           "value": "DENY" },
-                                    { "key": "X-Content-Type-Options",    "value": "nosniff" },
-                                    { "key": "Referrer-Policy",           "value": "strict-origin-when-cross-origin" },
-                                    { "key": "Permissions-Policy",        "value": "camera=(), microphone=(), geolocation=()" },
-                                    { "key": "Content-Security-Policy",   "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com; frame-src https://js.stripe.com;" },
-                                    { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
-                        ]
-              },
-              {
-                        "source": "/api/(.*)",
-                        "headers": [
-                                    { "key": "Cache-Control", "value": "no-store, no-cache" }
-                        ]
-              },
-              {
-                        "source": "/public/lib/(.*)",
-                        "headers": [
-                                    { "key": "Cache-Control", "value": "public, max-age=3600" }
-                        ]
-              }
-      ],
-      "functions": {
-              "api/*.js": {
-                        "memory": 128,
-                        "maxDuration": 10
-              }
-      }
+        "version": 2,
+        "name": "scaledmoney-os",
+        "redirects": [
+                  { "source": "/",              "destination": "/login",                "permanent": false },
+                  { "source": "/tool/sprint",   "destination": "/tools/sprint-planner", "permanent": true },
+                  { "source": "/tool/gap",      "destination": "/tools/gap-audit",      "permanent": true },
+                  { "source": "/tool/truecost", "destination": "/tools/true-cost",      "permanent": true }
+        ],
+        "rewrites": [
+                  { "source": "/tools/sprint-planner", "destination": "/tools/lean-dollar-sprint-budget-planner.html" },
+                  { "source": "/tools/gap-audit",      "destination": "/tools/lean-dollar-gap-audit.html" },
+                  { "source": "/tools/true-cost",      "destination": "/tools/lean-dollar-true-cost-engine-v2.html" },
+                  { "source": "/framework",            "destination": "/scaledmoney-os-level1.html" },
+                  { "source": "/login",                "destination": "/login.html" },
+                  { "source": "/logout",               "destination": "/logout.html" },
+                  { "source": "/api/:path*",           "destination": "/api/:path*" },
+                  { "source": "/lib/:path*",           "destination": "/lib/:path*" }
+        ],
+        "headers": [
+                  {
+                              "source": "/(.*)",
+                              "headers": [
+                                            { "key": "X-Frame-Options",          "value": "DENY" },
+                                            { "key": "X-Content-Type-Options",   "value": "nosniff" },
+                                            { "key": "Referrer-Policy",          "value": "strict-origin-when-cross-origin" },
+                                            { "key": "Permissions-Policy",       "value": "camera=(), microphone=(), geolocation=()" },
+                                            { "key": "Content-Security-Policy",  "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com; frame-src https://js.stripe.com;" },
+                                            { "key": "Strict-Transport-Security","value": "max-age=63072000; includeSubDomains; preload" }
+                              ]
+                  },
+                  {
+                              "source": "/api/(.*)",
+                              "headers": [
+                                            { "key": "Cache-Control", "value": "no-store, no-cache" }
+                              ]
+                  },
+                  {
+                              "source": "/lib/(.*)",
+                              "headers": [
+                                            { "key": "Cache-Control", "value": "public, max-age=3600" }
+                              ]
+                  }
+        ],
+        "functions": {
+                  "api/*.js": {
+                              "memory": 128,
+                              "maxDuration": 10
+                  }
+        }
 }
