@@ -175,6 +175,34 @@ a { color: inherit; text-decoration: none; }
   .section-header, .workflow-grid, .exec-grid, .pdca-section, .pdca-steps { padding-left: 20px; padding-right: 20px; }
   .section-rule { margin-left: 20px; margin-right: 20px; }
 }
+
+/* Quickstart Checklist */
+.quickstart { max-width: 900px; margin: 0 auto 40px; padding: 0 24px; }
+.quickstart-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; }
+.quickstart-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--emerald)); }
+.quickstart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.quickstart-title { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--gold); }
+.quickstart-title span { color: var(--gray); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 400; display: block; margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+.quickstart-progress { font-size: 0.85rem; color: var(--emerald); font-weight: 500; }
+.quickstart-progress .pct { font-size: 1.5rem; font-weight: 600; }
+.qs-items { display: flex; flex-direction: column; gap: 12px; }
+.qs-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-radius: 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(201,168,76,0.08); transition: all 0.2s; cursor: pointer; }
+.qs-item:hover { background: rgba(201,168,76,0.05); border-color: rgba(201,168,76,0.2); }
+.qs-item.checked { opacity: 0.55; }
+.qs-item.checked .qs-label { text-decoration: line-through; }
+.qs-check { flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--gold-dim); background: transparent; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 2px; }
+.qs-item.checked .qs-check { background: var(--emerald); border-color: var(--emerald); }
+.qs-checkmark { display: none; color: var(--navy); font-size: 14px; font-weight: 700; }
+.qs-item.checked .qs-checkmark { display: block; }
+.qs-content { flex: 1; }
+.qs-label { font-weight: 500; font-size: 0.95rem; color: var(--white); margin-bottom: 3px; }
+.qs-desc { font-size: 0.8rem; color: var(--gray); line-height: 1.5; }
+.qs-bar-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; margin-top: 20px; overflow: hidden; }
+.qs-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--emerald)); border-radius: 3px; transition: width 0.5s ease; }
+.qs-complete-msg { text-align: center; padding: 16px 0 0; color: var(--emerald); font-weight: 500; font-size: 0.9rem; display: none; }
+.qs-complete-msg.show { display: block; }
+@media(max-width:600px) { .quickstart-card { padding: 20px; } .quickstart-header { flex-direction: column; align-items: flex-start; } }
+
 </style>
 </head><body>
 
@@ -195,6 +223,54 @@ a { color: inherit; text-decoration: none; }
   <p>Your financial operating system. Plan every paycheck, execute with structure, review weekly, and adjust monthly. One cycle at a time.</p>
   <div class="hero-status"><span class="dot"></span>Lean Dollar: Core · Free Tier Active</div>
 </section>
+
+<div class="quickstart">
+  <div class="quickstart-card">
+    <div class="quickstart-header">
+      <div class="quickstart-title">✅ Quickstart Checklist<span>Everything you need to launch your first sprint</span></div>
+      <div class="quickstart-progress"><span class="pct" id="qsPct">0</span>% ready</div>
+    </div>
+    <div class="qs-items" id="qsItems">
+      <div class="qs-item" data-key="qs_backlog" onclick="toggleQS(this)">
+        <div class="qs-check"><span class="qs-checkmark">✓</span></div>
+        <div class="qs-content">
+          <div class="qs-label">📋 Budget Info (Backlog)</div>
+          <div class="qs-desc">Gather your income sources, recurring bills, debts, and savings goals. This is your raw material — the backlog every sprint pulls from.</div>
+        </div>
+      </div>
+      <div class="qs-item" data-key="qs_roles" onclick="toggleQS(this)">
+        <div class="qs-check"><span class="qs-checkmark">✓</span></div>
+        <div class="qs-content">
+          <div class="qs-label">👥 Roles Assigned</div>
+          <div class="qs-desc">Decide who owns each responsibility: bill payments, grocery budget, savings transfers. If solo, you wear every hat — acknowledge each role.</div>
+        </div>
+      </div>
+      <div class="qs-item" data-key="qs_sprint_planning" onclick="toggleQS(this)">
+        <div class="qs-check"><span class="qs-checkmark">✓</span></div>
+        <div class="qs-content">
+          <div class="qs-label">📅 Meeting: Sprint Budget Planning</div>
+          <div class="qs-desc">Schedule 15 min before each paycheck to allocate every dollar. This is your Sprint Planning ceremony — the foundation of each cycle.</div>
+        </div>
+      </div>
+      <div class="qs-item" data-key="qs_standup" onclick="toggleQS(this)">
+        <div class="qs-check"><span class="qs-checkmark">✓</span></div>
+        <div class="qs-content">
+          <div class="qs-label">🗣️ Meeting: Standup (Dollar Standup)</div>
+          <div class="qs-desc">Daily when starting out, or at least twice a week. A quick 5–10 min check: Am I on track? Any surprises? One adjustment for today.</div>
+        </div>
+      </div>
+      <div class="qs-item" data-key="qs_retro" onclick="toggleQS(this)">
+        <div class="qs-check"><span class="qs-checkmark">✓</span></div>
+        <div class="qs-content">
+          <div class="qs-label">🔄 Meeting: Retro</div>
+          <div class="qs-desc">Schedule 20 min at the end of each sprint. Reflect on what went well, what didn’t, and one thing to improve. Continuous improvement starts here.</div>
+        </div>
+      </div>
+    </div>
+    <div class="qs-bar-track"><div class="qs-bar-fill" id="qsBar" style="width:0%"></div></div>
+    <div class="qs-complete-msg" id="qsDone">🎉 You’re all set! Launch your first sprint below.</div>
+  </div>
+</div>
 
 <div class="section-header"><h2>— Ready to Plan Your Budget?</h2><span class="meta">FOLLOW THE SEQUENCE</span></div>
 <div class="section-rule"></div>
@@ -360,6 +436,35 @@ function rotateQuote(){
   document.getElementById('quote-author').textContent='— '+quotes[i].author.toUpperCase();
 }
 setInterval(rotateQuote,30000);
+
+function toggleQS(el) {
+  el.classList.toggle('checked');
+  var key = el.getAttribute('data-key');
+  var state = JSON.parse(localStorage.getItem('sm_quickstart') || '{}');
+  state[key] = el.classList.contains('checked');
+  localStorage.setItem('sm_quickstart', JSON.stringify(state));
+  updateQSProgress();
+}
+function updateQSProgress() {
+  var items = document.querySelectorAll('.qs-item');
+  var total = items.length;
+  var done = document.querySelectorAll('.qs-item.checked').length;
+  var pct = Math.round((done / total) * 100);
+  document.getElementById('qsPct').textContent = pct;
+  document.getElementById('qsBar').style.width = pct + '%';
+  var msg = document.getElementById('qsDone');
+  if (pct === 100) { msg.classList.add('show'); } else { msg.classList.remove('show'); }
+}
+function loadQSState() {
+  var state = JSON.parse(localStorage.getItem('sm_quickstart') || '{}');
+  document.querySelectorAll('.qs-item').forEach(function(el) {
+    var key = el.getAttribute('data-key');
+    if (state[key]) { el.classList.add('checked'); }
+  });
+  updateQSProgress();
+}
+loadQSState();
+
 </script>
 
 </body>
