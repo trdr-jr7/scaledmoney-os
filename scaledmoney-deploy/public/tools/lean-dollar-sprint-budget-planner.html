@@ -136,7 +136,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 /* ── CATEGORY ROWS ── */
 .cat-row{background:var(--card2);border:1px solid rgba(255,255,255,0.05);border-radius:10px;
   padding:14px 16px;margin-bottom:8px;display:grid;
-  grid-template-columns:28px 1fr 140px 100px 90px;
+  grid-template-columns:28px 1fr 120px 90px 90px 90px 70px;
   gap:10px;align-items:center;transition:border-color 0.2s;}
 .cat-row:hover{border-color:rgba(201,168,76,0.15);}
 .cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
@@ -148,6 +148,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .cat-alloc{width:100%;background:var(--navy3);border:1px solid rgba(201,168,76,0.15);border-radius:6px;
   padding:7px 8px 7px 22px;color:var(--w);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
 .cat-alloc:focus{border-color:var(--gold);}
+.cat-actual-wrap{position:relative;}
+.cat-actual-wrap::before{content:"$";position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--em);font-family:"DM Mono",monospace;font-size:11px;pointer-events:none;}
+.cat-actual{width:100%;background:rgba(45,212,160,0.06);border:1px solid rgba(45,212,160,0.15);border-radius:6px;color:var(--em);font-family:"DM Mono",monospace;font-size:12px;padding:8px 8px 8px 18px;text-align:right;transition:border-color 0.2s;}
+.cat-actual:focus{border-color:var(--em);}
+.cat-actual::placeholder{color:rgba(136,146,164,0.4);}
+.cat-variance{display:flex;align-items:center;justify-content:center;font-family:"DM Mono",monospace;font-size:12px;font-weight:500;}
 .cat-remove{background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.15);
   color:var(--red);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:11px;transition:all 0.2s;white-space:nowrap;}
 .cat-remove:hover{background:rgba(224,85,85,0.18);}
@@ -198,7 +204,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 #burndown-canvas{width:100%;height:220px;display:block;}
 
 /* Category burn bars */
-.burn-bar-row{display:grid;grid-template-columns:120px 1fr 80px 70px;gap:10px;align-items:center;margin-bottom:10px;}
+.burn-bar-row{display:grid;grid-template-columns:120px 1fr 70px 70px 70px;gap:10px;align-items:center;margin-bottom:10px;}
 .burn-bar-name{font-size:12px;color:var(--gl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .burn-bar-track{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
 .burn-bar-fill{height:100%;border-radius:4px;transition:width 0.5s;}
@@ -764,7 +770,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div></div>
     <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;">CATEGORY</div>
     <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;text-align:center;">VELOCITY <sup title="Your historical avg spend — enter past actuals to enable">ℹ</sup></div>
-    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;text-align:right;">ALLOCATION</div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--g);letter-spacing:0.12em;text-align:right;">PLANNED</div>
+    <div style="font-size:9px;letter-spacing:0.08em;color:var(--g);text-transform:uppercase">ACTUAL</div>
+    <div style="font-size:9px;letter-spacing:0.08em;color:var(--g);text-transform:uppercase">VARIANCE</div>
     <div></div>
   </div>
 
@@ -978,6 +986,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;text-align:right;">SPENT</div>
       <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;text-align:right;">LEFT</div>
       <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--g);letter-spacing:0.1em;text-align:right;">ACTUAL $</div>
+    <div style="font-size:9px;letter-spacing:0.1em;text-align:right;">+/- $</div>
     </div>
     <div id="burn-bars"></div>
   </div>
@@ -1460,10 +1469,17 @@ function renderCatRows() {
           value="${cat.alloc || ''}"
           oninput="updateCatAlloc(${i}, this.value)">
       </div>
+      <div class="cat-actual-wrap">
+        <input class="cat-actual" type="number" placeholder="0"
+          value="${state.actuals[cat.name] || ''}"
+          oninput="updateActual('${cat.name}', this.value); recalcCatVariance(${i})">
+      </div>
+      <div class="cat-variance" id="cat-var-${i}"></div>
       <button class="cat-remove" onclick="removeCat(${i})">Remove</button>`;
     wrap.appendChild(row);
   });
   recalcLoad();
+  recalcAllVariances();
 }
 
 function updateCatAlloc(i, val) {
@@ -1824,7 +1840,7 @@ function drawBurndown() {
     ctx.fillText('D' + d, x, pad.top + ch + 16);
   }
 
-  // Ideal line (dashed, light gray)
+  // Planned line (dashed, shows ideal budget burn)
   ctx.setLineDash([4, 4]);
   ctx.strokeStyle = 'rgba(136,146,164,0.35)';
   ctx.lineWidth = 1.5;
@@ -1834,7 +1850,7 @@ function drawBurndown() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Projected line based on actuals + linear extrapolation
+  // Actual spend line (solid, shows real cumulative spending)
   const today = new Date().getDate();
   const spentSoFar = Object.values(state.actuals).reduce((s, v) => s + (parseFloat(v) || 0), 0);
   const dailyRate  = today > 0 ? spentSoFar / today : 0;
@@ -1867,7 +1883,7 @@ function drawBurndown() {
   ctx.fill();
 
   // Projected line
-  ctx.strokeStyle = 'var(--sprint)';
+  ctx.strokeStyle = 'var(--em)';
   ctx.lineWidth = 2;
   ctx.beginPath();
   pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
@@ -1890,6 +1906,22 @@ function drawBurndown() {
   ctx.font = '9px DM Mono, monospace';
   ctx.textAlign = 'center';
   ctx.fillText('SPRINT DAY', pad.left + cw / 2, H - 4);
+    // Legend
+    ctx.setLineDash([]);
+    ctx.font = '9px DM Mono, monospace';
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = 'rgba(136,146,164,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.left, H - 18); ctx.lineTo(pad.left + 20, H - 18); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(136,146,164,0.7)';
+    ctx.textAlign = 'left';
+    ctx.fillText('PLANNED', pad.left + 24, H - 15);
+    ctx.strokeStyle = 'var(--em)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad.left + 90, H - 18); ctx.lineTo(pad.left + 110, H - 18); ctx.stroke();
+    ctx.fillStyle = 'rgba(45,212,160,0.7)';
+    ctx.fillText('ACTUAL', pad.left + 114, H - 15);
 }
 
 // ── Category Burn Bars ────────────────────────────────
@@ -1922,6 +1954,9 @@ function renderBurnBars() {
           <span style="position:absolute;left:6px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:11px;pointer-events:none;">$</span>
         </div>
       </div>
+      <div class="burn-bar-variance" style="text-align:right;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;min-width:60px;">
+        ${(() => { const v = alloc - actual; return alloc > 0 ? '<span style="color:' + (v >= 0 ? 'var(--em)' : 'var(--danger)') + '">' + (v >= 0 ? '+' : '') + fmt(v) + '</span>' : '<span style="color:var(--g)">\u2014</span>'; })()}
+      </div>
     </div>`;
   }).join('');
 }
@@ -1930,6 +1965,24 @@ function updateActual(catName, val) {
   state.actuals[catName] = parseFloat(val) || 0;
   renderBurnBars();
   drawBurndown();
+}
+
+function recalcCatVariance(i) {
+  const cat = state.categories[i];
+  if (!cat) return;
+  const el = document.getElementById('cat-var-' + i);
+  if (!el) return;
+  const actual = parseFloat(state.actuals[cat.name]) || 0;
+  const planned = cat.alloc || 0;
+  if (planned <= 0) { el.innerHTML = '<span style="color:var(--g)">\u2014</span>'; return; }
+  const diff = planned - actual;
+  const color = diff >= 0 ? 'var(--em)' : 'var(--red)';
+  const sign = diff >= 0 ? '+' : '';
+  el.innerHTML = '<span style="color:' + color + '">' + sign + '$' + Math.abs(Math.round(diff)).toLocaleString() + '</span>';
+}
+
+function recalcAllVariances() {
+  state.categories.forEach((cat, i) => recalcCatVariance(i));
 }
 
 // ══════════════════════════════════════════════════════
