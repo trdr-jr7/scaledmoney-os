@@ -11,6 +11,7 @@
                   { "source": "/tools/sprint-planner", "destination": "/tools/lean-dollar-sprint-budget-planner.html" },
                   { "source": "/tools/gap-audit",      "destination": "/tools/lean-dollar-gap-audit.html" },
                   { "source": "/tools/true-cost",      "destination": "/tools/lean-dollar-true-cost-engine-v2.html" },
+                        { "source": "/tools/retro",       "destination": "/tools/lean-dollar-sprint-retro.html" },
                   { "source": "/framework",            "destination": "/scaledmoney-os-level1.html" },
                   { "source": "/login",                "destination": "/login.html" },
                   { "source": "/logout",               "destination": "/logout.html" },
