@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint Retro — ScaledMoney|OS™</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a0f1e; --navy-mid: #111827; --navy-light: #1a2540;
+  --gold: #c9a84c; --gold-light: #e8c96a; --gold-dim: #8a6f2e;
+  --emerald: #2dd4a0; --emerald-dim: #1a7a5e;
+  --white: #f5f3ef; --gray: #8892a4; --gray-light: #c5cad4;
+  --card-bg: #141c2e; --card-border: rgba(201,168,76,0.15);
+  --plan-purple: #a78bfa; --do-gold: #c9a84c;
+  --check-emerald: #2dd4a0; --adjust-rose: #f472b6;
+  --well-green: #22c55e; --didnt-red: #ef4444; --improve-blue: #3b82f6;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; border-bottom: 1px solid var(--card-border); position: sticky; top: 0; z-index: 100; background: var(--navy); }
+.nav-brand { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.5px; }
+.nav-brand span { font-weight: 300; color: var(--gray); margin-left: 6px; }
+.nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.nav-pill { padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase; border: 1px solid var(--card-border); transition: all 0.2s; }
+.nav-pill:hover { border-color: var(--gold); color: var(--gold); }
+.nav-pill.active { background: var(--adjust-rose); color: var(--navy); border-color: var(--adjust-rose); }
+.hero { text-align: center; padding: 60px 40px 40px; border-bottom: 1px solid var(--card-border); }
+.hero-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--adjust-rose); margin-bottom: 16px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; margin-bottom: 12px; }
+.hero h1 em { font-style: italic; color: var(--adjust-rose); }
+.hero p { color: var(--gray-light); max-width: 640px; margin: 0 auto; font-size: 16px; }
+.hero-meta { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 8px 20px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--card-border); font-size: 13px; color: var(--gray-light); }
+.section-header { display: flex; align-items: center; justify-content: space-between; padding: 0 40px; margin: 48px 0 24px; }
+.section-header h2 { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+.section-header .meta { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); }
+.section-rule { height: 1px; background: linear-gradient(90deg, var(--gold) 30%, transparent); margin: 0 40px 32px; }
+.content { max-width: 900px; margin: 0 auto; padding: 0 40px; }
+.why-section { padding: 0 40px 48px; }
+.why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 900px; margin: 0 auto; }
+.why-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 28px 24px; }
+.why-card h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--white); }
+.why-card p { font-size: 14px; color: var(--gray); }
+.why-card .icon { font-size: 28px; margin-bottom: 12px; }
+.process-section { padding: 0 40px 48px; }
+.process-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 900px; margin: 0 auto; }
+.process-step { text-align: center; padding: 32px 24px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; transition: border-color 0.2s, transform 0.2s; }
+.process-step:hover { transform: translateY(-2px); }
+.process-step .step-num { font-size: 48px; font-family: 'Playfair Display', serif; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+.process-step .step-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.process-step h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+.process-step p { font-size: 13px; color: var(--gray); }
+.step-well .step-num, .step-well .step-label { color: var(--well-green); }
+.step-well:hover { border-color: var(--well-green); }
+.step-didnt .step-num, .step-didnt .step-label { color: var(--didnt-red); }
+.step-didnt:hover { border-color: var(--didnt-red); }
+.step-improve .step-num, .step-improve .step-label { color: var(--improve-blue); }
+.step-improve:hover { border-color: var(--improve-blue); }
+.retro-form { max-width: 900px; margin: 0 auto; padding: 0 40px 48px; }
+.form-group { margin-bottom: 28px; }
+.form-label { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.form-label .label-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.form-label .label-dot.green { background: var(--well-green); }
+.form-label .label-dot.red { background: var(--didnt-red); }
+.form-label .label-dot.blue { background: var(--improve-blue); }
+.form-label h3 { font-size: 16px; font-weight: 600; }
+.form-label .label-hint { font-size: 12px; color: var(--gray); margin-left: auto; }
+.form-textarea { width: 100%; min-height: 120px; padding: 16px; border-radius: 10px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; resize: vertical; transition: border-color 0.2s; }
+.form-textarea:focus { outline: none; border-color: var(--gold); }
+.form-textarea::placeholder { color: var(--gray); }
+.improve-track { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; margin-top: 12px; }
+.improve-track-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.improve-track-header h4 { font-size: 14px; font-weight: 500; color: var(--improve-blue); }
+.toggle-switch { position: relative; width: 48px; height: 26px; cursor: pointer; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--navy-light); border: 1px solid var(--card-border); border-radius: 26px; transition: 0.3s; }
+.toggle-slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 2px; bottom: 2px; background: var(--gray); border-radius: 50%; transition: 0.3s; }
+.toggle-switch input:checked + .toggle-slider { background: rgba(59,130,246,0.3); border-color: var(--improve-blue); }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(22px); background: var(--improve-blue); }
+.improve-details { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); }
+.improve-details.show { display: block; }
+.improve-input { width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--navy-light); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 14px; margin-bottom: 10px; }
+.improve-input:focus { outline: none; border-color: var(--improve-blue); }
+.improve-input::placeholder { color: var(--gray); }
+.improve-row { display: flex; gap: 10px; }
+.improve-row select { flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--navy-light); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 13px; appearance: none; -webkit-appearance: none; cursor: pointer; }
+.improve-row select:focus { outline: none; border-color: var(--improve-blue); }
+.improve-note { font-size: 12px; color: var(--gray); margin-top: 10px; }
+.form-actions { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+.btn-primary { padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: all 0.2s; background: var(--gold); color: var(--navy); }
+.btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn-secondary { padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 500; border: 1px solid var(--card-border); cursor: pointer; transition: all 0.2s; background: transparent; color: var(--gray-light); }
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold-light); }
+.saved-retros { max-width: 900px; margin: 0 auto; padding: 0 40px 48px; }
+.retro-list { display: flex; flex-direction: column; gap: 12px; }
+.retro-entry { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.2s; cursor: pointer; }
+.retro-entry:hover { border-color: var(--gold); }
+.retro-entry-left { display: flex; align-items: center; gap: 16px; }
+.retro-date { font-size: 14px; font-weight: 500; }
+.retro-sprint { font-size: 12px; color: var(--gray); }
+.retro-entry-right { display: flex; align-items: center; gap: 12px; }
+.retro-badge { padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; }
+.badge-has-improve { background: rgba(59,130,246,0.15); color: var(--improve-blue); }
+.sources-section { max-width: 900px; margin: 0 auto; padding: 0 40px 48px; }
+.source-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.source-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; transition: border-color 0.2s; }
+.source-card:hover { border-color: var(--gold); }
+.source-card .source-type { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+.source-card h4 { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.source-card p { font-size: 13px; color: var(--gray); margin-bottom: 12px; }
+.source-card .source-link { font-size: 12px; color: var(--gold); display: inline-flex; align-items: center; gap: 4px; }
+.source-card .source-link:hover { color: var(--gold-light); }
+.quote-section { text-align: center; padding: 48px 40px 60px; border-top: 1px solid var(--card-border); }
+.quote-text { font-family: 'Playfair Display', serif; font-size: 24px; font-style: italic; font-weight: 400; color: var(--gray-light); max-width: 700px; margin: 0 auto 12px; }
+.quote-author { font-size: 13px; color: var(--gold-dim); letter-spacing: 1px; }
+.footer { text-align: center; padding: 24px 40px; font-size: 12px; color: var(--gray); letter-spacing: 1px; border-top: 1px solid var(--card-border); }
+.footer a:hover { color: var(--gold); }
+.toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; border-radius: 10px; background: var(--emerald); color: var(--navy); font-weight: 500; font-size: 14px; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 200; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.empty-state { text-align: center; padding: 40px; color: var(--gray); font-size: 14px; }
+@media (max-width: 900px) {
+  .process-steps { grid-template-columns: 1fr; }
+  .why-grid, .source-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .hero h1 { font-size: 32px; }
+  .nav { padding: 12px 20px; }
+  .section-header, .retro-form, .saved-retros, .sources-section, .why-section, .process-section { padding-left: 20px; padding-right: 20px; }
+  .section-rule { margin-left: 20px; margin-right: 20px; }
+  .form-actions { flex-direction: column; }
+  .improve-row { flex-direction: column; }
+}
+</style>
+</head><body>
+
+<nav class="nav">
+  <a href="/dashboard" class="nav-brand">ScaledMoney|OS™<span>· Sprint Retro</span></a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-pill">DASHBOARD</a>
+    <a href="/framework" class="nav-pill">FRAMEWORK</a>
+    <a href="/tools/sprint-planner" class="nav-pill">PLANNER</a>
+    <a href="/tools/gap-audit" class="nav-pill">GAP AUDIT</a>
+    <a href="/tools/true-cost" class="nav-pill">TRUE COST</a>
+    <a href="/tools/retro" class="nav-pill active">RETRO</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-label">— A · ADJUST PHASE —</div>
+  <h1>Sprint <em>Retro</em></h1>
+  <p>Every sprint ends with a question: what did I learn? The retro turns reflection into action — one small improvement, compounding over time.</p>
+  <div class="hero-meta">⏱ ~20 min · Monthly · End of Sprint</div>
+</section>
+
+<div class="section-header"><h2>— Why Retros Matter</h2><span class="meta">THE SCIENCE OF REFLECTION</span></div>
+<div class="section-rule"></div>
+
+<div class="why-section">
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="icon">🧠</div>
+      <h3>Reflection Drives Learning</h3>
+      <p>Research from Harvard Business School shows that reflecting on what you did increases performance by 23% compared to simply doing more. Thinking about your financial habits is the highest-leverage activity you can do.</p>
+    </div>
+    <div class="why-card">
+      <div class="icon">🔄</div>
+      <h3>Kaizen: Continuous Improvement</h3>
+      <p>The Japanese philosophy of Kaizen — small, continuous improvements — is the engine behind Toyota, Lean manufacturing, and now your finances. One 1% improvement per sprint compounds to 12%+ per year.</p>
+    </div>
+    <div class="why-card">
+      <div class="icon">🎯</div>
+      <h3>Close the PDCA Loop</h3>
+      <p>Without the Adjust step, Plan-Do-Check is incomplete. The retro is where you close the loop, turning observations into the next sprint's action. This is how systems evolve.</p>
+    </div>
+    <div class="why-card">
+      <div class="icon">📊</div>
+      <h3>Pattern Recognition</h3>
+      <p>Over multiple retros, patterns emerge: recurring overspending categories, timing issues, emotional triggers. The retro log becomes your personal financial playbook.</p>
+    </div>
+  </div>
+</div>
+<div class="section-header"><h2>— The 3-Step Process</h2><span class="meta">SIMPLE · STRUCTURED · POWERFUL</span></div>
+<div class="section-rule"></div>
+
+<div class="process-section">
+  <div class="process-steps">
+    <div class="process-step step-well">
+      <div class="step-num">1</div>
+      <div class="step-label">REFLECT</div>
+      <h3>What Went Well?</h3>
+      <p>Identify wins, habits that worked, and decisions that paid off. Reinforce what is working — don't skip celebrating progress, no matter how small.</p>
+    </div>
+    <div class="process-step step-didnt">
+      <div class="step-num">2</div>
+      <div class="step-label">RECOGNIZE</div>
+      <h3>What Didn't Go Well?</h3>
+      <p>No judgment. Just data. Name the overspends, missed targets, or friction points. Honesty here is the seed of every future improvement.</p>
+    </div>
+    <div class="process-step step-improve">
+      <div class="step-num">3</div>
+      <div class="step-label">ADJUST</div>
+      <h3>What Could We Improve?</h3>
+      <p>Pick one thing. Just one. The highest-leverage change you can make next sprint. Small bets, compounding returns.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-header"><h2>— Your Sprint Retro</h2><span class="meta">CAPTURE · REFLECT · IMPROVE</span></div>
+<div class="section-rule"></div>
+
+<div class="retro-form">
+  <div class="form-group">
+    <div class="form-label">
+      <span class="label-dot green"></span>
+      <h3>What Went Well?</h3>
+      <span class="label-hint">Wins, good habits, progress</span>
+    </div>
+    <textarea class="form-textarea" id="went-well" placeholder="e.g., Stayed within grocery budget, automated savings transfer worked perfectly, didn't touch the Gap fund..."></textarea>
+  </div>
+
+  <div class="form-group">
+    <div class="form-label">
+      <span class="label-dot red"></span>
+      <h3>What Didn't Go Well?</h3>
+      <span class="label-hint">No judgment — just data</span>
+    </div>
+    <textarea class="form-textarea" id="didnt-go-well" placeholder="e.g., Overspent on dining out by $80, forgot to check the sprint mid-week, impulse purchase on Amazon..."></textarea>
+  </div>
+
+  <div class="form-group">
+    <div class="form-label">
+      <span class="label-dot blue"></span>
+      <h3>What Could We Improve?</h3>
+      <span class="label-hint">Pick ONE high-leverage change</span>
+    </div>
+    <textarea class="form-textarea" id="improve" placeholder="e.g., Set a $50/week dining cap and pack lunch 3x per week, or do a Wednesday mid-sprint check-in..."></textarea>
+
+    <div class="improve-track">
+      <div class="improve-track-header">
+        <h4>📌 Track this as an Improvement Item?</h4>
+        <label class="toggle-switch">
+          <input type="checkbox" id="track-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p style="font-size:13px;color:var(--gray);">Turn this on to add your improvement to the dashboard as an active reminder. You'll see it on your next sprint so you don't forget.</p>
+      <div class="improve-details" id="improve-details">
+        <input class="improve-input" id="improve-title" type="text" placeholder="Short title for the improvement (e.g., 'Pack lunch 3x/week')">
+        <div class="improve-row">
+          <select id="improve-priority">
+            <option value="high">High Priority</option>
+            <option value="medium" selected>Medium Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+          <select id="improve-sprint">
+            <option value="next">Apply Next Sprint</option>
+            <option value="ongoing">Ongoing</option>
+          </select>
+        </div>
+        <p class="improve-note">💡 Tracked improvements appear on your Dashboard under Active Risks and in your next Sprint Planner session.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-primary" id="save-retro" onclick="saveRetro()">💾 Save Retro</button>
+    <button class="btn-secondary" onclick="clearForm()">Clear Form</button>
+    <button class="btn-secondary" onclick="exportRetro()">📤 Export as Text</button>
+  </div>
+</div>
+<div class="section-header"><h2>— Past Retros</h2><span class="meta">YOUR RETRO LOG</span></div>
+<div class="section-rule"></div>
+
+<div class="saved-retros">
+  <div class="retro-list" id="retro-list">
+    <div class="empty-state" id="empty-state">No retros saved yet. Complete your first retro above to start building your improvement log.</div>
+  </div>
+</div>
+
+<div class="section-header"><h2>— Why This Works · Sources + Research</h2><span class="meta">EVIDENCE-BASED</span></div>
+<div class="section-rule"></div>
+
+<div class="sources-section">
+  <div class="source-grid">
+    <div class="source-card">
+      <div class="source-type">RESEARCH</div>
+      <h4>Learning by Thinking</h4>
+      <p>Di Stefano, Gino, Pisano & Staats (Harvard Business School, 2014) found that reflecting on work improves performance 23% more than additional practice alone.</p>
+      <span class="source-link">Harvard Business School · Working Paper</span>
+    </div>
+    <div class="source-card">
+      <div class="source-type">METHODOLOGY</div>
+      <h4>The PDCA Cycle (Deming Cycle)</h4>
+      <p>W. Edwards Deming's Plan-Do-Check-Act cycle is the foundation of continuous improvement in manufacturing, healthcare, and now personal finance. The retro is the Act step.</p>
+      <span class="source-link">W. Edwards Deming Institute</span>
+    </div>
+    <div class="source-card">
+      <div class="source-type">PHILOSOPHY</div>
+      <h4>Kaizen: The Power of 1%</h4>
+      <p>Toyota's production system proved that small, continuous improvements outperform large, infrequent changes. James Clear popularized this as "atomic habits" — 1% better every day = 37x better in a year.</p>
+      <span class="source-link">Toyota Production System · Taiichi Ohno</span>
+    </div>
+    <div class="source-card">
+      <div class="source-type">AGILE PRACTICE</div>
+      <h4>Sprint Retrospectives</h4>
+      <p>Agile software teams have used retrospectives for 20+ years to build high-performing teams. The same framework — what went well, what didn't, what to improve — applies directly to personal finance sprints.</p>
+      <span class="source-link">Agile Manifesto · Principle 12</span>
+    </div>
+    <div class="source-card">
+      <div class="source-type">BEHAVIORAL SCIENCE</div>
+      <h4>Implementation Intentions</h4>
+      <p>Peter Gollwitzer's research shows that forming specific "if-then" plans (like tracking one improvement) increases follow-through by 2—3x compared to vague intentions.</p>
+      <span class="source-link">Gollwitzer, 1999 · American Psychologist</span>
+    </div>
+    <div class="source-card">
+      <div class="source-type">FINANCE</div>
+      <h4>The Review Habit</h4>
+      <p>A 2019 study in the Journal of Financial Planning found that individuals who reviewed their spending monthly saved 20% more than those who didn't. Structured review beats willpower.</p>
+      <span class="source-link">Journal of Financial Planning</span>
+    </div>
+  </div>
+</div>
+<section class="quote-section">
+  <div class="quote-text">“We do not learn from experience. We learn from reflecting on experience.”</div>
+  <div class="quote-author">— JOHN DEWEY</div>
+</section>
+
+<footer class="footer">
+  <a href="/dashboard">Dashboard</a> · <a href="/framework">Framework</a> · <a href="/tools/sprint-planner">Sprint Planner</a> · <a href="/tools/gap-audit">Gap Audit</a> · <a href="/tools/true-cost">True Cost</a> · <a href="/tools/retro">Retro</a>
+  <br><span style="margin-top:8px;display:inline-block;"><a href="/framework">ScaledMoney|OS™</a> · Lean Dollar: Core · v1.0</span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Toggle improvement tracking details
+document.getElementById('track-toggle').addEventListener('change', function() {
+  document.getElementById('improve-details').classList.toggle('show', this.checked);
+});
+
+// Save retro to localStorage
+function saveRetro() {
+  const wellVal = document.getElementById('went-well').value.trim();
+  const didntVal = document.getElementById('didnt-go-well').value.trim();
+  const improveVal = document.getElementById('improve').value.trim();
+
+  if (!wellVal && !didntVal && !improveVal) {
+    showToast('Please fill in at least one field before saving.', true);
+    return;
+  }
+
+  const retro = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    wentWell: wellVal,
+    didntGoWell: didntVal,
+    improve: improveVal,
+    tracked: document.getElementById('track-toggle').checked,
+    improveTitle: document.getElementById('improve-title').value.trim(),
+    improvePriority: document.getElementById('improve-priority').value,
+    improveSprint: document.getElementById('improve-sprint').value
+  };
+
+  const retros = JSON.parse(localStorage.getItem('sm_retros') || '[]');
+  retros.unshift(retro);
+  localStorage.setItem('sm_retros', JSON.stringify(retros));
+
+  // If tracking improvement, save to improvements list
+  if (retro.tracked && retro.improveTitle) {
+    const improvements = JSON.parse(localStorage.getItem('sm_improvements') || '[]');
+    improvements.unshift({
+      id: retro.id,
+      title: retro.improveTitle,
+      detail: retro.improve,
+      priority: retro.improvePriority,
+      sprint: retro.improveSprint,
+      status: 'active',
+      createdAt: retro.date
+    });
+    localStorage.setItem('sm_improvements', JSON.stringify(improvements));
+  }
+
+  showToast('Retro saved successfully!');
+  clearForm();
+  renderRetros();
+}
+
+function clearForm() {
+  document.getElementById('went-well').value = '';
+  document.getElementById('didnt-go-well').value = '';
+  document.getElementById('improve').value = '';
+  document.getElementById('track-toggle').checked = false;
+  document.getElementById('improve-details').classList.remove('show');
+  document.getElementById('improve-title').value = '';
+  document.getElementById('improve-priority').value = 'medium';
+  document.getElementById('improve-sprint').value = 'next';
+}
+
+function exportRetro() {
+  const wellVal = document.getElementById('went-well').value.trim();
+  const didntVal = document.getElementById('didnt-go-well').value.trim();
+  const improveVal = document.getElementById('improve').value.trim();
+  const date = new Date().toLocaleDateString();
+
+  const text = 'SPRINT RETRO — ' + date + '\n'
+    + '================================\n\n'
+    + '· WHAT WENT WELL:\n' + (wellVal || '(none)') + '\n\n'
+    + '· WHAT DIDN\'T GO WELL:\n' + (didntVal || '(none)') + '\n\n'
+    + '· WHAT TO IMPROVE:\n' + (improveVal || '(none)') + '\n\n'
+    + '— ScaledMoney|OS™ Sprint Retro';
+
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sprint-retro-' + new Date().toISOString().split('T')[0] + '.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Retro exported!');
+}
+
+function renderRetros() {
+  const retros = JSON.parse(localStorage.getItem('sm_retros') || '[]');
+  const list = document.getElementById('retro-list');
+  const empty = document.getElementById('empty-state');
+
+  if (retros.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // Clear existing entries (except empty state)
+  list.querySelectorAll('.retro-entry').forEach(el => el.remove());
+
+  retros.slice(0, 10).forEach(r => {
+    const d = new Date(r.date);
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const entry = document.createElement('div');
+    entry.className = 'retro-entry';
+    entry.onclick = () => expandRetro(r);
+    entry.innerHTML = '<div class="retro-entry-left"><div><div class="retro-date">' + dateStr + '</div><div class="retro-sprint">Sprint Retro</div></div></div>'
+      + '<div class="retro-entry-right">'
+      + (r.tracked ? '<span class="retro-badge badge-has-improve">📌 Tracking Improvement</span>' : '')
+      + '<span style="color:var(--gray);font-size:12px;">→</span>'
+      + '</div>';
+    list.appendChild(entry);
+  });
+}
+
+function expandRetro(r) {
+  document.getElementById('went-well').value = r.wentWell || '';
+  document.getElementById('didnt-go-well').value = r.didntGoWell || '';
+  document.getElementById('improve').value = r.improve || '';
+  if (r.tracked) {
+    document.getElementById('track-toggle').checked = true;
+    document.getElementById('improve-details').classList.add('show');
+    document.getElementById('improve-title').value = r.improveTitle || '';
+    document.getElementById('improve-priority').value = r.improvePriority || 'medium';
+    document.getElementById('improve-sprint').value = r.improveSprint || 'next';
+  }
+  window.scrollTo({ top: document.getElementById('went-well').offsetTop - 100, behavior: 'smooth' });
+  showToast('Loaded retro from ' + new Date(r.date).toLocaleDateString());
+}
+
+function showToast(msg, isError) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.background = isError ? 'var(--didnt-red)' : 'var(--emerald)';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Initialize
+renderRetros();
+</script>
+
+</body>
+</html>
