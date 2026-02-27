@@ -2,7 +2,7 @@
         "version": 2,
         "name": "scaledmoney-os",
         "redirects": [
-                  { "source": "/",              "destination": "/login",                "permanent": false },
+                  { "source": "/",              "destination": "/framework",                "permanent": false },
                   { "source": "/tool/sprint",   "destination": "/tools/sprint-planner", "permanent": true },
                   { "source": "/tool/gap",      "destination": "/tools/gap-audit",      "permanent": true },
                   { "source": "/tool/truecost", "destination": "/tools/true-cost",      "permanent": true }
