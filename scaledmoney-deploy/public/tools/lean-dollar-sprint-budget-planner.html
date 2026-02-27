@@ -35,7 +35,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   border-bottom:1px solid var(--b);
   display:flex;align-items:center;padding:0 36px;gap:14px;}
 .nav-brand{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:0.1em;}
-.nav-brand span{color:var(--g);font-size:10px;margin-left:6px;}
+.nav-brand span{color:var(--g);font-size:10px;margin-left:6px;}a.nav-brand:hover,a.nav-pill:hover{opacity:0.8;}
 .nav-pill{padding:3px 12px;border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;border:1px solid;}
 .nav-scale{border-color:rgba(79,195,247,0.3);color:var(--sprint);background:var(--sprint-d);}
 .nav-sprint{border-color:rgba(201,168,76,0.25);color:var(--gold);margin-left:auto;}
@@ -393,8 +393,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </div>
 
 <nav class="nav">
-  <div class="nav-brand">ScaledMoney|OS™<span>· Lean Dollar: Core</span></div>
-  <div class="nav-pill nav-scale">SCALE FRAMEWORK · A</div>
+  <a href="/framework" class="nav-brand" style="text-decoration:none;color:inherit;">ScaledMoney|OS™<span>· Lean Dollar: Core</span></a>
+  <a href="/framework" class="nav-pill nav-scale" style="text-decoration:none;color:inherit;">SCALE FRAMEWORK · A</a>
   <div class="nav-pill nav-sprint" id="nav-sprint-num">SPRINT 1</div>
 </nav>
 
