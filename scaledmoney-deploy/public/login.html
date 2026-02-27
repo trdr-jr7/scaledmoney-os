@@ -278,7 +278,7 @@ import { supabase } from '/lib/supabase-client.js';
 // ── Redirect if already signed in ───────────────────────────
 const { data: { session } } = await supabase.auth.getSession();
 if (session) {
-  const next = new URLSearchParams(window.location.search).get('next') || '/framework';
+  const next = new URLSearchParams(window.location.search).get('next') || '/dashboard';
   window.location.href = next;
 }
 
@@ -358,7 +358,7 @@ window.handleSignIn = async function() {
     return;
   }
 
-  const next = new URLSearchParams(window.location.search).get('next') || '/framework';
+  const next = new URLSearchParams(window.location.search).get('next') || '/dashboard';
   window.location.href = next;
 }
 
@@ -377,7 +377,7 @@ window.handleSignUp = async function() {
 
   const { error } = await supabase.auth.signUp({
     email, password,
-    options: { emailRedirectTo: 'https://scaledmoney.com/framework' }
+    options: { emailRedirectTo: 'https://scaledmoney.com/dashboard' }
   });
 
   if (error) {
