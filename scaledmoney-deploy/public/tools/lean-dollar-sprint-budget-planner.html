@@ -1977,7 +1977,7 @@ function recalcCatVariance(i) {
   if (planned <= 0) { el.innerHTML = '<span style="color:var(--g)">\u2014</span>'; return; }
   const diff = planned - actual;
   const color = diff >= 0 ? 'var(--em)' : 'var(--red)';
-  const sign = diff >= 0 ? '+' : '';
+  const sign = diff >= 0 ? '+' : '-';
   el.innerHTML = '<span style="color:' + color + '">' + sign + '$' + Math.abs(Math.round(diff)).toLocaleString() + '</span>';
 }
 
