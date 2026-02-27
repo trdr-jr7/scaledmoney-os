@@ -2,7 +2,7 @@
         "version": 2,
         "name": "scaledmoney-os",
         "redirects": [
-                  { "source": "/",              "destination": "/framework",                "permanent": false },
+                  { "source": "/",              "destination": "/dashboard",                "permanent": false },
                   { "source": "/tool/sprint",   "destination": "/tools/sprint-planner", "permanent": true },
                   { "source": "/tool/gap",      "destination": "/tools/gap-audit",      "permanent": true },
                   { "source": "/tool/truecost", "destination": "/tools/true-cost",      "permanent": true }
@@ -15,7 +15,8 @@
                   { "source": "/login",                "destination": "/login.html" },
                   { "source": "/logout",               "destination": "/logout.html" },
                   { "source": "/api/:path*",           "destination": "/api/:path*" },
-                  { "source": "/lib/:path*",           "destination": "/lib/:path*" }
+                  { "source": "/lib/:path*",           "destination": "/lib/:path*" },
+                        { "source": "/dashboard",              "destination": "/dashboard.html" }
         ],
         "headers": [
                   {
