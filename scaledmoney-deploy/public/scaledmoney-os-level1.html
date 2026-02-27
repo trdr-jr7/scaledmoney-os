@@ -119,6 +119,26 @@
     border-radius: 4px;
   }
 
+      .login-pill {
+              padding: 6px 18px;
+              border-radius: 100px;
+              font-size: 11px;
+              font-weight: 600;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+              text-decoration: none;
+              font-family: 'DM Sans', sans-serif;
+              border: 1px solid var(--gold);
+              color: var(--gold);
+              background: transparent;
+              cursor: pointer;
+              transition: all 0.2s;
+      }
+
+      .login-pill:hover {
+              background: var(--gold);
+              color: var(--navy);
+      }
   /* ── HERO ── */
   .hero {
     position: relative;
@@ -898,6 +918,7 @@
   </div>
   <div class="pdca-badge">Evaluate + Evolve Engine Active</div>
   <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.1em;margin-left:16px;">v1.0</span>
+      <a href="/login" class="login-pill">Login / Join</a>
 </nav>
 
 <!-- BRAND HIERARCHY BANNER -->
