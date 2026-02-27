@@ -22,7 +22,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,168,76,0.06),transparent);}
 .top-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,13,26,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;padding:0 40px;gap:20px;}
 .logo{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:0.1em;white-space:nowrap;font-weight:500;}
-.logo span{color:var(--gray);font-size:10px;margin-left:6px;}
+.logo span{color:var(--gray);font-size:10px;margin-left:6px;}a.logo:hover{opacity:0.8;}
 .tool-name{font-family:'DM Mono',monospace;font-size:11px;color:var(--white);letter-spacing:0.1em;background:var(--gold-bg);border:1px solid rgba(201,168,76,0.2);padding:4px 14px;border-radius:100px;}
 .step-progress{display:flex;align-items:center;gap:6px;margin-left:auto;}
 .step-dot{width:8px;height:8px;border-radius:50%;background:rgba(136,146,164,0.25);transition:all 0.35s ease;}
@@ -182,7 +182,7 @@ input[type=range].lean-slider::-webkit-slider-thumb:hover{box-shadow:0 0 20px rg
 </head>
 <body>
 <div class="top-bar">
-  <div class="logo">ScaledMoney|OS™<span>· Lean Dollar</span></div>
+  <a href="/framework" class="logo" style="text-decoration:none;color:inherit;">ScaledMoney|OS™<span>· Lean Dollar</span></a>
   <div class="tool-name">THE GAP AUDIT™</div>
   <div class="step-progress">
     <div class="step-dot active" id="sd0"></div><div class="step-connector"></div>
