@@ -1,591 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — ScaledMoney|OS™</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-        --navy: #0a0f1e;
-        --navy-mid: #111827;
-        --navy-light: #1a2540;
-        --gold: #c9a84c;
-        --gold-light: #e8c96a;
-        --gold-dim: #8a6f2e;
-        --emerald: #2dd4a0;
-        --emerald-dim: #1a7a5e;
-        --white: #f5f3ef;
-        --gray: #8892a4;
-        --gray-light: #c5cad4;
-        --card-bg: #141c2e;
-        --card-border: rgba(201,168,76,0.15);
-        --modal-bg: #0d1424;
-        --plan-purple: #a78bfa;
-        --do-gold: #c9a84c;
-        --check-emerald: #2dd4a0;
-        --adjust-rose: #f472b6;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-        background: var(--navy);
-        color: var(--white);
-        font-family: 'DM Sans', sans-serif;
-        font-weight: 300;
-        line-height: 1.7;
-        overflow-x: hidden;
-    }
-    a { color: inherit; text-decoration: none; }
-
-    /* ── NAV ── */
-    .nav {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 16px 40px;
-        border-bottom: 1px solid var(--card-border);
-        position: sticky; top: 0; z-index: 100;
-        background: var(--navy);
-    }
-    .nav-brand {
-        font-family: 'DM Sans', sans-serif;
-        font-weight: 600; font-size: 15px; letter-spacing: 0.5px;
-    }
-    .nav-brand span { font-weight: 300; color: var(--gray); margin-left: 6px; }
-    .nav-links { display: flex; gap: 8px; }
-    .nav-pill {
-        padding: 6px 18px; border-radius: 20px; font-size: 12px;
-        font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase;
-        border: 1px solid var(--card-border); transition: all 0.2s;
-    }
-    .nav-pill:hover { border-color: var(--gold); color: var(--gold); }
-    .nav-pill.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
-    .nav-right { font-size: 12px; color: var(--gray); letter-spacing: 1px; }
-
-    /* ── HERO / WELCOME ── */
-    .hero {
-        text-align: center; padding: 60px 40px 40px;
-        border-bottom: 1px solid var(--card-border);
-    }
-    .hero-label {
-        font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-        color: var(--gold); margin-bottom: 16px;
-    }
-    .hero h1 {
-        font-family: 'Playfair Display', serif;
-        font-size: 48px; font-weight: 700; margin-bottom: 12px;
-    }
-    .hero h1 em { font-style: italic; color: var(--gold); }
-    .hero p { color: var(--gray-light); max-width: 600px; margin: 0 auto; font-size: 16px; }
-    .hero-status {
-        display: inline-flex; align-items: center; gap: 8px;
-        margin-top: 20px; padding: 8px 20px; border-radius: 20px;
-        background: var(--card-bg); border: 1px solid var(--card-border);
-        font-size: 13px; color: var(--gray-light);
-    }
-    .hero-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); }
-
-    /* ── SECTION HEADERS ── */
-    .section-header {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 40px; margin: 48px 0 24px;
-    }
-    .section-header h2 {
-        font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-        color: var(--gold);
-    }
-    .section-header .meta {
-        font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
-        color: var(--gray);
-    }
-    .section-rule {
-        height: 1px; background: linear-gradient(90deg, var(--gold) 30%, transparent);
-        margin: 0 40px 32px;
-    }
-
-    /* ── WORKFLOW CARDS ── */
-    .workflow-grid {
-        display: grid; grid-template-columns: repeat(4, 1fr);
-        gap: 16px; padding: 0 40px; margin-bottom: 48px;
-    }
-    .workflow-card {
-        background: var(--card-bg); border: 1px solid var(--card-border);
-        border-radius: 12px; padding: 28px 24px; position: relative;
-        transition: border-color 0.2s, transform 0.2s;
-    }
-    .workflow-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .wf-step {
-        font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
-        margin-bottom: 4px;
-    }
-    .wf-step.plan { color: var(--plan-purple); }
-    .wf-step.do { color: var(--do-gold); }
-    .wf-step.check { color: var(--check-emerald); }
-    .wf-step.adjust { color: var(--adjust-rose); }
-    .workflow-card h3 {
-        font-family: 'Playfair Display', serif;
-        font-size: 20px; font-weight: 600; margin-bottom: 8px;
-    }
-    .workflow-card p { font-size: 14px; color: var(--gray); margin-bottom: 16px; }
-    .wf-meta { font-size: 12px; color: var(--gold-dim); }
-    .wf-btn {
-        display: inline-flex; align-items: center; gap: 6px;
-        margin-top: 12px; padding: 8px 16px; border-radius: 8px;
-        background: rgba(201,168,76,0.1); border: 1px solid var(--card-border);
-        font-size: 13px; font-weight: 500; color: var(--gold-light);
-        transition: all 0.2s; cursor: pointer;
-    }
-    .wf-btn:hover { background: rgba(201,168,76,0.2); border-color: var(--gold); }
-
-    /* ── EXECUTING PLAN GRID ── */
-    .exec-grid {
-        display: grid; grid-template-columns: 2fr 1fr;
-        gap: 16px; padding: 0 40px; margin-bottom: 48px;
-    }
-    .exec-card {
-        background: var(--card-bg); border: 1px solid var(--card-border);
-        border-radius: 12px; padding: 28px 24px;
-    }
-    .exec-card h3 {
-        font-size: 16px; font-weight: 600; margin-bottom: 16px;
-        letter-spacing: 0.5px;
-    }
-    .sprint-row {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .sprint-row:last-child { border-bottom: none; }
-    .sprint-name { font-size: 14px; font-weight: 400; }
-    .sprint-badge {
-        padding: 4px 12px; border-radius: 12px; font-size: 11px;
-        font-weight: 500; letter-spacing: 0.5px;
-    }
-    .badge-active { background: rgba(45,212,160,0.15); color: var(--emerald); }
-    .badge-draft { background: rgba(136,146,164,0.15); color: var(--gray); }
-    .badge-complete { background: rgba(201,168,76,0.15); color: var(--gold); }
-
-    /* Quick launch */
-    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .quick-btn {
-        display: flex; flex-direction: column; align-items: center; gap: 8px;
-        padding: 20px 12px; border-radius: 10px;
-        background: var(--navy-light); border: 1px solid var(--card-border);
-        font-size: 12px; font-weight: 500; color: var(--gray-light);
-        transition: all 0.2s; cursor: pointer; text-align: center;
-    }
-    .quick-btn:hover { border-color: var(--gold); color: var(--gold-light); transform: translateY(-1px); }
-    .quick-btn .icon { font-size: 22px; }
-
-    /* Burndown placeholder */
-    .burndown-chart {
-        width: 100%; height: 180px; border-radius: 8px;
-        background: linear-gradient(135deg, var(--navy-light), var(--card-bg));
-        display: flex; align-items: center; justify-content: center;
-        color: var(--gray); font-size: 13px; margin-top: 12px;
-        border: 1px dashed rgba(255,255,255,0.08);
-    }
-
-    /* Risk list */
-    .risk-item {
-        display: flex; align-items: flex-start; gap: 10px;
-        padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .risk-item:last-child { border-bottom: none; }
-    .risk-dot {
-        width: 8px; height: 8px; border-radius: 50; margin-top: 6px; flex-shrink: 0;
-    }
-    .risk-dot.high { background: #ef4444; }
-    .risk-dot.med { background: var(--gold); }
-    .risk-dot.low { background: var(--emerald); }
-    .risk-text { font-size: 13px; color: var(--gray-light); }
-    .risk-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
-
-    /* ── PDCA CYCLE ── */
-    .pdca-section { padding: 0 40px 48px; }
-    .pdca-container {
-        display: flex; align-items: center; justify-content: center; gap: 60px;
-        flex-wrap: wrap;
-    }
-    .pdca-ring {
-        position: relative; width: 340px; height: 340px;
-    }
-    .pdca-ring svg { width: 100%; height: 100%; }
-    .pdca-center {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        text-align: center;
-    }
-    .pdca-center .label {
-        font-size: 14px; font-weight: 600; letter-spacing: 2px;
-        text-transform: uppercase; color: var(--gold-light);
-    }
-    .pdca-center .sub {
-        font-size: 12px; color: var(--gray); margin-top: 4px; line-height: 1.5;
-    }
-    .pdca-node {
-        position: absolute; text-align: center; cursor: pointer;
-        transition: transform 0.2s;
-    }
-    .pdca-node:hover { transform: scale(1.08); }
-    .pdca-node .letter {
-        font-family: 'Playfair Display', serif;
-        font-size: 32px; font-weight: 700; line-height: 1;
-    }
-    .pdca-node .phase-label {
-        font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-        margin-top: 2px;
-    }
-    .pdca-node .phase-name {
-        font-size: 14px; font-weight: 600; margin-top: 4px;
-    }
-    .pdca-node .phase-meta {
-        font-size: 11px; color: var(--gray); margin-top: 2px;
-    }
-    .pdca-node.plan-node { top: -20px; left: 50%; transform: translateX(-50%); }
-    .pdca-node.plan-node .letter, .pdca-node.plan-node .phase-label { color: var(--plan-purple); }
-    .pdca-node.do-node { top: 50%; right: -60px; transform: translateY(-50%); }
-    .pdca-node.do-node .letter, .pdca-node.do-node .phase-label { color: var(--do-gold); }
-    .pdca-node.check-node { bottom: -20px; left: 50%; transform: translateX(-50%); }
-    .pdca-node.check-node .letter, .pdca-node.check-node .phase-label { color: var(--check-emerald); }
-    .pdca-node.adjust-node { top: 50%; left: -60px; transform: translateY(-50%); }
-    .pdca-node.adjust-node .letter, .pdca-node.adjust-node .phase-label { color: var(--adjust-rose); }
-    .pdca-node.plan-node:hover { transform: translateX(-50%) scale(1.08); }
-    .pdca-node.do-node:hover { transform: translateY(-50%) scale(1.08); }
-    .pdca-node.check-node:hover { transform: translateX(-50%) scale(1.08); }
-    .pdca-node.adjust-node:hover { transform: translateY(-50%) scale(1.08); }
-
-    /* PDCA Step Cards */
-    .pdca-steps {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 16px; padding: 0 40px; margin-bottom: 48px;
-    }
-    .pdca-step-card {
-        background: var(--card-bg); border: 1px solid var(--card-border);
-        border-radius: 12px; padding: 24px;
-        transition: border-color 0.2s, transform 0.2s;
-    }
-    .pdca-step-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-    .pdca-step-card .step-tag {
-        font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
-        margin-bottom: 8px;
-    }
-    .pdca-step-card h4 {
-        font-family: 'Playfair Display', serif;
-        font-size: 18px; font-weight: 600; margin-bottom: 8px;
-    }
-    .pdca-step-card p { font-size: 13px; color: var(--gray); margin-bottom: 12px; }
-    .pdca-step-card .step-meta { font-size: 12px; color: var(--gold-dim); }
-
-    /* ── QUOTE ── */
-    .quote-section {
-        text-align: center; padding: 48px 40px 60px;
-        border-top: 1px solid var(--card-border);
-    }
-    .quote-text {
-        font-family: 'Playfair Display', serif;
-        font-size: 24px; font-style: italic; font-weight: 400;
-        color: var(--gray-light); max-width: 700px; margin: 0 auto 12px;
-    }
-    .quote-author {
-        font-size: 13px; color: var(--gold-dim); letter-spacing: 1px;
-    }
-
-    /* ── FOOTER ── */
-    .footer {
-        text-align: center; padding: 24px 40px;
-        font-size: 12px; color: var(--gray); letter-spacing: 1px;
-        border-top: 1px solid var(--card-border);
-    }
-    .footer a:hover { color: var(--gold); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-        .workflow-grid { grid-template-columns: 1fr 1fr; }
-        .exec-grid { grid-template-columns: 1fr; }
-        .pdca-steps { grid-template-columns: 1fr; }
-        .pdca-container { flex-direction: column; }
-    }
-    @media (max-width: 600px) {
-        .workflow-grid { grid-template-columns: 1fr; }
-        .hero h1 { font-size: 32px; }
-        .nav { padding: 12px 20px; }
-        .section-header, .workflow-grid, .exec-grid, .pdca-section, .pdca-steps { padding-left: 20px; padding-right: 20px; }
-        .section-rule { margin-left: 20px; margin-right: 20px; }
-    }
-    </style>
-  </head>
-  <body>
-
-    <!-- ═══ NAV ═══ -->
-    <nav class="nav">
-        <a href="/dashboard" class="nav-brand">ScaledMoney|OS™<span>· Dashboard</span></a>a>
-      <div class="nav-links">
-          <a href="/dashboard" class="nav-pill active">DASHBOARD</a>a>
-          <a href="/framework" class="nav-pill">FRAMEWORK</a>a>
-          <a href="/tools/sprint-planner" class="nav-pill">TOOLS</a>a>
-      </div>div>
-      <div class="nav-right">v1.0</div>div>
-    </nav>nav>
-  
-  <!-- ═══ HERO / WELCOME ═══ -->
-  <section class="hero">
-    <div class="hero-label">— YOUR COMMAND CENTER —</div>div>
-    <h1>Welcome to <em>Lean Dollar</em></h1>
-    <p>Your financial operating system. Plan every paycheck, execute with structure, review weekly, and adjust monthly. One cycle at a time.</p>
-    <div class="hero-status">
-        <span class="dot"></span>
-        Lean Dollar: Core · Free Tier Active
-    </div>div>
-  </section>section>
-  
-  <!-- ═══ READY TO PLAN ═══ -->
-  <div class="section-header">
-    <h2>— Ready to Plan Your Budget?</h2>
-    <span class="meta">FOLLOW THE SEQUENCE</span>
-  </div>div>
-  <div class="section-rule"></div>div>
-  
-  <div class="workflow-grid">
-    <a href="/tools/sprint-planner" class="workflow-card">
-        <div class="wf-step plan">P · STEP 01 · PLAN</div>div>
-        <h3>Income Sprint Setup</h3>
-        <p>Align your planning cycle to your paycheck. One Sprint = One paycheck. Assign every dollar before it arrives.</p>
-        <div class="wf-meta">~15 min pre-sprint</div>div>
-        <div class="wf-btn">▶ Sprint Budget Planner™ →</div>div>
-    </a>a>
-    <div class="workflow-card">
-        <div class="wf-step do">D · STEP 02 · DO</div>div>
-        <h3>Three-Account Architecture</h3>
-        <p>Operations. The Gap. Sprint Wallet. Execute the plan. Capture actual spending. No judgment — just data.</p>
-        <div class="wf-meta">Setup once · Runs daily</div>div>
-        <div class="wf-btn">📋 Income Sprint System · Module 2</div>div>
-    </div>div>
-    <div class="workflow-card">
-        <div class="wf-step check">C · STEP 03 · CHECK</div>div>
-        <h3>Dollar Standup</h3>
-        <p>10 minutes. Weekly. Three questions: Is the Gap funded? Any overruns? One adjustment for next week?</p>
-        <div class="wf-meta">Weekly · 10 min</div>div>
-        <div class="wf-btn">📊 Dollar Standup · Module 4</div>div>
-    </div>div>
-    <div class="workflow-card">
-        <div class="wf-step adjust">A · STEP 04 · ADJUST</div>div>
-        <h3>Monthly Retro</h3>
-        <p>20 minutes. One change per month. Identify the highest-leverage adjustment. Apply it next sprint.</p>
-        <div class="wf-meta">Monthly · 20 min</div>div>
-        <div class="wf-btn">🔄 Monthly Retro · Module 5</div>div>
-    </div>div>
-  </div>div>
-  
-  <!-- ═══ EXECUTING PLAN ═══ -->
-  <div class="section-header">
-    <h2>— Executing Plan</h2>
-    <span class="meta">SPRINT STATUS + TOOLS</span>
-  </div>div>
-  <div class="section-rule"></div>div>
-  
-  <div class="exec-grid">
-    <!-- Left column: Sprint status + Burndown -->
-    <div>
-          <div class="exec-card" style="margin-bottom:16px;">
-                  <h3>📋 Saved Sprints</h3>
-                  <div class="sprint-row">
-                            <span class="sprint-name">Mar 1 – Mar 14 Sprint</span>
-                            <span class="sprint-badge badge-active">ACTIVE</span>
-                  </div>
-                  <div class="sprint-row">
-                            <span class="sprint-name">Feb 15 – Feb 28 Sprint</span>
-                            <span class="sprint-badge badge-complete">COMPLETE</span>
-                  </div>
-                  <div class="sprint-row">
-                            <span class="sprint-name">Feb 1 – Feb 14 Sprint</span>
-                            <span class="sprint-badge badge-complete">COMPLETE</span>
-                  </div>
-                  <div style="margin-top:16px;">
-                            <a href="/tools/sprint-planner" class="wf-btn">Open Sprint Command Center →</a>a>
-                  </div>
-          </div>
-
-          <div class="exec-card">
-                  <h3>📉 Sprint Burndown</h3>
-                  <div class="burndown-chart">
-                            Chart loads after your first sprint is saved
-                  </div>
-          </div>
-    </div>
-
-      <!-- Right column: Quick Launch + Risks -->
-      <div>
-            <div class="exec-card" style="margin-bottom:16px;">
-                    <h3>⚡ Quick Launch</h3>
-                  <div class="quick-grid">
-                          <a href="/tools/sprint-planner" class="quick-btn">
-                                    <span class="icon">📝</span>
-                                    Sprint Planner
-                          </a>a>
-                          <a href="/tools/gap-audit" class="quick-btn">
-                                    <span class="icon">🔍</span>
-                                    Gap Audit
-                          </a>a>
-                          <a href="/tools/true-cost" class="quick-btn">
-                                    <span class="icon">💰</span>
-                                    True Cost Engine
-                          </a>a>
-                          <a href="/framework" class="quick-btn">
-                                    <span class="icon">📖</span>
-                                    Framework Guide
-                          </a>a>
-                  </div>
-            </div>
-      
-          <div class="exec-card">
-                <h3>⚠️ Active Risks</h3>
-                <div class="risk-item">
-                        <span class="risk-dot high"></span>
-                        <div>
-                                  <div class="risk-text">No sprint budget created yet</div>
-                                  <div class="risk-label">HIGH · PLAN PHASE</div>
-                        </div>
-                </div>
-                <div class="risk-item">
-                        <span class="risk-dot med"></span>
-                        <div>
-                                  <div class="risk-text">Gap Audit not run — baseline unknown</div>
-                                  <div class="risk-label">MEDIUM · SCAN PHASE</div>
-                        </div>
-                </div>
-                <div class="risk-item">
-                        <span class="risk-dot low"></span>
-                        <div>
-                                  <div class="risk-text">Three-Account Architecture not configured</div>
-                                  <div class="risk-label">LOW · DO PHASE</div>
-                        </div>
-                </div>
-          </div>
-      </div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — ScaledMoney|OS™</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a0f1e;
+  --navy-mid: #111827;
+  --navy-light: #1a2540;
+  --gold: #c9a84c;
+  --gold-light: #e8c96a;
+  --gold-dim: #8a6f2e;
+  --emerald: #2dd4a0;
+  --emerald-dim: #1a7a5e;
+  --white: #f5f3ef;
+  --gray: #8892a4;
+  --gray-light: #c5cad4;
+  --card-bg: #141c2e;
+  --card-border: rgba(201,168,76,0.15);
+  --modal-bg: #0d1424;
+  --plan-purple: #a78bfa;
+  --do-gold: #c9a84c;
+  --check-emerald: #2dd4a0;
+  --adjust-rose: #f472b6;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--card-border);
+  position: sticky; top: 0; z-index: 100;
+  background: var(--navy);
+}
+.nav-brand {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600; font-size: 15px; letter-spacing: 0.5px;
+}
+.nav-brand span { font-weight: 300; color: var(--gray); margin-left: 6px; }
+.nav-links { display: flex; gap: 8px; }
+.nav-pill {
+  padding: 6px 18px; border-radius: 20px; font-size: 12px;
+  font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase;
+  border: 1px solid var(--card-border); transition: all 0.2s;
+}
+.nav-pill:hover { border-color: var(--gold); color: var(--gold); }
+.nav-pill.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+.nav-right { font-size: 12px; color: var(--gray); letter-spacing: 1px; }
+.hero {
+  text-align: center; padding: 60px 40px 40px;
+  border-bottom: 1px solid var(--card-border);
+}
+.hero-label {
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px; font-weight: 700; margin-bottom: 12px;
+}
+.hero h1 em { font-style: italic; color: var(--gold); }
+.hero p { color: var(--gray-light); max-width: 600px; margin: 0 auto; font-size: 16px; }
+.hero-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 20px; padding: 8px 20px; border-radius: 20px;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  font-size: 13px; color: var(--gray-light);
+}
+.hero-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--emerald); }
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; margin: 48px 0 24px;
+}
+.section-header h2 {
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold);
+}
+.section-header .meta {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gray);
+}
+.section-rule {
+  height: 1px; background: linear-gradient(90deg, var(--gold) 30%, transparent);
+  margin: 0 40px 32px;
+}
+.workflow-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; padding: 0 40px; margin-bottom: 48px;
+}
+.workflow-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 12px; padding: 28px 24px; position: relative;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.workflow-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.wf-step { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.wf-step.plan { color: var(--plan-purple); }
+.wf-step.do { color: var(--do-gold); }
+.wf-step.check { color: var(--check-emerald); }
+.wf-step.adjust { color: var(--adjust-rose); }
+.workflow-card h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+.workflow-card p { font-size: 14px; color: var(--gray); margin-bottom: 16px; }
+.wf-meta { font-size: 12px; color: var(--gold-dim); }
+.wf-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 12px; padding: 8px 16px; border-radius: 8px;
+  background: rgba(201,168,76,0.1); border: 1px solid var(--card-border);
+  font-size: 13px; font-weight: 500; color: var(--gold-light);
+  transition: all 0.2s; cursor: pointer;
+}
+.wf-btn:hover { background: rgba(201,168,76,0.2); border-color: var(--gold); }
+.exec-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; padding: 0 40px; margin-bottom: 48px; }
+.exec-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 28px 24px; }
+.exec-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; letter-spacing: 0.5px; }
+.sprint-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sprint-row:last-child { border-bottom: none; }
+.sprint-name { font-size: 14px; font-weight: 400; }
+.sprint-badge { padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; }
+.badge-active { background: rgba(45,212,160,0.15); color: var(--emerald); }
+.badge-draft { background: rgba(136,146,164,0.15); color: var(--gray); }
+.badge-complete { background: rgba(201,168,76,0.15); color: var(--gold); }
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.quick-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 20px 12px; border-radius: 10px;
+  background: var(--navy-light); border: 1px solid var(--card-border);
+  font-size: 12px; font-weight: 500; color: var(--gray-light);
+  transition: all 0.2s; cursor: pointer; text-align: center;
+}
+.quick-btn:hover { border-color: var(--gold); color: var(--gold-light); transform: translateY(-1px); }
+.quick-btn .icon { font-size: 22px; }
+.burndown-chart {
+  width: 100%; height: 180px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--navy-light), var(--card-bg));
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray); font-size: 13px; margin-top: 12px;
+  border: 1px dashed rgba(255,255,255,0.08);
+}
+.risk-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.risk-item:last-child { border-bottom: none; }
+.risk-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.risk-dot.high { background: #ef4444; }
+.risk-dot.med { background: var(--gold); }
+.risk-dot.low { background: var(--emerald); }
+.risk-text { font-size: 13px; color: var(--gray-light); }
+.risk-label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
+.pdca-section { padding: 0 40px 48px; }
+.pdca-container { display: flex; align-items: center; justify-content: center; gap: 60px; flex-wrap: wrap; }
+.pdca-ring { position: relative; width: 340px; height: 340px; }
+.pdca-ring svg { width: 100%; height: 100%; }
+.pdca-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.pdca-center .label { font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-light); }
+.pdca-center .sub { font-size: 12px; color: var(--gray); margin-top: 4px; line-height: 1.5; }
+.pdca-node { position: absolute; text-align: center; cursor: pointer; transition: transform 0.2s; }
+.pdca-node:hover { transform: scale(1.08); }
+.pdca-node .letter { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; line-height: 1; }
+.pdca-node .phase-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+.pdca-node .phase-name { font-size: 14px; font-weight: 600; margin-top: 4px; }
+.pdca-node .phase-meta { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.pdca-node.plan-node { top: -20px; left: 50%; transform: translateX(-50%); }
+.pdca-node.plan-node .letter, .pdca-node.plan-node .phase-label { color: var(--plan-purple); }
+.pdca-node.do-node { top: 50%; right: -60px; transform: translateY(-50%); }
+.pdca-node.do-node .letter, .pdca-node.do-node .phase-label { color: var(--do-gold); }
+.pdca-node.check-node { bottom: -20px; left: 50%; transform: translateX(-50%); }
+.pdca-node.check-node .letter, .pdca-node.check-node .phase-label { color: var(--check-emerald); }
+.pdca-node.adjust-node { top: 50%; left: -60px; transform: translateY(-50%); }
+.pdca-node.adjust-node .letter, .pdca-node.adjust-node .phase-label { color: var(--adjust-rose); }
+.pdca-node.plan-node:hover { transform: translateX(-50%) scale(1.08); }
+.pdca-node.do-node:hover { transform: translateY(-50%) scale(1.08); }
+.pdca-node.check-node:hover { transform: translateX(-50%) scale(1.08); }
+.pdca-node.adjust-node:hover { transform: translateY(-50%) scale(1.08); }
+.pdca-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 40px; margin-bottom: 48px; }
+.pdca-step-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; transition: border-color 0.2s, transform 0.2s; }
+.pdca-step-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.pdca-step-card .step-tag { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.pdca-step-card h4 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.pdca-step-card p { font-size: 13px; color: var(--gray); margin-bottom: 12px; }
+.pdca-step-card .step-meta { font-size: 12px; color: var(--gold-dim); }
+.quote-section { text-align: center; padding: 48px 40px 60px; border-top: 1px solid var(--card-border); }
+.quote-text { font-family: 'Playfair Display', serif; font-size: 24px; font-style: italic; font-weight: 400; color: var(--gray-light); max-width: 700px; margin: 0 auto 12px; }
+.quote-author { font-size: 13px; color: var(--gold-dim); letter-spacing: 1px; }
+.footer { text-align: center; padding: 24px 40px; font-size: 12px; color: var(--gray); letter-spacing: 1px; border-top: 1px solid var(--card-border); }
+.footer a:hover { color: var(--gold); }
+@media (max-width: 900px) {
+  .workflow-grid { grid-template-columns: 1fr 1fr; }
+  .exec-grid { grid-template-columns: 1fr; }
+  .pdca-steps { grid-template-columns: 1fr; }
+  .pdca-container { flex-direction: column; }
+}
+@media (max-width: 600px) {
+  .workflow-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 32px; }
+  .nav { padding: 12px 20px; }
+  .section-header, .workflow-grid, .exec-grid, .pdca-section, .pdca-steps { padding-left: 20px; padding-right: 20px; }
+  .section-rule { margin-left: 20px; margin-right: 20px; }
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/dashboard" class="nav-brand">ScaledMoney|OS\u2122<span>\u00b7 Dashboard</span></a>
+  <div class="nav-links">
+    <a href="/dashboard" class="nav-pill active">DASHBOARD</a>
+    <a href="/framework" class="nav-pill">FRAMEWORK</a>
+    <a href="/tools/sprint-planner" class="nav-pill">TOOLS</a>
   </div>
-  
-  <!-- ═══ THE DOLLAR CYCLE — PDCA ═══ -->
-  <div class="section-header">
-    <h2>— The Dollar Cycle™ · Foundation + PDCA Engine</h2>
-    <span class="meta">4 STEPS · ONE PAYCHECK AT A TIME · CONTINUOUS IMPROVEMENT</span>
+  <div class="nav-right">v1.0</div>
+</nav>
+<section class="hero">
+  <div class="hero-label">\u2014 YOUR COMMAND CENTER \u2014</div>
+  <h1>Welcome to <em>Lean Dollar</em></h1>
+  <p>Your financial operating system. Plan every paycheck, execute with structure, review weekly, and adjust monthly. One cycle at a time.</p>
+  <div class="hero-status"><span class="dot"></span>Lean Dollar: Core \u00b7 Free Tier Active</div>
+</section>
+<div class="section-header"><h2>\u2014 Ready to Plan Your Budget?</h2><span class="meta">FOLLOW THE SEQUENCE</span></div>
+<div class="section-rule"></div>
+<div class="workflow-grid">
+  <a href="/tools/sprint-planner" class="workflow-card"><div class="wf-step plan">P \u00b7 STEP 01 \u00b7 PLAN</div><h3>Income Sprint Setup</h3><p>Align your planning cycle to your paycheck. One Sprint = One paycheck. Assign every dollar before it arrives.</p><div class="wf-meta">~15 min pre-sprint</div><div class="wf-btn">\u25b6 Sprint Budget Planner\u2122 \u2192</div></a>
+  <div class="workflow-card"><div class="wf-step do">D \u00b7 STEP 02 \u00b7 DO</div><h3>Three-Account Architecture</h3><p>Operations. The Gap. Sprint Wallet. Execute the plan. Capture actual spending. No judgment \u2014 just data.</p><div class="wf-meta">Setup once \u00b7 Runs daily</div><div class="wf-btn">\ud83d\udccb Income Sprint System \u00b7 Module 2</div></div>
+  <div class="workflow-card"><div class="wf-step check">C \u00b7 STEP 03 \u00b7 CHECK</div><h3>Dollar Standup</h3><p>10 minutes. Weekly. Three questions: Is the Gap funded? Any overruns? One adjustment for next week?</p><div class="wf-meta">Weekly \u00b7 10 min</div><div class="wf-btn">\ud83d\udcca Dollar Standup \u00b7 Module 4</div></div>
+  <div class="workflow-card"><div class="wf-step adjust">A \u00b7 STEP 04 \u00b7 ADJUST</div><h3>Monthly Retro</h3><p>20 minutes. One change per month. Identify the highest-leverage adjustment. Apply it next sprint.</p><div class="wf-meta">Monthly \u00b7 20 min</div><div class="wf-btn">\ud83d\udd04 Monthly Retro \u00b7 Module 5</div></div>
+</div>
+<div class="section-header"><h2>\u2014 Executing Plan</h2><span class="meta">SPRINT STATUS + TOOLS</span></div>
+<div class="section-rule"></div>
+<div class="exec-grid">
+  <div>
+    <div class="exec-card" style="margin-bottom:16px"><h3>\ud83d\udccb Saved Sprints</h3><div class="sprint-row"><span class="sprint-name">Mar 1 \u2013 Mar 14 Sprint</span><span class="sprint-badge badge-active">ACTIVE</span></div><div class="sprint-row"><span class="sprint-name">Feb 15 \u2013 Feb 28 Sprint</span><span class="sprint-badge badge-complete">COMPLETE</span></div><div class="sprint-row"><span class="sprint-name">Feb 1 \u2013 Feb 14 Sprint</span><span class="sprint-badge badge-complete">COMPLETE</span></div><div style="margin-top:16px"><a href="/tools/sprint-planner" class="wf-btn">Open Sprint Command Center \u2192</a></div></div>
+    <div class="exec-card"><h3>\ud83d\udcc9 Sprint Burndown</h3><div class="burndown-chart">Chart loads after your first sprint is saved</div></div>
   </div>
-  <div class="section-rule"></div>
-  
-  <div class="pdca-section">
-    <div class="pdca-container">
-        <div class="pdca-ring">
-              <!-- SVG Circle with arrows -->
-              <svg viewBox="0 0 340 340" fill="none">
-                      <circle cx="170" cy="170" r="130" stroke="rgba(201,168,76,0.2)" stroke-width="2" fill="none"/>
-                      <!-- Arrow arcs -->
-                      <path d="M170 40 A130 130 0 0 1 300 170" stroke="rgba(167,139,250,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowP)"/>
-                      <path d="M300 170 A130 130 0 0 1 170 300" stroke="rgba(201,168,76,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowD)"/>
-                      <path d="M170 300 A130 130 0 0 1 40 170" stroke="rgba(45,212,160,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowC)"/>
-                      <path d="M40 170 A130 130 0 0 1 170 40" stroke="rgba(244,114,182,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowA)"/>
-                      <defs>
-                                  <marker id="arrowP" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(167,139,250,0.7)"/></marker>marker>
-                                  <marker id="arrowD" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(201,168,76,0.7)"/></marker>marker>
-                                  <marker id="arrowC" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(45,212,160,0.7)"/></marker>marker>
-                                  <marker id="arrowA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(244,114,182,0.7)"/></marker>marker>
-                      </defs>
-              </svg>svg>
-                <!-- Center label -->
-                <div class="pdca-center">
-                          <div class="label">DOLLAR CYCLE™</div>
-                          <div class="sub">Every paycheck.<br>Every sprint.<br>Every month.</div>
-                </div>
-                <!-- Nodes -->
-                <a href="/tools/sprint-planner" class="pdca-node plan-node">
-                          <div class="letter">P</div>
-                          <div class="phase-label">PLAN</div>
-                          <div class="phase-name">Income Sprint Setup</div>
-                          <div class="phase-meta">15 min · Pre-Sprint</div>
-                </a>a>
-                <a class="pdca-node do-node">
-                          <div class="letter">D</div>
-                          <div class="phase-label">DO</div>
-                          <div class="phase-name">Three-Account<br>Architecture</div>
-                          <div class="phase-meta">Automated · Daily</div>
-                </a>a>
-                <a class="pdca-node check-node">
-                          <div class="letter">C</div>
-                          <div class="phase-label">CHECK</div>
-                          <div class="phase-name">Dollar Standup</div>
-                          <div class="phase-meta">Weekly · 10 min</div>
-                </a>a>
-                <a class="pdca-node adjust-node">
-                          <div class="letter">A</div>
-                          <div class="phase-label">ADJUST</div>
-                          <div class="phase-name">Monthly Retro</div>
-                          <div class="phase-meta">Monthly · 20 min</div>
-                </a>a>
-        </div>
-    </div>
+  <div>
+    <div class="exec-card" style="margin-bottom:16px"><h3>\u26a1 Quick Launch</h3><div class="quick-grid"><a href="/tools/sprint-planner" class="quick-btn"><span class="icon">\ud83d\udcdd</span>Sprint Planner</a><a href="/tools/gap-audit" class="quick-btn"><span class="icon">\ud83d\udd0d</span>Gap Audit</a><a href="/tools/true-cost" class="quick-btn"><span class="icon">\ud83d\udcb0</span>True Cost Engine</a><a href="/framework" class="quick-btn"><span class="icon">\ud83d\udcd6</span>Framework Guide</a></div></div>
+    <div class="exec-card"><h3>\u26a0\ufe0f Active Risks</h3><div class="risk-item"><span class="risk-dot high"></span><div><div class="risk-text">No sprint budget created yet</div><div class="risk-label">HIGH \u00b7 PLAN PHASE</div></div></div><div class="risk-item"><span class="risk-dot med"></span><div><div class="risk-text">Gap Audit not run \u2014 baseline unknown</div><div class="risk-label">MEDIUM \u00b7 SCAN PHASE</div></div></div><div class="risk-item"><span class="risk-dot low"></span><div><div class="risk-text">Three-Account Architecture not configured</div><div class="risk-label">LOW \u00b7 DO PHASE</div></div></div></div>
   </div>
-
-    <!-- PDCA Step Cards -->
-    <div class="pdca-steps">
-        <a href="/tools/sprint-planner" class="pdca-step-card">
-              <div class="step-tag" style="color:var(--plan-purple);">P STEP 01 · PLAN</div>
-              <h4>Income Sprint Setup</h4>
-              <p>Align your planning cycle to your paycheck. One Sprint = One paycheck. Assign every dollar before it arrives.</p>
-            <div class="step-meta">~15 min pre-sprint</div>
-        </a>a>
-      <div class="pdca-step-card">
-          <div class="step-tag" style="color:var(--do-gold);">D STEP 02 · DO</div>
-          <h4>Three-Account Architecture</h4>
-          <p>Operations. The Gap. Sprint Wallet. Execute the plan. Capture actual spending. No judgment — just data.</p>
-          <div class="step-meta">Setup once · Runs daily</div>
-      </div>
-      <div class="pdca-step-card">
-          <div class="step-tag" style="color:var(--check-emerald);">C STEP 03 · CHECK</div>
-          <h4>Dollar Standup</h4>
-          <p>10 minutes. Weekly. Three questions: Is the Gap funded? Any overruns? One adjustment for next week?</p>
-          <div class="step-meta">Weekly · 10 min</div>
-      </div>
-      <div class="pdca-step-card">
-          <div class="step-tag" style="color:var(--adjust-rose);">A STEP 04 · ADJUST</div>
-          <h4>Monthly Retro</h4>
-          <p>20 minutes. One change per month. Identify the highest-leverage adjustment. Apply it next sprint. Compounding simplicity.</p>
-          <div class="step-meta">Monthly · 20 min</div>
-      </div>
-    </div>
-  
-  <!-- ═══ INSPIRATIONAL QUOTE ═══ -->
-  <section class="quote-section" id="quote-section">
-    <div class="quote-text" id="quote-text">"Do not save what is left after spending, but spend what is left after saving."</div>
-    <div class="quote-author" id="quote-author">— WARREN BUFFETT</div>
-  </section>section>
-  
-  <!-- ═══ FOOTER ═══ -->
-  <footer class="footer">
-    <a href="/framework">ScaledMoney|OS™</a>a> · Lean Dollar: Core · v1.0
-  </footer>footer>
-  
-  <script>
-    // Rotating quotes
-    const quotes = [
-      { text: "Do not save what is left after spending, but spend what is left after saving.", author: "Warren Buffett" },
-      { text: "A budget is telling your money where to go instead of wondering where it went.", author: "Dave Ramsey" },
-      { text: "The habit of saving is itself an education; it fosters every virtue, teaches self-denial, cultivates the sense of order.", author: "T.T. Munger" },
-      { text: "It is not the man who has too little, but the man who craves more, that is poor.", author: "Seneca" },
-      { text: "Beware of little expenses; a small leak will sink a great ship.", author: "Benjamin Franklin" },
-      { text: "Financial peace isn't the acquisition of stuff. It's learning to live on less than you make.", author: "Dave Ramsey" },
-      { text: "The question isn't at what age I want to retire, it's at what income.", author: "George Foreman" },
-      { text: "Compound interest is the eighth wonder of the world. He who understands it, earns it; he who doesn't, pays it.", author: "Albert Einstein" }
-      ];
-    function rotateQuote() {
-        const idx = Math.floor(Math.random() * quotes.length);
-        document.getElementById('quote-text').textContent = '\u201C' + quotes[idx].text + '\u201D';
-        document.getElementById('quote-author').textContent = '\u2014 ' + quotes[idx].author.toUpperCase();
-    }
-    // Rotate every 30 seconds
-    setInterval(rotateQuote, 30000);
-  </script>
-
-  </body>
-</html>html>
-  </script></p></p>
-                      </defs></h3></h3>
-      </div>
-    </div></p></p></em></h1></span>
-  </body>
-  </style></title>
-  </head>
+</div>
+<div class="section-header"><h2>\u2014 The Dollar Cycle\u2122 \u00b7 Foundation + PDCA Engine</h2><span class="meta">4 STEPS \u00b7 ONE PAYCHECK AT A TIME \u00b7 CONTINUOUS IMPROVEMENT</span></div>
+<div class="section-rule"></div>
+<div class="pdca-section"><div class="pdca-container"><div class="pdca-ring"><svg viewBox="0 0 340 340" fill="none"><circle cx="170" cy="170" r="130" stroke="rgba(201,168,76,0.2)" stroke-width="2" fill="none"/><path d="M170 40 A130 130 0 0 1 300 170" stroke="rgba(167,139,250,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowP)"/><path d="M300 170 A130 130 0 0 1 170 300" stroke="rgba(201,168,76,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowD)"/><path d="M170 300 A130 130 0 0 1 40 170" stroke="rgba(45,212,160,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowC)"/><path d="M40 170 A130 130 0 0 1 170 40" stroke="rgba(244,114,182,0.5)" stroke-width="2" fill="none" marker-end="url(#arrowA)"/><defs><marker id="arrowP" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(167,139,250,0.7)"/></marker><marker id="arrowD" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(201,168,76,0.7)"/></marker><marker id="arrowC" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(45,212,160,0.7)"/></marker><marker id="arrowA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6" fill="rgba(244,114,182,0.7)"/></marker></defs></svg><div class="pdca-center"><div class="label">DOLLAR CYCLE\u2122</div><div class="sub">Every paycheck.<br>Every sprint.<br>Every month.</div></div><a href="/tools/sprint-planner" class="pdca-node plan-node"><div class="letter">P</div><div class="phase-label">PLAN</div><div class="phase-name">Income Sprint Setup</div><div class="phase-meta">15 min \u00b7 Pre-Sprint</div></a><a class="pdca-node do-node"><div class="letter">D</div><div class="phase-label">DO</div><div class="phase-name">Three-Account<br>Architecture</div><div class="phase-meta">Automated \u00b7 Daily</div></a><a class="pdca-node check-node"><div class="letter">C</div><div class="phase-label">CHECK</div><div class="phase-name">Dollar Standup</div><div class="phase-meta">Weekly \u00b7 10 min</div></a><a class="pdca-node adjust-node"><div class="letter">A</div><div class="phase-label">ADJUST</div><div class="phase-name">Monthly Retro</div><div class="phase-meta">Monthly \u00b7 20 min</div></a></div></div></div>
+<div class="pdca-steps">
+  <a href="/tools/sprint-planner" class="pdca-step-card"><div class="step-tag" style="color:var(--plan-purple)">P STEP 01 \u00b7 PLAN</div><h4>Income Sprint Setup</h4><p>Align your planning cycle to your paycheck. One Sprint = One paycheck. Assign every dollar before it arrives.</p><div class="step-meta">~15 min pre-sprint</div></a>
+  <div class="pdca-step-card"><div class="step-tag" style="color:var(--do-gold)">D STEP 02 \u00b7 DO</div><h4>Three-Account Architecture</h4><p>Operations. The Gap. Sprint Wallet. Execute the plan. Capture actual spending. No judgment \u2014 just data.</p><div class="step-meta">Setup once \u00b7 Runs daily</div></div>
+  <div class="pdca-step-card"><div class="step-tag" style="color:var(--check-emerald)">C STEP 03 \u00b7 CHECK</div><h4>Dollar Standup</h4><p>10 minutes. Weekly. Three questions: Is the Gap funded? Any overruns? One adjustment for next week?</p><div class="step-meta">Weekly \u00b7 10 min</div></div>
+  <div class="pdca-step-card"><div class="step-tag" style="color:var(--adjust-rose)">A STEP 04 \u00b7 ADJUST</div><h4>Monthly Retro</h4><p>20 minutes. One change per month. Identify the highest-leverage adjustment. Apply it next sprint. Compounding simplicity.</p><div class="step-meta">Monthly \u00b7 20 min</div></div>
+</div>
+<section class="quote-section" id="quote-section"><div class="quote-text" id="quote-text">\u201cDo not save what is left after spending, but spend what is left after saving.\u201d</div><div class="quote-author" id="quote-author">\u2014 WARREN BUFFETT</div></section>
+<footer class="footer"><a href="/framework">ScaledMoney|OS\u2122</a> \u00b7 Lean Dollar: Core \u00b7 v1.0</footer>
+<script>
+const quotes=[{text:"Do not save what is left after spending, but spend what is left after saving.",author:"Warren Buffett"},{text:"A budget is telling your money where to go instead of wondering where it went.",author:"Dave Ramsey"},{text:"The habit of saving is itself an education; it fosters every virtue, teaches self-denial, cultivates the sense of order.",author:"T.T. Munger"},{text:"It is not the man who has too little, but the man who craves more, that is poor.",author:"Seneca"},{text:"Beware of little expenses; a small leak will sink a great ship.",author:"Benjamin Franklin"},{text:"Financial peace isn't the acquisition of stuff. It's learning to live on less than you make.",author:"Dave Ramsey"},{text:"The question isn't at what age I want to retire, it's at what income.",author:"George Foreman"},{text:"Compound interest is the eighth wonder of the world. He who understands it, earns it; he who doesn't, pays it.",author:"Albert Einstein"}];
+function rotateQuote(){const i=Math.floor(Math.random()*quotes.length);document.getElementById('quote-text').textContent='\u201c'+quotes[i].text+'\u201d';document.getElementById('quote-author').textContent='\u2014 '+quotes[i].author.toUpperCase();}
+setInterval(rotateQuote,30000);
+<\/script>
+</body>
+</html>
