@@ -319,7 +319,9 @@ a { color: inherit; text-decoration: none; }
     </div>
     <div class="exec-card">
       <h3>📉 Sprint Burndown</h3>
-      <div class="burndown-chart">Chart loads after your first sprint is saved</div>
+      <div class="burndown-chart">
+        <canvas id="dash-burndown" width="500" height="200" style="width:100%;height:200px;border-radius:8px;background:rgba(0,0,0,0.15);"></canvas>
+      </div>
     </div>
   </div>
   <div>
@@ -465,6 +467,115 @@ function loadQSState() {
 }
 loadQSState();
 
+
+// ========= Dashboard Burndown Chart =========
+function drawDashBurndown() {
+  const canvas = document.getElementById('dash-burndown');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  let snap = null;
+  for (let i = 0; i < 10; i++) {
+    const raw = localStorage.getItem('sprint:slot:' + i);
+    if (raw) { try { const s = JSON.parse(raw); if (!snap || new Date(s.savedAt) > new Date(snap.savedAt)) snap = s; } catch(e) {} }
+  }
+  if (!snap || !snap.sprintLength) {
+    ctx.fillStyle = 'rgba(136,146,164,0.3)';
+    ctx.font = '12px DM Sans, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Save a sprint to see your burndown', W / 2, H / 2);
+    return;
+  }
+  const days = snap.sprintLength;
+  const cap = snap.sprintFuel || snap.totalNet || 0;
+  if (cap <= 0) {
+    ctx.fillStyle = 'rgba(136,146,164,0.3)';
+    ctx.font = '12px DM Sans, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No budget data available', W / 2, H / 2);
+    return;
+  }
+  const pad = { top: 14, right: 16, bottom: 30, left: 48 };
+  const cw = W - pad.left - pad.right;
+  const ch = H - pad.top - pad.bottom;
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (ch / 4) * i;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke();
+  }
+  for (let i = 0; i <= 4; i++) {
+    const val = cap - (cap / 4) * i;
+    ctx.fillStyle = 'rgba(136,146,164,0.5)';
+    ctx.font = '8px DM Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('$' + Math.round(val / 1000) + 'k', pad.left - 4, pad.top + (ch / 4) * i + 3);
+  }
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = 'rgba(136,146,164,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left + cw, pad.top + ch);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const actuals = snap.actuals || {};
+  const totalSpent = Object.values(actuals).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+  const today = new Date();
+  const start = snap.startDate ? new Date(snap.startDate) : null;
+  const dayNum = start ? Math.max(0, Math.floor((today - start) / 86400000)) : 0;
+  if (dayNum > 0 && totalSpent > 0) {
+    const dailyRate = totalSpent / dayNum;
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+    grad.addColorStop(0, 'rgba(45,212,160,0.15)');
+    grad.addColorStop(1, 'rgba(45,212,160,0)');
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top);
+    for (let dd = 0; dd <= Math.min(dayNum, days); dd++) {
+      const x = pad.left + (cw / days) * dd;
+      const remaining = Math.max(0, cap - dailyRate * dd);
+      const y = pad.top + ch * (1 - remaining / cap);
+      ctx.lineTo(x, y);
+    }
+    const lastX = pad.left + (cw / days) * Math.min(dayNum, days);
+    ctx.lineTo(lastX, pad.top + ch);
+    ctx.lineTo(pad.left, pad.top + ch);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'var(--emerald)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top);
+    for (let dd = 0; dd <= Math.min(dayNum, days); dd++) {
+      const x = pad.left + (cw / days) * dd;
+      const remaining = Math.max(0, cap - dailyRate * dd);
+      const y = pad.top + ch * (1 - remaining / cap);
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.font = '8px DM Mono, monospace';
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = 'rgba(136,146,164,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, H - 12); ctx.lineTo(pad.left + 16, H - 12); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(136,146,164,0.6)';
+  ctx.textAlign = 'left';
+  ctx.fillText('PLANNED', pad.left + 20, H - 9);
+  ctx.strokeStyle = 'var(--emerald)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(pad.left + 75, H - 12); ctx.lineTo(pad.left + 91, H - 12); ctx.stroke();
+  ctx.fillStyle = 'rgba(45,212,160,0.6)';
+  ctx.fillText('ACTUAL', pad.left + 95, H - 9);
+  ctx.fillStyle = 'rgba(136,146,164,0.4)';
+  ctx.font = '8px DM Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPRINT DAY', pad.left + cw / 2, H - 1);
+}
+drawDashBurndown();
 </script>
 
 </body>
