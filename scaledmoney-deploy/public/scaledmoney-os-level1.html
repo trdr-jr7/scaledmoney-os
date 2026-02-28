@@ -997,7 +997,45 @@
     transform: translateY(-1px);
   }
 
-</style>
+
+  /* == Coach Card == */
+  .coach-card-wrap{max-width:680px;margin:0 auto 48px;padding:0 24px}
+  .coach-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;overflow:hidden;transition:all .3s ease}
+  .coach-card.collapsed{border-radius:40px;cursor:pointer}
+  .coach-card.collapsed .coach-expanded{display:none}
+  .coach-card.collapsed .coach-collapsed{display:flex}
+  .coach-collapsed{display:none;align-items:center;gap:12px;padding:12px 20px}
+  .coach-collapsed .coach-icon{width:32px;height:32px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .coach-collapsed .coach-pill-title{font-size:13px;font-weight:600;color:var(--white);flex:1}
+  .coach-collapsed .coach-expand-btn{background:none;border:none;cursor:pointer;color:var(--gold);font-size:18px;padding:4px 8px}
+  .coach-expanded{padding:0}
+  .coach-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px}
+  .coach-badge{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
+  .coach-badge-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:coachPulse 2s ease-in-out infinite}
+  @keyframes coachPulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .coach-close{background:none;border:none;cursor:pointer;color:var(--gray);font-size:20px;padding:4px 8px;transition:color .2s}
+  .coach-close:hover{color:var(--white)}
+  .coach-body{padding:0 20px 20px}
+  .coach-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:6px}
+  .coach-desc{font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:16px}
+  .coach-video-box{position:relative;background:var(--navy-mid);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;cursor:pointer;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
+  .coach-video-box:hover{border-color:var(--gold)}
+  .coach-video-box:hover .coach-play-ring{transform:scale(1.1)}
+  .coach-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
+  .coach-play-ring{width:64px;height:64px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+  .coach-play-arrow{width:0;height:0;border-top:12px solid transparent;border-bottom:12px solid transparent;border-left:20px solid var(--gold);margin-left:4px}
+  .coach-placeholder-text{font-size:13px;color:var(--gray);letter-spacing:.5px}
+  .coach-lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:24px}
+  .coach-lightbox.active{display:flex}
+  .coach-lightbox-inner{width:100%;max-width:900px;aspect-ratio:16/9;background:var(--navy-mid);border-radius:12px;overflow:hidden;position:relative}
+  .coach-lightbox-inner iframe{width:100%;height:100%;border:none}
+  .coach-lightbox-close{position:absolute;top:-40px;right:0;background:none;border:none;color:var(--white);font-size:28px;cursor:pointer;padding:4px 8px}
+  .coach-lb-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--gray)}
+  .coach-lb-placeholder .coach-play-ring{width:80px;height:80px}
+  .coach-lb-placeholder .coach-play-arrow{border-top:16px solid transparent;border-bottom:16px solid transparent;border-left:26px solid var(--gold);margin-left:5px}
+  @media(max-width:600px){.coach-card-wrap{padding:0 16px}.coach-title{font-size:18px}.coach-play-ring{width:48px;height:48px}.coach-play-arrow{border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid var(--gold)}}
+
+  </style>
 </head>
 <body>
 
@@ -1159,6 +1197,46 @@
     <div style="color:var(--gray);font-size:14px;padding:0 4px;">↺</div>
   </div>
 </section>
+
+
+<!-- COACH CARD: Intro Video Guide -->
+<div class="coach-card-wrap" id="coach-framework">
+  <div class="coach-card" id="coach-card-framework">
+    <div class="coach-collapsed">
+      <div class="coach-icon">&#9654;</div>
+      <span class="coach-pill-title">Watch: Intro to Lean Dollar</span>
+      <button class="coach-expand-btn" aria-label="Expand guide">&#9660;</button>
+    </div>
+    <div class="coach-expanded">
+      <div class="coach-header">
+        <div class="coach-badge"><span class="coach-badge-dot"></span>VIDEO GUIDE</div>
+        <button class="coach-close" aria-label="Collapse guide">&times;</button>
+      </div>
+      <div class="coach-body">
+        <div class="coach-title">Welcome to Lean Dollar</div>
+        <p class="coach-desc">Your 2-minute intro to the ScaledMoney|OS framework. Learn how the five phases work together as one financial operating system.</p>
+        <div class="coach-video-box" data-video-id="" data-video-provider="" onclick="openCoachLightbox('framework')">
+          <div class="coach-placeholder">
+            <div class="coach-play-ring"><div class="coach-play-arrow"></div></div>
+            <span class="coach-placeholder-text">Video coming soon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="coach-lightbox" id="coach-lightbox">
+  <div class="coach-lightbox-inner">
+    <button class="coach-lightbox-close" onclick="closeCoachLightbox()">&times;</button>
+    <div id="coach-lightbox-content">
+      <div class="coach-lb-placeholder">
+        <div class="coach-play-ring"><div class="coach-play-arrow"></div></div>
+        <span style="font-size:16px;color:var(--white)">Video coming soon</span>
+        <span style="font-size:13px">YouTube or Wistia embed will appear here</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- FOUNDATIONAL PRINCIPLES -->
 <section class="section">
@@ -1945,5 +2023,83 @@ function showDFTab(tabId) {
   });
 }
 </script>
+
+<script>
+/* Coach Card Logic */
+(function(){
+  var STORAGE_KEY = 'scaledmoney-coach';
+  function getState(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{}}catch(e){return{}} }
+  function setState(k,v){ var s=getState(); s[k]=v; localStorage.setItem(STORAGE_KEY,JSON.stringify(s)); }
+
+  function initCoachCard(pageId){
+    var card = document.getElementById('coach-card-'+pageId);
+    if(!card) return;
+    var closeBtn = card.querySelector('.coach-close');
+    var expandBtn = card.querySelector('.coach-expand-btn');
+    var collapsed = card.querySelector('.coach-collapsed');
+    var state = getState();
+
+    if(state[pageId+'_collapsed']){
+      card.classList.add('collapsed');
+    }
+
+    if(closeBtn){
+      closeBtn.addEventListener('click', function(){
+        card.classList.add('collapsed');
+        setState(pageId+'_collapsed', true);
+      });
+    }
+    if(expandBtn){
+      expandBtn.addEventListener('click', function(){
+        card.classList.remove('collapsed');
+      });
+    }
+    if(collapsed){
+      collapsed.addEventListener('click', function(e){
+        if(e.target===expandBtn||expandBtn.contains(e.target)) return;
+        card.classList.remove('collapsed');
+      });
+    }
+  }
+
+  window.openCoachLightbox = function(pageId){
+    var lb = document.getElementById('coach-lightbox');
+    var content = document.getElementById('coach-lightbox-content');
+    var box = document.querySelector('#coach-card-'+pageId+' .coach-video-box');
+    if(!lb||!box) return;
+    var videoId = box.getAttribute('data-video-id');
+    var provider = box.getAttribute('data-video-provider');
+
+    if(videoId && provider==='youtube'){
+      content.innerHTML='<iframe src="https://www.youtube.com/embed/'+videoId+'?autoplay=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+    } else if(videoId && provider==='wistia'){
+      content.innerHTML='<iframe src="https://fast.wistia.net/embed/iframe/'+videoId+'?autoPlay=true" allow="autoplay;fullscreen" allowfullscreen></iframe>';
+    }
+    lb.classList.add('active');
+    setState(pageId+'_watched', true);
+  };
+
+  window.closeCoachLightbox = function(){
+    var lb = document.getElementById('coach-lightbox');
+    var content = document.getElementById('coach-lightbox-content');
+    if(lb) lb.classList.remove('active');
+    if(content){
+      var iframe = content.querySelector('iframe');
+      if(iframe) iframe.src='';
+    }
+  };
+
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape') closeCoachLightbox();
+  });
+
+  document.getElementById('coach-lightbox')?.addEventListener('click', function(e){
+    if(e.target===this) closeCoachLightbox();
+  });
+
+  initCoachCard('framework');
+})();
+</script>
+
 </body>
 </html>
