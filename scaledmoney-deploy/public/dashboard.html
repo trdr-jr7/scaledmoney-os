@@ -36,22 +36,29 @@ body {
   overflow-x: hidden;
 }
 a { color: inherit; text-decoration: none; }
-.nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 40px; border-bottom: 1px solid var(--card-border);
-  position: sticky; top: 0; z-index: 100; background: var(--navy);
-}
-.nav-brand { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.5px; }
-.nav-brand span { font-weight: 300; color: var(--gray); margin-left: 6px; }
-.nav-links { display: flex; gap: 8px; }
-.nav-pill {
-  padding: 6px 18px; border-radius: 20px; font-size: 12px; font-weight: 500;
-  letter-spacing: 1.2px; text-transform: uppercase;
-  border: 1px solid var(--card-border); transition: all 0.2s;
-}
-.nav-pill:hover { border-color: var(--gold); color: var(--gold); }
-.nav-pill.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
-.nav-right { font-size: 12px; color: var(--gray); letter-spacing: 1px; }
+
+/* ── LEVEL NAV (ROW 1) ── */
+.level-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,15,30,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--card-border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 60px; }
+.brand { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--gold); letter-spacing: 0.08em; font-weight: 500; }
+.level-pills { display: flex; gap: 6px; }
+.level-pill { padding: 6px 18px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; text-decoration: none; font-family: 'DM Sans', sans-serif; }
+.level-pill.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+.level-pill.locked { background: transparent; color: var(--gray); border-color: rgba(136,146,164,0.3); cursor: not-allowed; position: relative; }
+.level-pill.locked::after { content: '🔒'; margin-left: 5px; font-size: 9px; }
+.pdca-badge { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--emerald); letter-spacing: 0.1em; border: 1px solid rgba(45,212,160,0.3); padding: 4px 12px; border-radius: 4px; }
+.login-pill { padding: 6px 18px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; font-family: 'DM Sans', sans-serif; border: 1px solid var(--gold); color: var(--gold); background: transparent; cursor: pointer; transition: all 0.2s; }
+.login-pill:hover { background: var(--gold); color: var(--navy); }
+/* ── SITE NAV (ROW 2) ── */
+.site-nav { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 40px; background: rgba(201,168,76,0.04); border-bottom: 1px solid rgba(201,168,76,0.08); position: sticky; top: 60px; z-index: 99; }
+.site-nav-pill { padding: 6px 18px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; font-family: 'DM Sans', sans-serif; border: 1px solid transparent; color: var(--gray); background: transparent; cursor: pointer; transition: all 0.2s; }
+.site-nav-pill:hover { color: var(--gold); border-color: var(--gold); }
+.site-nav-pill.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+.tools-dropdown { position: relative; }
+.tools-dropdown-menu { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px; background: var(--card-bg, #141c2e); border: 1px solid rgba(201,168,76,0.15); border-radius: 8px; padding: 8px 0; min-width: 220px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.tools-dropdown:hover .tools-dropdown-menu { display: block; }
+.tools-dropdown-menu a { display: block; padding: 10px 20px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500; letter-spacing: 0.05em; color: var(--gray); text-decoration: none; transition: all 0.15s; }
+.tools-dropdown-menu a:hover { background: rgba(201,168,76,0.08); color: var(--gold); }
+
 .hero { text-align: center; padding: 60px 40px 40px; border-bottom: 1px solid var(--card-border); }
 .hero-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
 .hero h1 { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; margin-bottom: 12px; }
@@ -206,18 +213,35 @@ a { color: inherit; text-decoration: none; }
 </style>
 </head><body>
 
-<nav class="nav">
-  <a href="/dashboard" class="nav-brand">ScaledMoney|OS™<span>· Dashboard</span></a>
-  <div class="nav-links">
-    <a href="/dashboard" class="nav-pill active">DASHBOARD</a>
-    <a href="/framework" class="nav-pill">FRAMEWORK</a>
-    <a href="/tools/sprint-planner" class="nav-pill">TOOLS</a>
-    <a href="/tools/retro" class="nav-pill">RETRO</a>
+<!-- LEVEL NAV (ROW 1) -->
+<nav class="level-nav">
+  <div class="brand">ScaledMoney|OS™ <span style="color:var(--gray);font-size:10px;margin-left:6px;letter-spacing:0.05em;">· Lean Dollar</span></div>
+  <div class="level-pills">
+    <span class="level-pill active">Lean Dollar: Core</span>
+    <span class="level-pill locked">Lean Dollar: Flow</span>
+    <span class="level-pill locked">Lean Dollar: Vault</span>
   </div>
-  <div class="nav-right">v1.0</div>
+  <div class="pdca-badge">Evaluate + Evolve Engine Active</div>
+  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.1em;margin-left:16px;">v1.0</span>
+  <a href="/login" class="login-pill">Login / Join</a>
 </nav>
+<!-- SITE NAV (ROW 2) -->
+<div class="site-nav">
+  <a href="/framework" class="site-nav-pill">Framework</a>
+  <a href="/dashboard" class="site-nav-pill active">Dashboard</a>
+  <div class="tools-dropdown">
+    <span class="site-nav-pill">Tools ▾</span>
+    <div class="tools-dropdown-menu">
+      <a href="/tools/gap-audit">Gap Audit</a>
+      <a href="/tools/true-cost">True Cost Engine</a>
+      <a href="/tools/sprint-planner">Sprint Budget Planner</a>
+      <a href="#">Dollar Standup</a>
+      <a href="/tools/retro">Retro</a>
+    </div>
+  </div>
+</div>
 
-<section class="hero">
+<section class="hero" style="margin-top:100px;">
   <div class="hero-label">— YOUR COMMAND CENTER —</div>
   <h1>Welcome to <em>Lean Dollar</em></h1>
   <p>Your financial operating system. Plan every paycheck, execute with structure, review weekly, and adjust monthly. One cycle at a time.</p>
