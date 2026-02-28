@@ -359,27 +359,23 @@
 </main>
 
 <script>
-  // Close tools dropdown when clicking outside
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', function(e) {
     if (!e.target.closest('.tools-dropdown')) {
-      document.querySelectorAll('.tools-menu').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.tools-menu').forEach(function(m) { m.classList.remove('open'); });
     }
   });
 
-  // Future: This function will be called when sprint data is loaded
-  // to update the tracker dots and unlock the CTA
   function updateGraduationStatus(completedSprints) {
-    const dots = document.querySelectorAll('.sprint-dot');
-    const countEl = document.querySelector('.tracker-count');
-    const statusIcon = document.querySelector('.status-icon');
-    const statusHeading = document.querySelector('.status-heading');
-    const statusDesc = document.querySelector('.status-desc');
-    const cta = document.querySelector('.flow-cta');
-    const hint = document.querySelector('.flow-cta-hint');
+    var dots = document.querySelectorAll('.sprint-dot');
+    var countEl = document.querySelector('.tracker-count');
+    var statusIcon = document.querySelector('.status-icon');
+    var statusHeading = document.querySelector('.status-heading');
+    var statusDesc = document.querySelector('.status-desc');
+    var cta = document.querySelector('.flow-cta');
+    var hint = document.querySelector('.flow-cta-hint');
+    var count = Math.min(completedSprints, 4);
 
-    const count = Math.min(completedSprints, 4);
-
-    dots.forEach((dot, i) => {
+    dots.forEach(function(dot, i) {
       if (i < count) {
         dot.classList.remove('incomplete');
         dot.classList.add('complete');
@@ -389,16 +385,28 @@
       }
     });
 
-    countEl.innerHTML = '<strong>' + count + '</strong> of 4 sprints completed';
+    if (countEl) countEl.innerHTML = '<strong>' + count + '</strong> of 4 sprints completed';
 
     if (count >= 4) {
-      statusIcon.textContent = '🎓';
-      statusHeading.textContent = 'Ready to Graduate!';
-      statusDesc.textContent = 'You have completed 4 full sprints at Lean Dollar: Core. You are ready to advance to Flow.';
-      cta.classList.add('unlocked');
-      hint.textContent = 'Click to begin your Flow journey';
+      if (statusIcon) statusIcon.textContent = '\ud83c\udf93';
+      if (statusHeading) statusHeading.textContent = 'Ready to Graduate!';
+      if (statusDesc) statusDesc.textContent = 'You have completed 4 full sprints at Lean Dollar: Core. You are ready to advance to Flow.';
+      if (cta) cta.classList.add('unlocked');
+      if (hint) hint.textContent = 'Click to begin your Flow journey';
+    } else {
+      if (statusIcon) statusIcon.textContent = '\ud83d\udd12';
+      if (statusHeading) statusHeading.textContent = 'Flow Is Locked';
+      if (statusDesc) statusDesc.textContent = 'Complete all 4 sprints to unlock Lean Dollar: Flow. Each sprint must be fully closed \u2014 Gap funded, obligations current, Standup run, and Retro documented.';
+      if (cta) cta.classList.remove('unlocked');
+      if (hint) hint.textContent = 'Complete 4 sprints to activate';
     }
   }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var sprints = [];
+    try { sprints = JSON.parse(localStorage.getItem('scaledmoney-sprints') || '[]'); } catch(e) { sprints = []; }
+    updateGraduationStatus(sprints.length);
+  });
 </script>
 
 </body>
