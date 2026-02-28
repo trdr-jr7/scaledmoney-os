@@ -413,7 +413,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 <div class="member-bar" id="member-bar" style="display:none;">
   <div class="member-badge badge-free" id="member-bar-badge">FREE TIER</div>
   <div class="member-bar-status">Sprint Budget Planner™ <span id="member-bar-tier">· Free</span></div>
-  <button class="save-btn-bar save-btn-disabled" id="save-btn" onclick="saveSprint()" title="Upgrade to Pro to save plans">💾 Save Sprint</button>
+  <button class="save-btn-bar" id="save-btn" onclick="saveSprint()" title="Save sprint to your browser">💾 Save Sprint</button>
   <button class="save-btn-bar save-btn-enabled" onclick="printPlan()" title="Print sprint plan">🖨️ Print</button>
   <div class="save-indicator" id="save-indicator"></div>
 </div>
@@ -1134,14 +1134,27 @@ const state = {
 
 // Default categories with colors and velocity placeholders
 const DEFAULT_CATS = [
-  { name: 'Groceries',     color: '#2dd4a0', velocity: null, alloc: 0, hint: 'Food at home' },
-  { name: 'Dining Out',    color: '#ff8c69', velocity: null, alloc: 0, hint: 'Restaurants, takeout' },
-  { name: 'Transportation',color: '#4fc3f7', velocity: null, alloc: 0, hint: 'Gas, rideshare, parking' },
-  { name: 'Entertainment', color: '#b48cff', velocity: null, alloc: 0, hint: 'Streaming, events, hobbies' },
-  { name: 'Personal Care', color: '#e88fa0', velocity: null, alloc: 0, hint: 'Health & beauty' },
-  { name: 'Clothing',      color: '#c9a84c', velocity: null, alloc: 0, hint: 'Apparel & accessories' },
-  { name: 'Miscellaneous', color: '#8892a4', velocity: null, alloc: 0, hint: 'Everything else' },
-];
+  { name: 'Groceries',         color: '#2dd4a0', sub: 'Food at home' },
+  { name: 'Dining Out',        color: '#ef4444', sub: 'Restaurants, takeout, delivery' },
+  { name: 'Coffee & Snacks',   color: '#f59e0b', sub: 'Coffee shops, vending, quick bites' },
+  { name: 'Transportation',    color: '#3b82f6', sub: 'Gas, rideshare, parking, tolls' },
+  { name: 'Public Transit',    color: '#6366f1', sub: 'Bus, subway, train passes' },
+  { name: 'Subscriptions',     color: '#8b5cf6', sub: 'Streaming, apps, memberships' },
+  { name: 'Utilities',         color: '#06b6d4', sub: 'Electric, water, gas, trash' },
+  { name: 'Internet & Phone',  color: '#0ea5e9', sub: 'Cell phone, internet, cable' },
+  { name: 'Insurance',         color: '#14b8a6', sub: 'Auto, renters, health premiums' },
+  { name: 'Healthcare',        color: '#ec4899', sub: 'Copays, prescriptions, dental, vision' },
+  { name: 'Personal Care',     color: '#f43f5e', sub: 'Haircuts, skincare, hygiene' },
+  { name: 'Clothing',          color: '#c9a84c', sub: 'Apparel, shoes, accessories' },
+  { name: 'Household Supplies',color: '#84cc16', sub: 'Cleaning, paper goods, tools' },
+  { name: 'Entertainment',     color: '#a78bfa', sub: 'Events, hobbies, games' },
+  { name: 'Fitness & Wellness',color: '#22c55e', sub: 'Gym, classes, supplements' },
+  { name: 'Gifts & Donations', color: '#e879f9', sub: 'Birthdays, holidays, charity' },
+  { name: 'Pet Care',          color: '#fb923c', sub: 'Food, vet, grooming, supplies' },
+  { name: 'Kids & Childcare',  color: '#38bdf8', sub: 'Daycare, school, activities' },
+  { name: 'Education',         color: '#818cf8', sub: 'Books, courses, supplies' },
+  { name: 'Miscellaneous',     color: '#8892a4', sub: 'Everything else' }
+]
 
 // ══════════════════════════════════════════════════════
 // INIT
@@ -1300,26 +1313,21 @@ function updateRangeDisplay() {
 }
 
 function updateSprintBadge() {
-  const num = document.getElementById('sprint-num').value || '1';
-  state.sprintNum = parseInt(num);
-  document.getElementById('nav-sprint-num').textContent = 'SPRINT ' + num;
-  document.getElementById('next-sprint-num').textContent = state.sprintNum + 1;
-
-  // Build badge label from date range
-  let label = 'SPRINT ' + num;
-  if (calState.startDate) {
-    const s = calState.startDate;
-    const mo = MONTH_SHORT[s.getMonth()];
-    const yr = s.getFullYear();
-    label = 'SPRINT ' + num + ' · ' + mo + ' ' + s.getDate() + ', ' + yr;
-    if (calState.endDate) {
-      const e = calState.endDate;
-      const emo = MONTH_SHORT[e.getMonth()];
-      label += ' – ' + emo + ' ' + e.getDate();
+  const num = document.getElementById('sprint-num');
+  const navNum = document.getElementById('nav-sprint-num');
+  const nextNum = document.getElementById('next-sprint-num');
+  const badge = document.getElementById('sprint-badge-p0');
+  const val = num ? num.value : '';
+  if (navNum) navNum.textContent = val ? 'Sprint ' + val : 'Sprint 1';
+  if (nextNum) nextNum.textContent = val ? parseInt(val) + 1 : '2';
+  if (badge) {
+    if (val && parseInt(val) > 1) {
+      badge.style.display = 'inline-flex';
+      badge.textContent = 'Sprint ' + val;
+    } else {
+      badge.style.display = 'none';
     }
   }
-  const b0 = document.getElementById('sprint-badge-p0');
-  if (b0) b0.textContent = label;
 }
 
 // ══════════════════════════════════════════════════════
@@ -2147,24 +2155,63 @@ function enterPlanner() {
 // SAVE / LOAD — uses window.storage (persistent)
 // ══════════════════════════════════════════════════════
 async function saveSprint() {
-  if (memberTier !== 'paid') {
-    showSaveIndicator('⚠ Pro feature — upgrade to save', '#f0a050');
-    return;
-  }
-  const snap = buildSnapshot(activeSprint);
-  const key  = 'sprint:slot:' + activeSprint;
-  try {
-    const result = await window.storage.set(key, JSON.stringify(snap), false);
-    if (result) {
-      sprintSlots[activeSprint] = snap;
-      updateSprintTabs();
-      showSaveIndicator('✓ Sprint ' + (activeSprint + 1) + ' saved', 'var(--em)');
-    } else {
-      showSaveIndicator('Save failed — try again', 'var(--danger)');
+  const sprintNum = document.getElementById('sprint-num') ? document.getElementById('sprint-num').value : '1';
+  const sprintGoal = document.getElementById('sprint-goal') ? document.getElementById('sprint-goal').value : '';
+  const startDate = window.sprintStartDate || new Date().toISOString().slice(0,10);
+  const sprintLen = window.sprintLength || 7;
+  const incomeRows = document.querySelectorAll('#income-rows .income-row');
+  const income = [];
+  incomeRows.forEach(function(row) {
+    const inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2 && inputs[1].value) {
+      income.push({ source: inputs[0].value, gross: parseFloat(inputs[1].value)||0, taxPct: parseFloat(inputs[2]?inputs[2].value:0)||0 });
     }
-  } catch(e) {
-    showSaveIndicator('Save error: ' + e.message, 'var(--danger)');
-  }
+  });
+  const fixedRows = document.querySelectorAll('#fixed-rows .fixed-row');
+  const fixedCosts = [];
+  fixedRows.forEach(function(row) {
+    const inputs = row.querySelectorAll('input');
+    const sel = row.querySelector('select');
+    if (inputs.length >= 2 && inputs[1].value) {
+      fixedCosts.push({ name: inputs[0].value, amount: parseFloat(inputs[1].value)||0, category: sel?sel.value:'' });
+    }
+  });
+  const goalRows = document.querySelectorAll('.goal-row');
+  const goals = [];
+  goalRows.forEach(function(row) {
+    const inp = row.querySelector('input[type="number"]');
+    const lbl = row.querySelector('.goal-label');
+    if (inp && inp.value) { goals.push({ name: lbl?lbl.textContent.trim():'', amount: parseFloat(inp.value)||0 }); }
+  });
+  const catRows = document.querySelectorAll('.cat-row');
+  const categories = [];
+  catRows.forEach(function(row) {
+    const nameEl = row.querySelector('.cat-name, strong');
+    const inputs = row.querySelectorAll('input[type="number"]');
+    if (nameEl && inputs.length >= 2) {
+      categories.push({ name: nameEl.textContent.trim(), planned: parseFloat(inputs[0].value)||0, actual: parseFloat(inputs[1].value)||0 });
+    }
+  });
+  const netTakeHome = income.reduce(function(s,i){return s+i.gross*(1-i.taxPct/100);},0);
+  const totalFixed = fixedCosts.reduce(function(s,f){return s+f.amount;},0);
+  const sprintFuel = netTakeHome - totalFixed;
+  const totalGoals = goals.reduce(function(s,g){return s+g.amount;},0);
+  const totalPlanned = categories.reduce(function(s,c){return s+c.planned;},0);
+  const totalActual = categories.reduce(function(s,c){return s+c.actual;},0);
+  const sprintData = {
+    id: 'sprint-' + sprintNum + '-' + startDate,
+    sprintNum: parseInt(sprintNum)||1, goal: sprintGoal,
+    startDate: startDate, length: sprintLen,
+    savedAt: new Date().toISOString(),
+    income: income, fixedCosts: fixedCosts, goals: goals, categories: categories,
+    summary: { netTakeHome: netTakeHome, totalFixed: totalFixed, sprintFuel: sprintFuel, totalGoals: totalGoals, totalPlanned: totalPlanned, totalActual: totalActual }
+  };
+  var allSprints = [];
+  try { allSprints = JSON.parse(localStorage.getItem('scaledmoney-sprints')||'[]'); } catch(e) { allSprints = []; }
+  var existIdx = allSprints.findIndex(function(s){return s.id===sprintData.id;});
+  if (existIdx >= 0) { allSprints[existIdx] = sprintData; } else { allSprints.push(sprintData); }
+  localStorage.setItem('scaledmoney-sprints', JSON.stringify(allSprints));
+  showSaveIndicator('\u2705 Sprint ' + sprintNum + ' saved!');
 }
 
 async function loadSavedSprints() {
