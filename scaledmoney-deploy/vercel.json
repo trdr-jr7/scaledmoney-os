@@ -17,7 +17,8 @@
                   { "source": "/logout",               "destination": "/logout.html" },
                   { "source": "/api/:path*",           "destination": "/api/:path*" },
                   { "source": "/lib/:path*",           "destination": "/lib/:path*" },
-                        { "source": "/dashboard",              "destination": "/dashboard.html" }
+                        { "source": "/dashboard",              "destination": "/dashboard.html" },
+                        { "source": "/graduation",            "destination": "/graduation.html" }
         ],
         "headers": [
                   {
