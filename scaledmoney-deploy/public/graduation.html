@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graduation — Lean Dollar: Core | ScaledMoney|OS™</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy-mid: #111827;
+    --navy-light: #1a2540;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --gold-dim: #8a6f2e;
+    --emerald: #2dd4a0;
+    --emerald-dim: #1a7a5e;
+    --white: #f5f3ef;
+    --gray: #8892a4;
+    --gray-light: #c5cad4;
+    --card-bg: #141c2e;
+    --card-border: rgba(201,168,76,0.15);
+    --modal-bg: #0d1424;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* ===== ROW 1: Level Nav ===== */
+  .level-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: 60px;
+    background: var(--navy);
+    border-bottom: 1px solid var(--card-border);
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; padding: 0 24px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 1px;
+  }
+  .level-nav .brand {
+    position: absolute; left: 24px; top: 50%; transform: translateY(-50%);
+    font-family: 'DM Mono', monospace; font-size: 13px; color: var(--gold);
+    text-decoration: none; white-space: nowrap;
+  }
+  .level-nav .brand span { color: var(--gray); font-size: 11px; }
+  .level-pill {
+    padding: 8px 18px; border-radius: 20px; text-decoration: none;
+    font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 1.2px;
+    transition: background 0.2s;
+  }
+  .level-pill.active { background: var(--gold); color: var(--navy); }
+  .level-pill.locked {
+    border: 1px solid var(--card-border); color: var(--gray);
+  }
+  .level-pill.locked::after { content: ' 🔒'; font-size: 10px; }
+  .level-pill.ee {
+    border: 1px solid var(--emerald-dim); color: var(--emerald);
+  }
+  .login-pill {
+    position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
+    padding: 8px 20px; border-radius: 20px;
+    border: 1px solid var(--gold); color: var(--gold);
+    text-decoration: none; font-size: 11px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+  }
+  .login-pill:hover { background: var(--gold); color: var(--navy); }
+  .version-tag {
+    position: absolute; right: 140px; top: 50%; transform: translateY(-50%);
+    font-size: 10px; color: var(--gray); font-family: 'DM Mono', monospace;
+  }
+
+  /* ===== ROW 2: Site Nav ===== */
+  .site-nav {
+    position: sticky; top: 60px; z-index: 99;
+    background: var(--navy-mid);
+    border-bottom: 1px solid var(--card-border);
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 10px 24px;
+  }
+  .site-pill {
+    padding: 8px 22px; border-radius: 20px; text-decoration: none;
+    font-size: 13px; font-weight: 500; color: var(--gray-light);
+    transition: background 0.2s;
+  }
+  .site-pill:hover { background: rgba(201,168,76,0.1); color: var(--white); }
+  .site-pill.active { background: var(--gold); color: var(--navy); font-weight: 600; }
+  .tools-dropdown { position: relative; }
+  .tools-toggle {
+    padding: 8px 22px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; color: var(--gray-light);
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; transition: background 0.2s;
+  }
+  .tools-toggle:hover { background: rgba(201,168,76,0.1); color: var(--white); }
+  .tools-toggle.active { background: var(--gold); color: var(--navy); font-weight: 600; }
+  .tools-menu {
+    display: none; position: absolute; top: 100%; left: 0;
+    background: var(--navy-light); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 8px 0; min-width: 220px;
+    z-index: 200; margin-top: 6px;
+  }
+  .tools-menu.open { display: block; }
+  .tools-menu a {
+    display: block; padding: 10px 20px; color: var(--gray-light);
+    text-decoration: none; font-size: 13px; transition: background 0.15s;
+  }
+  .tools-menu a:hover { background: rgba(201,168,76,0.08); color: var(--white); }
+
+  /* ===== Main Content ===== */
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 120px 24px 80px;
+    text-align: center;
+  }
+
+  .grad-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+
+  .grad-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    color: var(--white);
+  }
+  .grad-title em {
+    color: var(--gold);
+    font-style: normal;
+  }
+
+  .grad-subtitle {
+    font-size: 18px;
+    color: var(--gray);
+    max-width: 560px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+  }
+
+  /* Sprint tracker */
+  .sprint-tracker {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 48px;
+  }
+
+  .tracker-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+
+  .sprint-dots {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .sprint-dot {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    transition: all 0.3s;
+  }
+  .sprint-dot.incomplete {
+    border: 2px dashed var(--card-border);
+    color: var(--gray);
+  }
+  .sprint-dot.complete {
+    background: rgba(45,212,160,0.15);
+    border: 2px solid var(--emerald);
+    color: var(--emerald);
+  }
+  .sprint-dot.complete::after {
+    content: '✓';
+    font-size: 24px;
+  }
+  .sprint-dot.incomplete::after {
+    content: attr(data-num);
+  }
+
+  .tracker-count {
+    font-size: 14px;
+    color: var(--gray-light);
+  }
+  .tracker-count strong {
+    color: var(--gold);
+  }
+
+  /* Status message */
+  .status-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 36px;
+    margin-bottom: 48px;
+  }
+
+  .status-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .status-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .status-desc {
+    font-size: 15px;
+    color: var(--gray);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* CTA Button */
+  .flow-cta {
+    display: inline-block;
+    padding: 16px 40px;
+    background: var(--gold);
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    border-radius: 40px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+  .flow-cta.unlocked {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .flow-cta.unlocked:hover {
+    background: #e2c060;
+    transform: translateY(-1px);
+  }
+
+  .flow-cta-hint {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 12px;
+  }
+
+  /* Back link */
+  .back-link {
+    display: inline-block;
+    margin-top: 36px;
+    color: var(--gray);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- ROW 1: Level Nav -->
+<nav class="level-nav">
+  <a href="/framework" class="brand">ScaledMoney|OS™ <span>· Lean Dollar</span></a>
+  <a href="/framework" class="level-pill active">Lean Dollar: Core</a>
+  <a href="#" class="level-pill locked">Lean Dollar: Flow</a>
+  <a href="#" class="level-pill locked">Lean Dollar: Vault</a>
+  <a href="#" class="level-pill ee">Evaluate + Evolve Engine Active</a>
+  <span class="version-tag">v1.0</span>
+  <a href="/login" class="login-pill">Login / Join</a>
+</nav>
+
+<!-- ROW 2: Site Nav -->
+<nav class="site-nav">
+  <a href="/framework" class="site-pill">Framework</a>
+  <a href="/dashboard" class="site-pill">Dashboard</a>
+  <div class="tools-dropdown">
+    <button class="tools-toggle" onclick="this.nextElementSibling.classList.toggle('open')">Tools ▾</button>
+    <div class="tools-menu">
+      <a href="/tools/gap-audit">Gap Audit</a>
+      <a href="/tools/true-cost">True Cost Engine</a>
+      <a href="/tools/sprint-planner">Sprint Budget Planner</a>
+      <a href="#">Dollar Standup</a>
+      <a href="/tools/retro">Retro</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="grad-badge">Level Advancement</div>
+
+  <h1 class="grad-title">Graduate to <em>Flow</em></h1>
+
+  <p class="grad-subtitle">
+    Complete 4 full sprints at Lean Dollar: Core to unlock the next tier.
+    Consistency is the proof. The Core must hold before you build.
+  </p>
+
+  <!-- Sprint Tracker -->
+  <div class="sprint-tracker">
+    <div class="tracker-label">Sprint Completion Progress</div>
+    <div class="sprint-dots">
+      <div class="sprint-dot incomplete" data-num="1"></div>
+      <div class="sprint-dot incomplete" data-num="2"></div>
+      <div class="sprint-dot incomplete" data-num="3"></div>
+      <div class="sprint-dot incomplete" data-num="4"></div>
+    </div>
+    <div class="tracker-count"><strong>0</strong> of 4 sprints completed</div>
+  </div>
+
+  <!-- Status Card -->
+  <div class="status-card">
+    <div class="status-icon">🔒</div>
+    <h2 class="status-heading">Flow Is Locked</h2>
+    <p class="status-desc">
+      Complete all 4 sprints to unlock Lean Dollar: Flow.
+      Each sprint must be fully closed — Gap funded, obligations current, 
+      Standup run, and Retro documented.
+    </p>
+  </div>
+
+  <!-- CTA (disabled until 4 sprints complete) -->
+  <a href="#" class="flow-cta">Advance to Lean Dollar: Flow →</a>
+  <div class="flow-cta-hint">Complete 4 sprints to activate</div>
+
+  <a href="/framework" class="back-link">← Back to Framework</a>
+</main>
+
+<script>
+  // Close tools dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.tools-dropdown')) {
+      document.querySelectorAll('.tools-menu').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  // Future: This function will be called when sprint data is loaded
+  // to update the tracker dots and unlock the CTA
+  function updateGraduationStatus(completedSprints) {
+    const dots = document.querySelectorAll('.sprint-dot');
+    const countEl = document.querySelector('.tracker-count');
+    const statusIcon = document.querySelector('.status-icon');
+    const statusHeading = document.querySelector('.status-heading');
+    const statusDesc = document.querySelector('.status-desc');
+    const cta = document.querySelector('.flow-cta');
+    const hint = document.querySelector('.flow-cta-hint');
+
+    const count = Math.min(completedSprints, 4);
+
+    dots.forEach((dot, i) => {
+      if (i < count) {
+        dot.classList.remove('incomplete');
+        dot.classList.add('complete');
+      } else {
+        dot.classList.remove('complete');
+        dot.classList.add('incomplete');
+      }
+    });
+
+    countEl.innerHTML = '<strong>' + count + '</strong> of 4 sprints completed';
+
+    if (count >= 4) {
+      statusIcon.textContent = '🎓';
+      statusHeading.textContent = 'Ready to Graduate!';
+      statusDesc.textContent = 'You have completed 4 full sprints at Lean Dollar: Core. You are ready to advance to Flow.';
+      cta.classList.add('unlocked');
+      hint.textContent = 'Click to begin your Flow journey';
+    }
+  }
+</script>
+
+</body>
+</html>
