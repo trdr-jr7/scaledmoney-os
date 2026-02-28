@@ -24,6 +24,7 @@ body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;
 .level-pill.active.core-dropdown-trigger{position:relative;cursor:pointer;user-select:none;}
 .level-pill.active.core-dropdown-trigger::after{content:' \25BE';font-size:9px;opacity:0.7;}
 .core-dropdown-menu{display:none;position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);background:rgba(20,28,46,0.98);border:1px solid var(--card-border);border-radius:12px;padding:8px 0;min-width:220px;box-shadow:0 12px 32px rgba(0,0,0,0.4);z-index:200;}
+.core-dropdown-menu::before{content:'';position:absolute;top:-14px;left:0;right:0;height:14px;}
 .core-dropdown-trigger:hover .core-dropdown-menu,.core-dropdown-menu:hover{display:block;}
 .core-dropdown-menu a{display:block;padding:10px 20px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:0.05em;color:var(--gray);text-decoration:none;transition:all 0.15s;}
 .core-dropdown-menu a:hover{background:rgba(201,168,76,0.08);color:var(--gold);}
