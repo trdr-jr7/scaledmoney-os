@@ -336,9 +336,7 @@ a { color: inherit; text-decoration: none; }
   <div>
     <div class="exec-card" style="margin-bottom:16px">
       <h3>📋 Saved Sprints</h3>
-      <div class="sprint-row"><span class="sprint-name">Mar 1 – Mar 14 Sprint</span><span class="sprint-badge badge-active">ACTIVE</span></div>
-      <div class="sprint-row"><span class="sprint-name">Feb 15 – Feb 28 Sprint</span><span class="sprint-badge badge-complete">COMPLETE</span></div>
-      <div class="sprint-row"><span class="sprint-name">Feb 1 – Feb 14 Sprint</span><span class="sprint-badge badge-complete">COMPLETE</span></div>
+      <div id="saved-sprints-list"><div class="sprint-row" style="color:var(--gray);font-style:italic">No saved sprints yet</div></div>
       <div style="margin-top:16px"><a href="/tools/sprint-planner" class="wf-btn">Open Sprint Command Center →</a></div>
     </div>
     <div class="exec-card">
@@ -602,5 +600,27 @@ function drawDashBurndown() {
 drawDashBurndown();
 </script>
 
+<script>
+(function(){
+  var c=document.getElementById('saved-sprints-list');
+  if(!c)return;
+  var sp=[];
+  try{sp=JSON.parse(localStorage.getItem('scaledmoney-sprints')||'[]');}catch(e){sp=[];}
+  if(!sp.length)return;
+  c.innerHTML='';
+  sp.sort(function(a,b){return new Date(b.savedAt)-new Date(a.savedAt);});
+  sp.forEach(function(s,i){
+    var row=document.createElement('div');
+    row.className='sprint-row';
+    var sd=s.startDate?new Date(s.startDate+'T00:00:00'):new Date(s.savedAt);
+    var ed=new Date(sd);ed.setDate(ed.getDate()+(s.length||14));
+    var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var f=function(d){return mo[d.getMonth()]+' '+d.getDate();};
+    var active=i===0;
+    row.innerHTML='<span class="sprint-name">'+f(sd)+' \u2013 '+f(ed)+' Sprint '+(s.sprintNum||'')+'</span><span class="sprint-badge '+(active?'badge-active':'badge-complete')+'">'+(active?'ACTIVE':'COMPLETE')+'</span>';
+    c.appendChild(row);
+  });
+})();
+</script>
 </body>
 </html>
