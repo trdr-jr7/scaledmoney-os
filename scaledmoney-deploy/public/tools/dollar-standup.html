@@ -20,18 +20,14 @@ body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;
 .login-pill{position:absolute;right:24px;top:50%;transform:translateY(-50%);padding:8px 20px;border-radius:20px;border:1px solid var(--gold);color:var(--gold);text-decoration:none;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:background .2s,color .2s}
 .login-pill:hover{background:var(--gold);color:var(--navy)}
 .version-tag{position:absolute;right:140px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--gray);font-family:'DM Mono',monospace}
-.site-nav{position:sticky;top:60px;z-index:99;background:var(--navy-mid);border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 24px}
-.site-pill{padding:8px 22px;border-radius:20px;text-decoration:none;font-size:13px;font-weight:500;color:var(--gray-light);transition:background .2s}
-.site-pill:hover{background:rgba(201,168,76,0.1);color:var(--white)}
-.site-pill.active{background:var(--gold);color:var(--navy);font-weight:600}
-.tools-dropdown{position:relative}
-.tools-toggle{padding:8px 22px;border-radius:20px;font-size:13px;font-weight:500;color:var(--gray-light);background:none;border:none;cursor:pointer;font-family:inherit;transition:background .2s}
-.tools-toggle:hover{background:rgba(201,168,76,0.1);color:var(--white)}
-.tools-toggle.active{background:var(--gold);color:var(--navy);font-weight:600}
-.tools-menu{display:none;position:absolute;top:100%;left:0;background:var(--navy-light);border:1px solid var(--card-border);border-radius:12px;padding:8px 0;min-width:220px;z-index:200;margin-top:6px}
-.tools-menu.open{display:block}
-.tools-menu a{display:block;padding:10px 20px;color:var(--gray-light);text-decoration:none;font-size:13px;transition:background .15s}
-.tools-menu a:hover{background:rgba(201,168,76,0.08);color:var(--white)}
+/* ── CORE DROPDOWN ── */
+.level-pill.active.core-dropdown-trigger{position:relative;cursor:pointer;user-select:none;}
+.level-pill.active.core-dropdown-trigger::after{content:' \25BE';font-size:9px;opacity:0.7;}
+.core-dropdown-menu{display:none;position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);background:rgba(20,28,46,0.98);border:1px solid var(--card-border);border-radius:12px;padding:8px 0;min-width:220px;box-shadow:0 12px 32px rgba(0,0,0,0.4);z-index:200;}
+.core-dropdown-trigger:hover .core-dropdown-menu,.core-dropdown-menu:hover{display:block;}
+.core-dropdown-menu a{display:block;padding:10px 20px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:0.05em;color:var(--gray);text-decoration:none;transition:all 0.15s;}
+.core-dropdown-menu a:hover{background:rgba(201,168,76,0.08);color:var(--gold);}
+.core-dropdown-menu a.active-page{color:var(--gold);font-weight:600;}
 
 main{max-width:720px;margin:0 auto;padding:100px 24px 80px}
 .phase-badge{display:inline-block;padding:4px 14px;border:1px solid var(--emerald-dim);border-radius:16px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--emerald);margin-bottom:16px}
@@ -115,21 +111,6 @@ textarea::placeholder{color:var(--gray)}
   <a href="#" class="level-pill ee">Evaluate + Evolve Engine Active</a>
   <span class="version-tag">v1.0</span>
   <a href="/login" class="login-pill">Login / Join</a>
-</nav>
-
-<nav class="site-nav">
-  <a href="/framework" class="site-pill">Framework</a>
-  <a href="/dashboard" class="site-pill">Dashboard</a>
-  <div class="tools-dropdown">
-    <button class="tools-toggle active" onclick="this.nextElementSibling.classList.toggle('open')">Tools ▾</button>
-    <div class="tools-menu">
-      <a href="/tools/gap-audit">Gap Audit</a>
-      <a href="/tools/true-cost">True Cost Engine</a>
-      <a href="/tools/sprint-planner">Sprint Budget Planner</a>
-      <a href="/tools/dollar-standup">Dollar Standup</a>
-      <a href="/tools/retro">Retro</a>
-    </div>
-  </div>
 </nav>
 
 <main>
