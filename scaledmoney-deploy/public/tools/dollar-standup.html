@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dollar Standup — Weekly Check-in | ScaledMoney|OS™</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a0f1e;--navy-mid:#111827;--navy-light:#1a2540;--gold:#c9a84c;--gold-light:#e8c96a;--gold-dim:#8a6f2e;--emerald:#2dd4a0;--emerald-dim:#1a7a5e;--white:#f5f3ef;--gray:#8892a4;--gray-light:#c5cad4;--card-bg:#141c2e;--card-border:rgba(201,168,76,0.15);--red:#ef4444;--modal-bg:#0d1424}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6}
+.level-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;background:var(--navy);border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;gap:10px;padding:0 24px;font-size:12px;letter-spacing:1px}
+.level-nav .brand{position:absolute;left:24px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);text-decoration:none;white-space:nowrap}
+.level-nav .brand span{color:var(--gray);font-size:11px}
+.level-pill{padding:8px 18px;border-radius:20px;text-decoration:none;font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:1.2px;transition:background .2s}
+.level-pill.active{background:var(--gold);color:var(--navy)}
+.level-pill.locked{border:1px solid var(--card-border);color:var(--gray)}
+.level-pill.locked::after{content:' 🔒';font-size:10px}
+.level-pill.ee{border:1px solid var(--emerald-dim);color:var(--emerald)}
+.login-pill{position:absolute;right:24px;top:50%;transform:translateY(-50%);padding:8px 20px;border-radius:20px;border:1px solid var(--gold);color:var(--gold);text-decoration:none;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:background .2s,color .2s}
+.login-pill:hover{background:var(--gold);color:var(--navy)}
+.version-tag{position:absolute;right:140px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--gray);font-family:'DM Mono',monospace}
+.site-nav{position:sticky;top:60px;z-index:99;background:var(--navy-mid);border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 24px}
+.site-pill{padding:8px 22px;border-radius:20px;text-decoration:none;font-size:13px;font-weight:500;color:var(--gray-light);transition:background .2s}
+.site-pill:hover{background:rgba(201,168,76,0.1);color:var(--white)}
+.site-pill.active{background:var(--gold);color:var(--navy);font-weight:600}
+.tools-dropdown{position:relative}
+.tools-toggle{padding:8px 22px;border-radius:20px;font-size:13px;font-weight:500;color:var(--gray-light);background:none;border:none;cursor:pointer;font-family:inherit;transition:background .2s}
+.tools-toggle:hover{background:rgba(201,168,76,0.1);color:var(--white)}
+.tools-toggle.active{background:var(--gold);color:var(--navy);font-weight:600}
+.tools-menu{display:none;position:absolute;top:100%;left:0;background:var(--navy-light);border:1px solid var(--card-border);border-radius:12px;padding:8px 0;min-width:220px;z-index:200;margin-top:6px}
+.tools-menu.open{display:block}
+.tools-menu a{display:block;padding:10px 20px;color:var(--gray-light);text-decoration:none;font-size:13px;transition:background .15s}
+.tools-menu a:hover{background:rgba(201,168,76,0.08);color:var(--white)}
+
+main{max-width:720px;margin:0 auto;padding:100px 24px 80px}
+.phase-badge{display:inline-block;padding:4px 14px;border:1px solid var(--emerald-dim);border-radius:16px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--emerald);margin-bottom:16px}
+h1{font-family:'Playfair Display',serif;font-size:42px;font-weight:700;line-height:1.15;margin-bottom:8px}
+h1 em{color:var(--gold);font-style:italic}
+.subtitle{font-size:16px;color:var(--gray);margin-bottom:8px;line-height:1.6}
+.time-badge{display:inline-block;padding:6px 16px;border-radius:20px;background:var(--card-bg);border:1px solid var(--card-border);font-size:12px;color:var(--gray-light);margin-bottom:40px}
+
+.standup-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:32px;margin-bottom:24px}
+.q-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.q-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;margin-bottom:8px}
+.q-hint{font-size:13px;color:var(--gray);margin-bottom:14px}
+textarea{width:100%;min-height:80px;background:var(--navy);border:1px solid var(--card-border);border-radius:10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;padding:12px 16px;resize:vertical;line-height:1.5}
+textarea:focus{outline:none;border-color:var(--gold)}
+textarea::placeholder{color:var(--gray)}
+.radio-group{display:flex;gap:10px;margin-bottom:12px}
+.radio-pill{padding:8px 18px;border-radius:20px;border:1px solid var(--card-border);color:var(--gray-light);font-size:13px;cursor:pointer;transition:all .2s}
+.radio-pill.selected{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:600}
+.radio-pill:hover{border-color:var(--gold)}
+
+.save-btn{display:inline-block;padding:14px 36px;background:var(--gold);color:var(--navy);font-weight:700;font-size:15px;letter-spacing:.5px;border-radius:40px;border:none;cursor:pointer;transition:background .2s,transform .2s;font-family:inherit}
+.save-btn:hover{background:#e2c060;transform:translateY(-1px)}
+.save-wrap{text-align:center;margin-top:32px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--emerald);color:var(--navy);padding:12px 28px;border-radius:24px;font-weight:600;font-size:14px;display:none;z-index:300}
+.back-link{display:inline-block;margin-top:24px;color:var(--gray);text-decoration:none;font-size:13px;transition:color .2s}
+.back-link:hover{color:var(--gold)}
+
+.history-section{margin-top:48px}
+.history-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-bottom:16px}
+.history-empty{color:var(--gray);font-style:italic;font-size:14px}
+.history-entry{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:16px 20px;margin-bottom:10px}
+.history-date{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.history-q{font-size:13px;color:var(--gray-light);margin-top:6px}
+.history-a{font-size:14px;color:var(--white);margin-top:2px}
+</style>
+</head>
+<body>
+
+<nav class="level-nav">
+  <a href="/framework" class="brand">ScaledMoney|OS™ <span>· Lean Dollar</span></a>
+  <a href="/framework" class="level-pill active">Lean Dollar: Core</a>
+  <a href="#" class="level-pill locked">Lean Dollar: Flow</a>
+  <a href="#" class="level-pill locked">Lean Dollar: Vault</a>
+  <a href="#" class="level-pill ee">Evaluate + Evolve Engine Active</a>
+  <span class="version-tag">v1.0</span>
+  <a href="/login" class="login-pill">Login / Join</a>
+</nav>
+
+<nav class="site-nav">
+  <a href="/framework" class="site-pill">Framework</a>
+  <a href="/dashboard" class="site-pill">Dashboard</a>
+  <div class="tools-dropdown">
+    <button class="tools-toggle active" onclick="this.nextElementSibling.classList.toggle('open')">Tools ▾</button>
+    <div class="tools-menu">
+      <a href="/tools/gap-audit">Gap Audit</a>
+      <a href="/tools/true-cost">True Cost Engine</a>
+      <a href="/tools/sprint-planner">Sprint Budget Planner</a>
+      <a href="/tools/dollar-standup">Dollar Standup</a>
+      <a href="/tools/retro">Retro</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="phase-badge">C · Check Phase</div>
+  <h1>Dollar <em>Standup</em></h1>
+  <p class="subtitle">Three questions. Ten minutes. Weekly. The habit is the metric, not just the data.</p>
+  <div class="time-badge">⏱ ~10 min · Weekly · Same day, same time</div>
+
+  <div class="standup-card">
+    <div class="q-label">Question 1</div>
+    <h3 class="q-title">Am I on track this sprint?</h3>
+    <div class="q-hint">Check your Sprint Spend Load. Is actual spending within planned allocations?</div>
+    <div class="radio-group">
+      <div class="radio-pill" onclick="selectRadio(this)" data-val="yes">✅ Yes</div>
+      <div class="radio-pill" onclick="selectRadio(this)" data-val="close">⚠️ Close</div>
+      <div class="radio-pill" onclick="selectRadio(this)" data-val="no">❌ Off Track</div>
+    </div>
+    <textarea id="q1-notes" placeholder="Which categories are over or under? What drove the variance?"></textarea>
+  </div>
+
+  <div class="standup-card">
+    <div class="q-label">Question 2</div>
+    <h3 class="q-title">Any surprises this week?</h3>
+    <div class="q-hint">Unexpected expenses, windfalls, or behavioral triggers that hit you.</div>
+    <textarea id="q2-notes" placeholder="What was unplanned? How did you handle it?"></textarea>
+  </div>
+
+  <div class="standup-card">
+    <div class="q-label">Question 3</div>
+    <h3 class="q-title">One adjustment for next week?</h3>
+    <div class="q-hint">Pick the single highest-leverage change. Not ten. One.</div>
+    <textarea id="q3-notes" placeholder="e.g. Pack lunch 3 days, cancel unused subscription, move $50 from Dining to Groceries..."></textarea>
+  </div>
+
+  <div class="save-wrap">
+    <button class="save-btn" onclick="saveStandup()">💾 Save Standup</button>
+    <br>
+    <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+  </div>
+
+  <div class="history-section">
+    <div class="history-title">Past Standups</div>
+    <div id="standup-history"><div class="history-empty">No standups recorded yet</div></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.tools-dropdown')) {
+      document.querySelectorAll('.tools-menu').forEach(function(m){m.classList.remove('open');});
+    }
+  });
+
+  function selectRadio(el) {
+    el.parentElement.querySelectorAll('.radio-pill').forEach(function(p){p.classList.remove('selected');});
+    el.classList.add('selected');
+  }
+
+  function saveStandup() {
+    var q1Status = '';
+    var sel = document.querySelector('.radio-group .selected');
+    if (sel) q1Status = sel.getAttribute('data-val');
+    var entry = {
+      date: new Date().toISOString(),
+      q1Status: q1Status,
+      q1Notes: document.getElementById('q1-notes').value,
+      q2Notes: document.getElementById('q2-notes').value,
+      q3Notes: document.getElementById('q3-notes').value
+    };
+    var history = [];
+    try { history = JSON.parse(localStorage.getItem('scaledmoney-standups') || '[]'); } catch(e) { history = []; }
+    history.unshift(entry);
+    localStorage.setItem('scaledmoney-standups', JSON.stringify(history));
+    showToast('\u2705 Standup saved!');
+    loadHistory();
+    document.getElementById('q1-notes').value = '';
+    document.getElementById('q2-notes').value = '';
+    document.getElementById('q3-notes').value = '';
+    document.querySelectorAll('.radio-pill').forEach(function(p){p.classList.remove('selected');});
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(function(){ t.style.display = 'none'; }, 2500);
+  }
+
+  function loadHistory() {
+    var container = document.getElementById('standup-history');
+    var history = [];
+    try { history = JSON.parse(localStorage.getItem('scaledmoney-standups') || '[]'); } catch(e) { history = []; }
+    if (!history.length) { container.innerHTML = '<div class="history-empty">No standups recorded yet</div>'; return; }
+    container.innerHTML = '';
+    var statusMap = { yes: '\u2705 On Track', close: '\u26a0\ufe0f Close', no: '\u274c Off Track' };
+    history.slice(0, 12).forEach(function(e) {
+      var d = new Date(e.date);
+      var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var dateStr = mo[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+      var div = document.createElement('div');
+      div.className = 'history-entry';
+      var html = '<div class="history-date">' + dateStr + (e.q1Status ? ' \u00b7 ' + (statusMap[e.q1Status]||e.q1Status) : '') + '</div>';
+      if (e.q1Notes) html += '<div class="history-q">On track?</div><div class="history-a">' + e.q1Notes + '</div>';
+      if (e.q2Notes) html += '<div class="history-q">Surprises</div><div class="history-a">' + e.q2Notes + '</div>';
+      if (e.q3Notes) html += '<div class="history-q">Adjustment</div><div class="history-a">' + e.q3Notes + '</div>';
+      div.innerHTML = html;
+      container.appendChild(div);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', loadHistory);
+</script>
+</body>
+</html>
