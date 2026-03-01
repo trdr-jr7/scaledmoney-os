@@ -910,6 +910,7 @@ const PRESETS = {
 function updateIncome(val) {
   const annual = parseFloat(val) || 0;
   lhRate = annual / 2080;
+  localStorage.setItem('scaledmoney-truecost-income', annual);
   document.getElementById('lh-rate').textContent = '$' + lhRate.toFixed(2);
   // Tax hours: ~25% of 8 hours = 2 hours/day in taxes
   const taxHrs = (0.25 * 8).toFixed(1);
@@ -918,6 +919,7 @@ function updateIncome(val) {
   const spokenHrs = ledgerItems.reduce((s,i) => s + (i.monthly * 12 / Math.max(lhRate,0.01)), 0);
   document.getElementById('lh-free').textContent = Math.max(0, Math.round(2080 - spokenHrs));
   renderChart();
+  renderLedger();
   // Re-render if single result visible
   const price = parseFloat(document.getElementById('s-price').value);
   if (price > 0) calculate();
@@ -1350,6 +1352,10 @@ function selectLedgerCat(el) {
   if (modeStd)  modeStd.style.display  = isHome ? 'none'  : 'grid';
 }
 
+function saveLedgerData() {
+  localStorage.setItem('scaledmoney-truecost-ledger', JSON.stringify(ledgerItems));
+}
+
 function addLedgerItem() {
   var isHome = (ledgerCat === 'home');
 
@@ -1382,12 +1388,14 @@ function addLedgerItem() {
     priceEl.value  = '';
     lifeEl.value   = '';
   }
+  saveLedgerData();
   renderLedger();
   renderChart();
 }
 
 function removeLedgerItem(i) {
   ledgerItems.splice(i,1);
+  saveLedgerData();
   renderLedger();
   renderChart();
 }
@@ -1602,7 +1610,21 @@ function switchTab(tab) {
 }
 
 // Init
-renderChart();
+// Restore saved ledger data and income from localStorage
+  (function restoreTrueCostData() {
+    var savedIncome = localStorage.getItem('scaledmoney-truecost-income');
+    var savedLedger = localStorage.getItem('scaledmoney-truecost-ledger');
+    if (savedIncome) {
+      var incEl = document.getElementById('annual-income');
+      incEl.value = savedIncome;
+      updateIncome(savedIncome);
+    }
+    if (savedLedger) {
+      try { ledgerItems = JSON.parse(savedLedger); } catch(e) {}
+      renderLedger();
+    }
+  })();
+  renderChart();
 </script>
 <script>
 (function(){
