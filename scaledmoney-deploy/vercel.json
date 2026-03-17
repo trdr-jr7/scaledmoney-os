@@ -22,7 +22,8 @@
                         { "source": "/dashboard",              "destination": "/dashboard.html" },
                         { "source": "/graduation",            "destination": "/graduation.html" },
                         { "source": "/newsletter",             "destination": "/newsletter.html" },
-                        { "source": "/freetools",              "destination": "/freetools.html" }
+                        { "source": "/freetools",              "destination": "/freetools.html" },
+                            { "source": "/upgrade",                "destination": "/upgrade.html" }
         ],
         "headers": [
                   {
