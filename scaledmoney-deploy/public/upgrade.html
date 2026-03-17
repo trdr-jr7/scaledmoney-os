@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upgrade to Pro — ScaledMoney|OS™</title>
+  <meta name="description" content="Unlock Lean Dollar: Flow, Vault, and the full ScaledMoney|OS™ toolkit.">
+  <meta property="og:title" content="Upgrade to Pro — ScaledMoney|OS™">
+  <meta property="og:description" content="Unlock the full Lean Dollar toolkit. Sprint Planner, Gap Audit, True Cost Engine and more.">
+  <meta property="og:url" content="https://scaledmoney.com/upgrade">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--navy:#0a0f1e;--navy-mid:#111827;--navy-light:#1a2540;--gold:#c9a84c;--gold-light:#e8c96a;--gold-dim:#8a6f2e;--emerald:#2dd4a0;--emerald-dim:#1a7a5e;--white:#f5f3ef;--gray:#8892a4;--gray-light:#c5cad4;--card-bg:#141c2e;--card-border:rgba(201,168,76,0.15)}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:var(--navy);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid rgba(201,168,76,0.1);position:sticky;top:0;background:rgba(10,15,30,0.95);backdrop-filter:blur(12px);z-index:100}
+    .nav-brand{font-family:'DM Sans',monospace;font-weight:700;font-size:14px;letter-spacing:0.08em;color:var(--gold);text-decoration:none}
+    .nav-brand span{color:var(--gray);font-weight:400}
+    .nav-links{display:flex;gap:12px}
+    .nav-links a{padding:8px 20px;border-radius:6px;font-size:13px;font-weight:500;text-decoration:none;letter-spacing:0.04em;transition:all 0.2s}
+    .nl-o{border:1px solid rgba(201,168,76,0.3);color:var(--gold)}
+    .nl-o:hover{background:rgba(201,168,76,0.1)}
+    .nl-s{background:var(--gold);color:var(--navy);font-weight:600}
+    .nl-s:hover{background:var(--gold-light)}
+    .hero{text-align:center;padding:80px 24px 40px;max-width:800px;margin:0 auto}
+    .hb{display:inline-block;font-size:13px;font-weight:600;letter-spacing:0.12em;color:var(--gold);background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:100px;padding:6px 20px;margin-bottom:24px;text-transform:uppercase}
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,56px);font-weight:900;line-height:1.1;margin-bottom:20px}
+    .hero h1 em{font-style:italic;color:var(--gold)}
+    .hero p{font-size:18px;color:var(--gray);line-height:1.6;max-width:600px;margin:0 auto}
+    .tw{display:flex;align-items:center;justify-content:center;gap:16px;margin:40px auto 48px}
+    .tl{font-size:15px;font-weight:500;color:var(--gray);cursor:pointer;transition:color 0.2s}
+    .tl.active{color:var(--white)}
+    .tt{width:52px;height:28px;background:var(--navy-light);border-radius:100px;position:relative;cursor:pointer;border:1px solid rgba(201,168,76,0.2);transition:background 0.2s}
+    .tth{width:22px;height:22px;background:var(--gold);border-radius:50%;position:absolute;top:2px;left:3px;transition:transform 0.2s}
+    .tt.annual .tth{transform:translateX(23px)}
+    .sb{font-size:12px;font-weight:700;color:var(--emerald);background:rgba(45,212,160,0.1);border:1px solid rgba(45,212,160,0.25);border-radius:100px;padding:4px 12px;letter-spacing:0.05em}
+    .ps{max-width:960px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .pc{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:40px 32px;position:relative;transition:border-color 0.3s,transform 0.2s}
+    .pc:hover{transform:translateY(-2px)}
+    .pc.ft{border-color:var(--gold);box-shadow:0 0 40px rgba(201,168,76,0.08)}
+    .cb{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--navy);background:linear-gradient(135deg,var(--gold),var(--gold-light));padding:4px 16px;border-radius:100px;text-transform:uppercase}
+    .tn{font-size:14px;font-weight:600;letter-spacing:0.1em;color:var(--gray);text-transform:uppercase;margin-bottom:8px}
+    .th{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:16px}
+    .pr{display:flex;align-items:baseline;gap:4px;margin-bottom:8px}
+    .pa{font-size:48px;font-weight:700;color:var(--white)}
+    .pp{font-size:16px;color:var(--gray)}
+    .pn{font-size:14px;color:var(--gray);margin-bottom:24px}
+    .td{font-size:15px;color:var(--gray);line-height:1.6;margin-bottom:28px}
+    .fl{list-style:none;margin-bottom:32px}
+    .fl li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:14px;color:var(--gray-light);border-bottom:1px solid rgba(255,255,255,0.04)}
+    .fl li:last-child{border-bottom:none}
+    .ck{color:var(--emerald);font-size:16px;flex-shrink:0;margin-top:1px}
+    .lk{color:var(--gray);font-size:14px;flex-shrink:0;margin-top:2px;opacity:0.4}
+    .btn{display:block;width:100%;padding:14px 24px;border:none;border-radius:10px;font-size:15px;font-weight:600;letter-spacing:0.03em;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif}
+    .bo{background:transparent;border:1px solid rgba(201,168,76,0.3);color:var(--gold)}
+    .bo:hover{background:rgba(201,168,76,0.08)}
+    .bg{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy)}
+    .bg:hover{box-shadow:0 4px 20px rgba(201,168,76,0.3);transform:translateY(-1px)}
+    .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none!important}
+    .cs{max-width:960px;margin:0 auto;padding:0 24px 80px}
+    .ch{text-align:center;margin-bottom:40px}
+    .ch h2{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;margin-bottom:12px}
+    .ch p{font-size:16px;color:var(--gray)}
+    .ct{width:100%;border-collapse:collapse}
+    .ct th,.ct td{padding:14px 20px;text-align:left;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.06)}
+    .ct thead th{font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(201,168,76,0.2);padding-bottom:12px}
+    .ct td:first-child{color:var(--gray-light)}
+    .ct td:nth-child(2),.ct td:nth-child(3){text-align:center}
+    .ct thead th:nth-child(2),.ct thead th:nth-child(3){text-align:center}
+    .tc{color:var(--emerald)}
+    .tx{color:var(--gray);opacity:0.3}
+    .ct tbody tr{transition:background 0.15s}
+    .ct tbody tr:hover{background:rgba(201,168,76,0.03)}
+    .fs{max-width:700px;margin:0 auto;padding:0 24px 100px}
+    .fs h2{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;text-align:center;margin-bottom:40px}
+    .fi{border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 0}
+    .fq{font-size:16px;font-weight:600;color:var(--white);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+    .fq::after{content:'+';font-size:20px;color:var(--gold);transition:transform 0.2s}
+    .fi.open .fq::after{content:'−'}
+    .fa{font-size:15px;color:var(--gray);line-height:1.7;max-height:0;overflow:hidden;transition:max-height 0.3s,padding 0.3s}
+    .fi.open .fa{max-height:200px;padding-top:12px}
+    .ft{text-align:center;padding:40px 24px;border-top:1px solid rgba(201,168,76,0.08);font-size:13px;color:var(--gray)}
+    .ft a{color:var(--gold);text-decoration:none}
+    .ft a:hover{text-decoration:underline}
+    .ab{background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:16px 24px;text-align:center;max-width:960px;margin:0 auto 32px;font-size:14px;color:var(--gray-light);display:none}
+    .ab a{color:var(--gold);text-decoration:none;font-weight:600}
+    .xb{background:rgba(244,114,182,0.08);border:1px solid rgba(244,114,182,0.2);border-radius:10px;padding:16px 24px;text-align:center;max-width:960px;margin:-20px auto 20px;font-size:14px;color:#f472b6;display:none}
+    @media(max-width:700px){.ps{grid-template-columns:1fr}.nav{padding:12px 20px}.hero{padding:60px 20px 30px}.ct th,.ct td{padding:10px 12px;font-size:13px}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/framework" class="nav-brand">ScaledMoney|OS™ <span>· Lean Dollar</span></a>
+    <div class="nav-links">
+      <a href="/dashboard" class="nav-links a nl-o">Dashboard</a>
+      <a href="/login" class="nav-links a nl-s">LOGIN / JOIN</a>
+    </div>
+  </nav>
+  <div class="xb" id="cancelledBanner">Checkout was cancelled. No charge was made. Ready to try again whenever you are.</div>
+  <div class="ab" id="authBanner">🔒 You need to be logged in to upgrade. <a href="/login">Log in or create an account</a> first.</div>
+  <section class="hero">
+    <div class="hb">Upgrade Your Operating System</div>
+    <h1>Unlock the Full <em>Lean Dollar</em> Toolkit</h1>
+    <p>Lean Dollar: Core gets you started. Pro unlocks Flow, Vault, advanced tools, and the complete S.C.A.L.E. operating system for your money.</p>
+  </section>
+  <div class="tw">
+    <span class="tl active" id="lblMonthly">Monthly</span>
+    <div class="tt" id="billingToggle" onclick="toggleBilling()"><div class="tth"></div></div>
+    <span class="tl" id="lblAnnual">Annual</span>
+    <span class="sb">SAVE 34%</span>
+  </div>
+  <section class="ps">
+    <div class="pc">
+      <div class="tn">Lean Dollar: Core</div>
+      <div class="th">Free</div>
+      <div class="pr"><span class="pa">$0</span><span class="pp">/ forever</span></div>
+      <p class="pn">No credit card required</p>
+      <p class="td">The foundation. One sprint cycle, core tools, and the S.C.A.L.E. framework to start managing every dollar.</p>
+      <ul class="fl">
+        <li><span class="ck">✓</span> Sprint Budget Planner™</li>
+        <li><span class="ck">✓</span> Dollar Standup (weekly check-in)</li>
+        <li><span class="ck">✓</span> Sprint Retro (monthly review)</li>
+        <li><span class="ck">✓</span> Dashboard command center</li>
+        <li><span class="ck">✓</span> FIRE Planning Suite (free tools)</li>
+        <li><span class="ck">✓</span> S.C.A.L.E. Framework guide</li>
+        <li><span class="lk">🔒</span> Gap Audit</li>
+        <li><span class="lk">🔒</span> True Cost Engine</li>
+        <li><span class="lk">🔒</span> Lean Dollar: Flow modules</li>
+        <li><span class="lk">🔒</span> Lean Dollar: Vault modules</li>
+      </ul>
+      <a href="/dashboard" class="btn bo">Go to Dashboard</a>
+    </div>
+    <div class="pc ft">
+      <div class="cb">Most Popular</div>
+      <div class="tn">Lean Dollar: Pro</div>
+      <div class="th">Pro</div>
+      <div class="pr"><span class="pa" id="proPrice">$9.99</span><span class="pp" id="proPeriod">/ month</span></div>
+      <p class="pn" id="proNote">Billed monthly. Cancel anytime.</p>
+      <p class="td">The complete operating system. Every tool, every module, every framework level — unlocked.</p>
+      <ul class="fl">
+        <li><span class="ck">✓</span> Everything in Free</li>
+        <li><span class="ck">✓</span> Gap Audit tool</li>
+        <li><span class="ck">✓</span> True Cost Engine</li>
+        <li><span class="ck">✓</span> Lean Dollar: Flow (Level 2)</li>
+        <li><span class="ck">✓</span> Lean Dollar: Vault (Level 3)</li>
+        <li><span class="ck">✓</span> Advanced sprint analytics</li>
+        <li><span class="ck">✓</span> Income Sprint System</li>
+        <li><span class="ck">✓</span> Three-Account Architecture</li>
+        <li><span class="ck">✓</span> Priority support</li>
+        <li><span class="ck">✓</span> All future tools included</li>
+      </ul>
+      <button class="btn bg" id="upgradeBtn" onclick="handleUpgrade()">Upgrade to Pro →</button>
+    </div>
+  </section>
+  <section class="cs">
+    <div class="ch"><h2>Feature Comparison</h2><p>See exactly what you get at each level.</p></div>
+    <table class="ct">
+      <thead><tr><th>Feature</th><th>Free</th><th>Pro</th></tr></thead>
+      <tbody>
+        <tr><td>Sprint Budget Planner™</td><td class="tc">✓</td><td class="tc">✓</td></tr>
+        <tr><td>Dollar Standup</td><td class="tc">✓</td><td class="tc">✓</td></tr>
+        <tr><td>Sprint Retro</td><td class="tc">✓</td><td class="tc">✓</td></tr>
+        <tr><td>Dashboard</td><td class="tc">✓</td><td class="tc">✓</td></tr>
+        <tr><td>FIRE Planning Suite</td><td class="tc">✓</td><td class="tc">✓</td></tr>
+        <tr><td>S.C.A.L.E. Framework Guide</td><td class="tc">✓</td><td class="tc">✓</td></tr>
+        <tr><td>Gap Audit</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>True Cost Engine</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>Lean Dollar: Flow (Level 2)</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>Lean Dollar: Vault (Level 3)</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>Income Sprint System</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>Three-Account Architecture</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>Advanced Sprint Analytics</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>Priority Support</td><td class="tx">—</td><td class="tc">✓</td></tr>
+        <tr><td>All Future Tools</td><td class="tx">—</td><td class="tc">✓</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section class="fs">
+    <h2>Frequently Asked</h2>
+    <div class="fi" onclick="this.classList.toggle('open')"><div class="fq">Can I cancel anytime?</div><div class="fa">Yes. Cancel from your account settings whenever you want. You keep Pro access until the end of your billing period. No questions, no penalties.</div></div>
+    <div class="fi" onclick="this.classList.toggle('open')"><div class="fq">What payment methods do you accept?</div><div class="fa">We use Stripe for secure payments. All major credit and debit cards are accepted. Your payment information is never stored on our servers.</div></div>
+    <div class="fi" onclick="this.classList.toggle('open')"><div class="fq">What happens to my data if I downgrade?</div><div class="fa">Your data stays safe. If you downgrade to Free, you keep access to Core tools and any sprints you have created. Pro-only tools become read-only.</div></div>
+    <div class="fi" onclick="this.classList.toggle('open')"><div class="fq">Is there a free trial?</div><div class="fa">The Free tier is your trial — use it as long as you want. When you are ready for the full toolkit, upgrade. No pressure.</div></div>
+    <div class="fi" onclick="this.classList.toggle('open')"><div class="fq">Do I need a credit card to start?</div><div class="fa">No. The Free tier requires no credit card. You only enter payment info when you choose to upgrade to Pro.</div></div>
+  </section>
+  <footer class="ft">
+    <p>ScaledMoney|OS™ · <a href="/framework">Framework</a> · <a href="/freetools">Free Tools</a> · <a href="/dashboard">Dashboard</a></p>
+    <p style="margin-top:8px;">Payments secured by Stripe. Cancel anytime.</p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    let isAnnual=false,currentUser=null;
+    const SB_URL='https://qkdnkighxqnxswemjvrb.supabase.co';
+    const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrZG5raWdoeHFueHN3ZW1qdnJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1MTQyNTIsImV4cCI6MjA1NjA5MDI1Mn0.r6VJkkPXFINMNIxuzwM0nZPaWDaVGOPzFDGE8v9GRLY';
+    const sb=window.supabase.createClient(SB_URL,SB_ANON);
+    (async()=>{const{data:{user}}=await sb.auth.getUser();currentUser=user;if(!user){document.getElementById('authBanner').style.display='block';document.getElementById('upgradeBtn').disabled=true;document.getElementById('upgradeBtn').textContent='Log in to Upgrade';}})();
+    if(new URLSearchParams(window.location.search).get('cancelled')==='1'){document.getElementById('cancelledBanner').style.display='block';}
+    function toggleBilling(){isAnnual=!isAnnual;document.getElementById('billingToggle').classList.toggle('annual',isAnnual);document.getElementById('lblMonthly').classList.toggle('active',!isAnnual);document.getElementById('lblAnnual').classList.toggle('active',isAnnual);document.getElementById('proPrice').textContent=isAnnual?'$79':'$9.99';document.getElementById('proPeriod').textContent=isAnnual?'/ year':'/ month';document.getElementById('proNote').textContent=isAnnual?'Billed annually ($6.58/mo). Cancel anytime.':'Billed monthly. Cancel anytime.';}
+    async function handleUpgrade(){if(!currentUser){window.location.href='/login';return;}const btn=document.getElementById('upgradeBtn');btn.disabled=true;btn.textContent='Redirecting to checkout...';try{const res=await fetch('/api/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:currentUser.id,plan:isAnnual?'pro_annual':'pro_monthly'})});const data=await res.json();if(data.url){window.location.href=data.url;}else{throw new Error(data.error||'Checkout failed');}}catch(err){console.error('Upgrade error:',err);btn.disabled=false;btn.textContent='Upgrade to Pro \u2192';alert('Something went wrong. Please try again.');}}
+  </script>
+</body>
+</html>
