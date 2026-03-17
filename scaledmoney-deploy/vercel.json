@@ -5,7 +5,8 @@
                   { "source": "/",              "destination": "/framework",                "permanent": false },
                   { "source": "/tool/sprint",   "destination": "/tools/sprint-planner", "permanent": true },
                   { "source": "/tool/gap",      "destination": "/tools/gap-audit",      "permanent": true },
-                  { "source": "/tool/truecost", "destination": "/tools/true-cost",      "permanent": true }
+                  { "source": "/tool/truecost", "destination": "/tools/true-cost",      "permanent": true },
+                        { "source": "/tools",         "destination": "/freetools",              "permanent": true }
         ],
         "rewrites": [
                   { "source": "/tools/sprint-planner", "destination": "/tools/lean-dollar-sprint-budget-planner.html" },
@@ -20,7 +21,8 @@
                   { "source": "/lib/:path*",           "destination": "/lib/:path*" },
                         { "source": "/dashboard",              "destination": "/dashboard.html" },
                         { "source": "/graduation",            "destination": "/graduation.html" },
-                        { "source": "/newsletter",             "destination": "/newsletter.html" }
+                        { "source": "/newsletter",             "destination": "/newsletter.html" },
+                        { "source": "/freetools",              "destination": "/freetools.html" }
         ],
         "headers": [
                   {
