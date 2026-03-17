@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIRE Planning Suite — Free Tools | ScaledMoney|OS™</title>
+  <meta name="description" content="Calculate your FIRE number, choose your investment philosophy, and get your debt-free date. Free tools from ScaledMoney|OS™ — no signup required.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="What's Your FIRE Number? Free Calculator">
+  <meta property="og:description" content="Classic FIRE, Coast FIRE, Barista FIRE and more. Pick your investment model — Buffett, Dalio, Bogle — and see your path to financial independence.">
+  <meta property="og:url" content="https://scaledmoney.com/freetools">
+  <meta property="og:site_name" content="ScaledMoney|OS™">
+  <meta property="og:image" content="https://scaledmoney.com/og-freetools.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FIRE Planning Suite — ScaledMoney|OS™">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="What's Your FIRE Number?">
+  <meta name="twitter:description" content="Free FIRE calculator with 7 planning models and 10 investment philosophies. Calculate yours → ScaledMoney|OS™">
+  <meta name="twitter:image" content="https://scaledmoney.com/og-freetools.png">
+  <meta name="twitter:creator" content="@ScaledMoneyOS">
+  
+  <link rel="canonical" href="https://scaledmoney.com/freetools">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  
+  <!-- React CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080f1a; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+const fmt = (v) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+const fmtN = (v, d = 1) => new Intl.NumberFormat("en-US", { maximumFractionDigits: d }).format(v);
+
+// ─── FIRE Planning Models ────────────────────────────────────────────────────
+const FIRE_MODELS = [
+  { id: "classic", name: "Classic FIRE", emoji: "🔥", tagline: "Full financial independence. Never work again.", summary: "The original. Save 25× your annual expenses, withdraw 4% per year forever. Based on the Trinity Study — a landmark 1998 analysis showing a 4% withdrawal rate survives 95%+ of historical 30-year periods.", objective: "Accumulate enough to live entirely off investment returns", bestFor: "Anyone targeting complete retirement with zero income dependence", color: "#f1c040" },
+  { id: "coast", name: "Coast FIRE", emoji: "🏄", tagline: "Save hard now. Relax later. Let compounding finish.", summary: "How much do you need invested TODAY so that — even if you never save another dollar — compounding alone grows it to your FIRE number by retirement age? Once you hit your Coast number, you only need to cover current expenses.", objective: "Reach a savings threshold where future growth handles retirement automatically", bestFor: "People who want to downshift careers early without fully retiring", color: "#38bdf8" },
+  { id: "lean", name: "Lean FIRE", emoji: "🥗", tagline: "Radical frugality. Maximum freedom.", summary: "Lean FIRE targets retirement on $25,000–$40,000/year through extreme intentionality — geographic arbitrage, minimalism, and eliminating every non-essential cost. Lower target means faster path, but requires permanent lifestyle discipline.", objective: "Retire as fast as possible by minimizing the target number", bestFor: "Minimalists, location-independent workers, early retirees willing to live lean", color: "#4ade80" },
+  { id: "fat", name: "Fat FIRE", emoji: "🥩", tagline: "Full lifestyle. Full retirement. No compromises.", summary: "Fat FIRE targets $100,000+ in annual retirement spending — travel, dining, experiences, and a buffer for the unexpected. The FIRE number is larger, the timeline longer, but the retirement is fully unconstrained.", objective: "Retire with abundant spending power and no lifestyle sacrifice", bestFor: "High earners who want financial independence without changing their lifestyle", color: "#f97316" },
+  { id: "barista", name: "Barista FIRE", emoji: "☕", tagline: "Semi-retire. Work a little. Stress a lot less.", summary: "Named after leaving a high-pressure career to work part-time. Your investments cover most expenses; part-time income fills the gap — and often provides health insurance. A smaller FIRE number means you can leave sooner.", objective: "Achieve a smaller FIRE number by accounting for ongoing part-time income", bestFor: "People who want to leave stressful careers but still enjoy working part-time", color: "#c084fc" },
+  { id: "latte", name: "Latte Factor", emoji: "🧋", tagline: "What does your daily habit really cost over 30 years?", summary: "David Bach's famous concept: small, recurring daily expenses — coffee, lunch, subscriptions — compound into extraordinary lost wealth over time. This calculator shows the real investment cost of your daily habits.", objective: "Visualize the long-term compounding cost of daily spending habits", bestFor: "Anyone who wants to understand where their money actually goes", color: "#fb923c" },
+  { id: "diewithzero", name: "Die With Zero", emoji: "⏳", tagline: "Optimize your life, not just your balance sheet.", summary: "Bill Perkins' counter-narrative to traditional retirement hoarding. The goal isn't to maximize wealth at death — it's to maximize life experiences at the right ages. Spend more when young and healthy. Aim to die with zero.", objective: "Plan spending across life decades, not just accumulate for an arbitrary retirement date", bestFor: "People who fear over-saving and under-living, or want to rethink traditional retirement", color: "#e879f9" },
+];
+
+// ─── Investment Models (Full) ─────────────────────────────────────────────────
+const INV_MODELS = [
+  { id: "bogle", name: "Three-Fund Portfolio", investor: "Jack Bogle", tag: "The Index Pioneer", color: "#60a5fa", return: 7.5, sharpe: 0.52, maxDrawdown: 38, volatility: 3, philosophy: "\"Don't look for the needle in the haystack. Just buy the haystack.\"", allocation: [{ label: "US Total Market", pct: 60, color: "#60a5fa" }, { label: "Intl Total Market", pct: 30, color: "#93c5fd" }, { label: "Total Bond Market", pct: 10, color: "#bfdbfe" }], notes: "The FIRE community default. Low cost, diversified, time-tested. Adjust bond % by age." },
+  { id: "buffett", name: "Simple Two-Fund", investor: "Warren Buffett", tag: "The Oracle of Omaha", color: "#f1c040", return: 9.0, sharpe: 0.58, maxDrawdown: 50, volatility: 4, philosophy: "\"Put 90% in a low-cost S&P 500 index fund and 10% in short-term treasuries.\"", allocation: [{ label: "S&P 500 Index", pct: 90, color: "#f1c040" }, { label: "Short-Term Treasuries", pct: 10, color: "#fde68a" }], notes: "Buffett literally wrote this into his will. Aggressively simple — and historically justified." },
+  { id: "dalio", name: "All Weather Portfolio", investor: "Ray Dalio", tag: "The Risk Parity Master", color: "#a78bfa", return: 5.5, sharpe: 0.72, maxDrawdown: 12, volatility: 2, philosophy: "\"The Holy Grail of investing is finding 15 uncorrelated return streams.\"", allocation: [{ label: "Long-Term Bonds", pct: 40, color: "#a78bfa" }, { label: "US Stocks", pct: 30, color: "#c4b5fd" }, { label: "Intermediate Bonds", pct: 15, color: "#ddd6fe" }, { label: "Gold", pct: 7.5, color: "#fbbf24" }, { label: "Commodities", pct: 7.5, color: "#d97706" }], notes: "Designed to survive any economic season. Slept through 2008 with a ~12% drawdown." },
+  { id: "swensen", name: "Yale Endowment Model", investor: "David Swensen", tag: "The Endowment Legend", color: "#34d399", return: 8.2, sharpe: 0.61, maxDrawdown: 26, volatility: 3, philosophy: "\"Unconventional success requires unconventional thinking.\"", allocation: [{ label: "Domestic Equity", pct: 30, color: "#34d399" }, { label: "Real Estate", pct: 20, color: "#6ee7b7" }, { label: "Intl Developed", pct: 15, color: "#a7f3d0" }, { label: "Emerging Markets", pct: 10, color: "#d1fae5" }, { label: "Bonds", pct: 15, color: "#059669" }, { label: "TIPS", pct: 10, color: "#047857" }], notes: "How Yale's endowment beat the market for decades. Heavy on real assets and global diversification." },
+  { id: "collins", name: "Simple Path to Wealth", investor: "JL Collins", tag: "The FIRE Bible", color: "#f97316", return: 9.5, sharpe: 0.55, maxDrawdown: 55, volatility: 5, philosophy: "\"Spend less than you earn. Invest the surplus. Avoid debt.\"", allocation: [{ label: "VTSAX / Total Market", pct: 100, color: "#f97316" }], notes: "The most-read book in the FIRE community. 100% stocks — maximum return, maximum volatility. For true believers." },
+  { id: "browne", name: "Permanent Portfolio", investor: "Harry Browne", tag: "The All-Season Contrarian", color: "#e879f9", return: 4.5, sharpe: 0.68, maxDrawdown: 9, volatility: 1, philosophy: "\"You should invest in a way that allows you to sleep at night.\"", allocation: [{ label: "US Stocks", pct: 25, color: "#e879f9" }, { label: "Long-Term Bonds", pct: 25, color: "#f0abfc" }, { label: "Gold", pct: 25, color: "#fbbf24" }, { label: "Cash", pct: 25, color: "#64748b" }], notes: "Four equal quadrants for four economic conditions. Lowest volatility of any model here." },
+  { id: "merriman", name: "Ultimate Buy & Hold", investor: "Paul Merriman", tag: "The Factor Advocate", color: "#fb7185", return: 8.8, sharpe: 0.63, maxDrawdown: 42, volatility: 4, philosophy: "\"Small-cap value is the most reliable long-term return premium we know of.\"", allocation: [{ label: "US Large Blend", pct: 10, color: "#fb7185" }, { label: "US Large Value", pct: 10, color: "#f43f5e" }, { label: "US Small Blend", pct: 10, color: "#fda4af" }, { label: "US Small Value", pct: 10, color: "#fecdd3" }, { label: "Intl Large Blend", pct: 10, color: "#fb923c" }, { label: "Intl Large Value", pct: 10, color: "#fdba74" }, { label: "Intl Small Blend", pct: 10, color: "#fed7aa" }, { label: "Intl Small Value", pct: 10, color: "#ffedd5" }, { label: "REITs", pct: 10, color: "#a3e635" }, { label: "Emerging Markets", pct: 10, color: "#84cc16" }], notes: "Ten equal slices across every major factor. Evidence-based, academically rigorous." },
+  { id: "robbins", name: "All Seasons Portfolio", investor: "Tony Robbins", tag: "The Mainstream Dalio", color: "#38bdf8", return: 5.8, sharpe: 0.70, maxDrawdown: 14, volatility: 2, philosophy: "\"The secret to wealth is finding a way to do more for others than anyone else does.\"", allocation: [{ label: "US Stocks", pct: 30, color: "#38bdf8" }, { label: "Long-Term Bonds", pct: 40, color: "#7dd3fc" }, { label: "Intermediate Bonds", pct: 15, color: "#bae6fd" }, { label: "Gold", pct: 7.5, color: "#fbbf24" }, { label: "Commodities", pct: 7.5, color: "#d97706" }], notes: "Robbins' popularization of Dalio from Money: Master the Game. Brought risk parity to millions." },
+  { id: "classic6040", name: "Classic 60/40", investor: "Institutional Standard", tag: "The Benchmark", color: "#94a3b8", return: 6.8, sharpe: 0.57, maxDrawdown: 28, volatility: 3, philosophy: "\"Diversification is the only free lunch in investing.\"", allocation: [{ label: "US Stocks", pct: 60, color: "#94a3b8" }, { label: "Bonds", pct: 40, color: "#cbd5e1" }], notes: "The institutional standard for 50+ years. Solid, boring, time-tested. The baseline every other model is measured against." },
+  { id: "ark", name: "Disruptive Innovation", investor: "Cathie Wood / ARK", tag: "The High-Risk Outlier", color: "#f43f5e", return: 12.0, sharpe: 0.38, maxDrawdown: 75, volatility: 5, philosophy: "\"Innovation is the key to growth, and most investors are too short-sighted to see it.\"", allocation: [{ label: "Disruptive Tech / Innovation", pct: 100, color: "#f43f5e" }], notes: "The aggressive outlier. Extraordinary upside, extraordinary risk. ARK dropped 75% peak-to-trough in 2021-2022." },
+];
+
+// ─── Calculation Helpers ─────────────────────────────────────────────────────
+function calcYears(currentSavings, monthlySavings, returnRate, target) {
+  if (currentSavings >= target) return 0;
+  if (monthlySavings <= 0) return 999;
+  const r = returnRate / 100 / 12;
+  let bal = currentSavings, n = 0;
+  while (bal < target && n < 600) { bal = bal * (1 + r) + monthlySavings; n++; }
+  return n / 12;
+}
+function calcCoastNum(target, rate, years) { return target / Math.pow(1 + rate / 100, years); }
+function fireYear(y) { if (y >= 99) return "∞"; if (y === 0) return new Date().getFullYear().toString(); const d = new Date(); d.setFullYear(d.getFullYear() + Math.round(y)); return d.getFullYear().toString(); }
+function fv(monthly, rate, years) { const r = rate / 100 / 12, n = years * 12; return monthly * ((Math.pow(1 + r, n) - 1) / r); }
+
+// ─── Shared UI Components ────────────────────────────────────────────────────
+function Slider({ label, sublabel, value, onChange, min, max, step, format, color = "#f1c040" }) {
+  return (
+    <div style={{ marginBottom: "22px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+        <div>
+          <div style={{ fontSize: "12px", fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</div>
+          {sublabel && <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>{sublabel}</div>}
+        </div>
+        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "18px", fontWeight: 700, color }}>{format(value)}</div>
+      </div>
+      <div style={{ position: "relative", height: "5px" }}>
+        <div style={{ position: "absolute", inset: 0, background: "#1e293b", borderRadius: "3px" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, height: "5px", width: `${((value - min) / (max - min)) * 100}%`, background: color, borderRadius: "3px", transition: "width 0.1s" }} />
+        <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(Number(e.target.value))} style={{ position: "absolute", top: "-9px", left: 0, width: "100%", opacity: 0, cursor: "pointer", height: "24px", margin: 0 }} />
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub, color = "#e2e8f0", accent, accentColor }) {
+  const ac = accentColor || color;
+  return (
+    <div style={{ background: accent ? `${ac}0d` : "rgba(15,23,42,0.5)", border: `1px solid ${accent ? `${ac}30` : "rgba(255,255,255,0.05)"}`, borderRadius: "12px", padding: "14px 16px", position: "relative", overflow: "hidden" }}>
+      {accent && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: ac }} />}
+      <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "5px" }}>{label}</div>
+      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "20px", fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>{sub}</div>}
+    </div>
+  );
+}
+
+function AllocationBar({ allocation, height = 8 }) {
+  return (
+    <div style={{ height: `${height}px`, borderRadius: `${height / 2}px`, overflow: "hidden", display: "flex" }}>
+      {allocation.map((a, i) => <div key={i} style={{ width: `${a.pct}%`, background: a.color }} title={`${a.label}: ${a.pct}%`} />)}
+    </div>
+  );
+}
+
+function AllocationLegend({ allocation }) {
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
+      {allocation.map((a, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ width: "8px", height: "8px", borderRadius: "2px", background: a.color, flexShrink: 0 }} />
+          <span style={{ fontSize: "10px", color: "#64748b" }}>{a.label} {a.pct}%</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function VolatilityDots({ level, color = "#f1c040" }) {
+  return (
+    <div style={{ display: "flex", gap: "3px" }}>
+      {[1,2,3,4,5].map(i => (
+        <div key={i} style={{ width: "8px", height: "8px", borderRadius: "50%", background: i <= level ? color : "#1e293b", border: "1px solid rgba(255,255,255,0.08)" }} />
+      ))}
+    </div>
+  );
+}
+
+// ─── Investment Model Card (Full) ─────────────────────────────────────────────
+function InvModelCard({ model, isActive, isCompare, onActivate, onToggleCompare, fireYears }) {
+  return (
+    <div style={{ background: isActive ? `${model.color}0e` : "rgba(13,26,46,0.6)", border: `2px solid ${isActive ? model.color : isCompare ? `${model.color}60` : "rgba(255,255,255,0.06)"}`, borderRadius: "16px", padding: "18px", position: "relative", overflow: "hidden", transition: "all 0.2s" }}>
+      {isActive && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: model.color }} />}
+
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: "14px", fontWeight: 700, color: isActive ? model.color : "#e2e8f0", lineHeight: 1.2 }}>{model.name}</div>
+          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>{model.investor} · {model.tag}</div>
+        </div>
+        <div style={{ display: "flex", gap: "6px", flexShrink: 0, marginLeft: "8px" }}>
+          <button onClick={() => onToggleCompare(model.id)} title="Add to compare" style={{ width: "26px", height: "26px", borderRadius: "6px", background: isCompare ? `${model.color}20` : "rgba(255,255,255,0.04)", border: `1px solid ${isCompare ? model.color : "rgba(255,255,255,0.08)"}`, color: isCompare ? model.color : "#475569", fontSize: "12px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>⚖️</button>
+          <button onClick={() => onActivate(model.id)} style={{ width: "26px", height: "26px", borderRadius: "6px", background: isActive ? model.color : "rgba(255,255,255,0.04)", border: `1px solid ${isActive ? model.color : "rgba(255,255,255,0.08)"}`, color: isActive ? "#0f172a" : "#475569", fontSize: "12px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>✓</button>
+        </div>
+      </div>
+
+      {/* Philosophy quote */}
+      <div style={{ fontSize: "11px", color: "#475569", fontStyle: "italic", lineHeight: 1.5, marginBottom: "10px", borderLeft: `2px solid ${model.color}40`, paddingLeft: "8px" }}>
+        {model.philosophy}
+      </div>
+
+      {/* Allocation bar + legend */}
+      <AllocationBar allocation={model.allocation} height={7} />
+      <AllocationLegend allocation={model.allocation} />
+
+      {/* Metrics */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "6px", marginTop: "12px" }}>
+        <div>
+          <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.06em" }}>Return</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "15px", fontWeight: 700, color: model.color, marginTop: "2px" }}>{model.return}%</div>
+        </div>
+        <div>
+          <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.06em" }}>Sharpe</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "15px", fontWeight: 700, color: "#e2e8f0", marginTop: "2px" }}>{model.sharpe}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.06em" }}>Max Drop</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "15px", fontWeight: 700, color: "#f87171", marginTop: "2px" }}>-{model.maxDrawdown}%</div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px" }}>
+        <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.06em", flexShrink: 0 }}>Volatility</div>
+        <VolatilityDots level={model.volatility} color={model.color} />
+      </div>
+
+      {/* FIRE timeline */}
+      <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "12px", fontWeight: 700, color: isActive ? model.color : "#64748b" }}>
+          FIRE in {fireYears >= 99 ? "∞" : fireYears === 0 ? "Now 🎉" : `${fmtN(fireYears)} yrs`}
+        </div>
+        {fireYears > 0 && fireYears < 99 && <div style={{ fontSize: "11px", color: "#475569" }}>{fireYear(fireYears)}</div>}
+      </div>
+
+      {/* Notes */}
+      <div style={{ marginTop: "8px", fontSize: "11px", color: "#475569", lineHeight: 1.6 }}>{model.notes}</div>
+    </div>
+  );
+}
+
+// ─── Compare Panel ────────────────────────────────────────────────────────────
+function ComparePanel({ compareIds, models, fireTarget, currentSavings, monthlySavings }) {
+  const selected = models.filter(m => compareIds.includes(m.id));
+  if (selected.length < 2) return (
+    <div style={{ background: "rgba(13,26,46,0.4)", border: "1px dashed rgba(255,255,255,0.08)", borderRadius: "16px", padding: "40px", textAlign: "center" }}>
+      <div style={{ fontSize: "36px", marginBottom: "14px" }}>⚖️</div>
+      <div style={{ fontSize: "14px", color: "#475569", marginBottom: "6px" }}>Select 2 or more models to compare</div>
+      <div style={{ fontSize: "12px", color: "#334155" }}>Use the ⚖️ button on each model card to add it to the comparison</div>
+    </div>
+  );
+
+  const fastest = selected.reduce((a, b) => calcYears(currentSavings, monthlySavings, a.return, fireTarget) <= calcYears(currentSavings, monthlySavings, b.return, fireTarget) ? a : b);
+
+  const getPortfolio = (m) => {
+    const y = calcYears(currentSavings, monthlySavings, m.return, fireTarget);
+    if (y >= 99) return null;
+    const months = Math.round(y * 12), r = m.return / 100 / 12;
+    let bal = currentSavings;
+    for (let i = 0; i < months; i++) bal = bal * (1 + r) + monthlySavings;
+    return bal;
+  };
+
+  const rows = [
+    { label: "Expected Annual Return", sublabel: null, key: m => `${m.return}%`, best: m => m.return === Math.max(...selected.map(x => x.return)) },
+    { label: "Sharpe Ratio", sublabel: "Return per unit of risk", key: m => m.sharpe.toFixed(2), best: m => m.sharpe === Math.max(...selected.map(x => x.sharpe)) },
+    { label: "Max Drawdown", sublabel: "Worst historical crash", key: m => `-${m.maxDrawdown}%`, best: m => m.maxDrawdown === Math.min(...selected.map(x => x.maxDrawdown)) },
+    { label: "Volatility", sublabel: null, key: m => "●".repeat(m.volatility) + "○".repeat(5 - m.volatility), best: m => m.volatility === Math.min(...selected.map(x => x.volatility)) },
+    { label: "Years to FIRE", sublabel: null, key: m => { const y = calcYears(currentSavings, monthlySavings, m.return, fireTarget); return y >= 99 ? "∞" : y === 0 ? "Now 🎉" : fmtN(y); }, best: m => m.id === fastest.id },
+    { label: "FIRE Target Year", sublabel: null, key: m => fireYear(calcYears(currentSavings, monthlySavings, m.return, fireTarget)), best: m => m.id === fastest.id },
+    { label: "Portfolio at FIRE", sublabel: null, key: m => { const p = getPortfolio(m); return p ? fmt(p) : "—"; }, best: () => false },
+    { label: "Crash Scenario", sublabel: "Portfolio after max drawdown", key: m => { const p = getPortfolio(m); return p ? fmt(p * (1 - m.maxDrawdown / 100)) : "—"; }, best: m => m.maxDrawdown === Math.min(...selected.map(x => x.maxDrawdown)) },
+    { label: "Philosophy", sublabel: null, key: m => m.notes, best: () => false, italic: true },
+  ];
+
+  const cols = selected.length;
+  return (
+    <div style={{ background: "rgba(13,26,46,0.6)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "20px", overflow: "hidden", overflowX: "auto" }}>
+      <div style={{ display: "grid", gridTemplateColumns: `180px repeat(${cols}, 1fr)`, minWidth: `${180 + cols * 160}px`, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ padding: "16px 18px", background: "rgba(0,0,0,0.2)" }} />
+        {selected.map(m => (
+          <div key={m.id} style={{ padding: "16px 14px", background: "rgba(0,0,0,0.2)", borderLeft: "1px solid rgba(255,255,255,0.04)" }}>
+            <div style={{ fontSize: "13px", fontWeight: 700, color: m.color }}>{m.name}</div>
+            <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>{m.investor}</div>
+            <AllocationBar allocation={m.allocation} height={4} />
+          </div>
+        ))}
+      </div>
+      {rows.map((row, ri) => (
+        <div key={ri} style={{ display: "grid", gridTemplateColumns: `180px repeat(${cols}, 1fr)`, minWidth: `${180 + cols * 160}px`, borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+          <div style={{ padding: "12px 18px", background: "rgba(0,0,0,0.1)" }}>
+            <div style={{ fontSize: "12px", color: "#64748b", fontWeight: 600 }}>{row.label}</div>
+            {row.sublabel && <div style={{ fontSize: "10px", color: "#334155", marginTop: "2px" }}>{row.sublabel}</div>}
+          </div>
+          {selected.map(m => {
+            const winner = row.best(m);
+            return (
+              <div key={m.id} style={{ padding: "12px 14px", borderLeft: "1px solid rgba(255,255,255,0.03)", background: winner ? `${m.color}0a` : "transparent" }}>
+                <div style={{ fontFamily: row.italic ? "inherit" : "'DM Mono', monospace", fontSize: row.italic ? "11px" : "13px", fontWeight: winner ? 700 : 400, color: winner ? m.color : "#94a3b8", fontStyle: row.italic ? "italic" : "normal", lineHeight: 1.5 }}>{row.key(m)}</div>
+                {winner && !row.italic && <div style={{ fontSize: "9px", color: m.color, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: "2px", fontWeight: 700 }}>Best</div>}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── FIRE Calculators ────────────────────────────────────────────────────────
+function ClassicCalc({ color, inv, annualExpenses, setAnnualExpenses, currentSavings, setCurrentSavings, monthlySavings, setMonthlySavings }) {
+  const target = annualExpenses * 25;
+  const years = calcYears(currentSavings, monthlySavings, inv.return, target);
+  const pct = Math.min(100, Math.round((currentSavings / target) * 100));
+  const velocity = Math.min(100, Math.round((monthlySavings / (annualExpenses / 12)) * 100));
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+      <div>
+        <Slider label="Annual Expenses" sublabel="What you spend per year" value={annualExpenses} onChange={setAnnualExpenses} min={20000} max={300000} step={1000} format={fmt} color={color} />
+        <Slider label="Current Savings" sublabel="Total invested today" value={currentSavings} onChange={setCurrentSavings} min={0} max={2000000} step={5000} format={fmt} color={color} />
+        <Slider label="Monthly Savings" sublabel="Invested each month" value={monthlySavings} onChange={setMonthlySavings} min={100} max={20000} step={100} format={fmt} color={color} />
+      </div>
+      <div>
+        <div style={{ textAlign: "center", marginBottom: "14px" }}>
+          <div style={{ fontSize: "11px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>FIRE Number</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "38px", fontWeight: 700, color, lineHeight: 1 }}>{fmt(target)}</div>
+          <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>25× annual expenses · 4% rule</div>
+        </div>
+        <div style={{ marginBottom: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+            <span style={{ fontSize: "11px", color: "#475569" }}>Progress</span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "12px", fontWeight: 700, color }}>{pct}%</span>
+          </div>
+          <div style={{ height: "7px", background: "#0f172a", borderRadius: "4px", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: "4px", transition: "width 0.5s" }} />
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+          <StatCard label="Years to FIRE" value={years === 0 ? "Now 🎉" : years >= 99 ? "∞" : fmtN(years)} sub={`Target: ${fireYear(years)}`} color={color} accent accentColor={color} />
+          <StatCard label="Gap Remaining" value={fmt(Math.max(0, target - currentSavings))} color="#e2e8f0" />
+          <StatCard label="Sprint Velocity" value={`${velocity}%`} sub="Savings as % of expenses" color="#e2e8f0" />
+          <StatCard label="Annual Withdrawal" value={fmt(annualExpenses)} sub="@ 4% forever" color="#e2e8f0" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CoastCalc({ color, inv, annualExpenses, setAnnualExpenses, currentSavings, setCurrentSavings, monthlySavings, setMonthlySavings }) {
+  const [retAge, setRetAge] = useState(65);
+  const [curAge, setCurAge] = useState(35);
+  const target = annualExpenses * 25;
+  const yrs = Math.max(1, retAge - curAge);
+  const coastNum = calcCoastNum(target, inv.return, yrs);
+  const coasting = currentSavings >= coastNum;
+  const yearsToCoast = calcYears(currentSavings, monthlySavings, inv.return, coastNum);
+  const projected = currentSavings * Math.pow(1 + inv.return / 100, yrs);
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+      <div>
+        <Slider label="Annual Expenses (Retirement)" value={annualExpenses} onChange={setAnnualExpenses} min={20000} max={300000} step={1000} format={fmt} color={color} />
+        <Slider label="Current Savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={2000000} step={5000} format={fmt} color={color} />
+        <Slider label="Monthly Savings" sublabel="Until you hit Coast number" value={monthlySavings} onChange={setMonthlySavings} min={100} max={20000} step={100} format={fmt} color={color} />
+        <Slider label="Current Age" value={curAge} onChange={setCurAge} min={20} max={60} step={1} format={v => `${v}`} color={color} />
+        <Slider label="Retirement Age" value={retAge} onChange={setRetAge} min={curAge + 5} max={75} step={1} format={v => `${v}`} color={color} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{ background: `${color}0d`, border: `1px solid ${color}30`, borderRadius: "14px", padding: "18px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: color }} />
+          <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>Coast FIRE Number</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "32px", fontWeight: 700, color, lineHeight: 1 }}>{fmt(coastNum)}</div>
+          <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Save this today, never contribute again</div>
+        </div>
+        <StatCard label={coasting ? "🎉 Already Coasting!" : "Years to Coast Number"} value={coasting ? "Stop contributing!" : yearsToCoast >= 99 ? "∞" : fmtN(yearsToCoast)} sub={coasting ? "Just cover living expenses now" : `Reach coast by ${fireYear(yearsToCoast)}`} color={color} accent accentColor={color} />
+        <StatCard label="Projected at Retirement" value={fmt(projected)} sub={`Compounded ${yrs} years`} color={projected >= target ? "#4ade80" : "#f87171"} />
+        <StatCard label="Years of Compounding" value={`${yrs} yrs`} sub={`Age ${curAge} → ${retAge}`} color="#e2e8f0" />
+      </div>
+    </div>
+  );
+}
+
+function BaristaCalc({ color, inv, annualExpenses, setAnnualExpenses, currentSavings, setCurrentSavings, monthlySavings, setMonthlySavings }) {
+  const [ptIncome, setPtIncome] = useState(24000);
+  const gap = Math.max(0, annualExpenses - ptIncome);
+  const bTarget = gap * 25;
+  const cTarget = annualExpenses * 25;
+  const bYears = calcYears(currentSavings, monthlySavings, inv.return, bTarget);
+  const cYears = calcYears(currentSavings, monthlySavings, inv.return, cTarget);
+  const saved = Math.max(0, cYears - bYears);
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+      <div>
+        <Slider label="Annual Expenses" sublabel="Total lifestyle cost" value={annualExpenses} onChange={setAnnualExpenses} min={20000} max={300000} step={1000} format={fmt} color={color} />
+        <Slider label="Part-Time Annual Income" sublabel="What side work covers" value={ptIncome} onChange={setPtIncome} min={0} max={80000} step={1000} format={fmt} color={color} />
+        <Slider label="Current Savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={2000000} step={5000} format={fmt} color={color} />
+        <Slider label="Monthly Savings" value={monthlySavings} onChange={setMonthlySavings} min={100} max={20000} step={100} format={fmt} color={color} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{ background: `${color}0d`, border: `1px solid ${color}30`, borderRadius: "14px", padding: "18px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: color }} />
+          <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>Barista FIRE Number</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "32px", fontWeight: 700, color, lineHeight: 1 }}>{fmt(bTarget)}</div>
+          <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Only covering the {fmt(gap)}/yr gap</div>
+        </div>
+        <StatCard label="Years to Semi-Retire" value={bYears >= 99 ? "∞" : bYears === 0 ? "Now 🎉" : fmtN(bYears)} sub={`Semi-retire by ${fireYear(bYears)}`} color={color} accent accentColor={color} />
+        <StatCard label="Classic FIRE Number" value={fmt(cTarget)} sub="Without part-time income" color="#e2e8f0" />
+        <StatCard label="Years Saved vs Classic FIRE" value={`${fmtN(saved)} yrs earlier`} sub="The Barista advantage" color="#4ade80" />
+        <StatCard label="Part-Time Covers" value={`${Math.round((ptIncome / annualExpenses) * 100)}%`} sub="of total expenses" color="#e2e8f0" />
+      </div>
+    </div>
+  );
+}
+
+function LatteCalc({ color, inv }) {
+  const [daily, setDaily] = useState(7);
+  const [habit, setHabit] = useState("Daily coffee");
+  const HABITS = ["Daily coffee", "Lunch out", "Streaming subs", "Rideshare", "Drinks out", "Fast food"];
+  const monthly = daily * 30;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+      <div>
+        <div style={{ marginBottom: "18px" }}>
+          <div style={{ fontSize: "12px", fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "10px" }}>Habit Type</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+            {HABITS.map(h => <button key={h} onClick={() => setHabit(h)} style={{ background: habit === h ? `${color}18` : "rgba(13,26,46,0.6)", border: `1px solid ${habit === h ? color : "rgba(255,255,255,0.08)"}`, borderRadius: "8px", padding: "6px 12px", color: habit === h ? color : "#64748b", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>{h}</button>)}
+          </div>
+        </div>
+        <Slider label="Daily Cost" sublabel={`${habit} per day`} value={daily} onChange={setDaily} min={1} max={50} step={0.5} format={v => `$${v}`} color={color} />
+        <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: "12px", padding: "14px 16px" }}>
+          {[["Per Day", `$${daily}`], ["Per Month", fmt(monthly)], ["Per Year", fmt(monthly * 12)]].map(([l, v]) => (
+            <div key={l} style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+              <span style={{ fontSize: "13px", color: "#64748b" }}>{l}</span>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "13px", fontWeight: 700, color: "#e2e8f0" }}>{v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{ background: `${color}0d`, border: `1px solid ${color}30`, borderRadius: "14px", padding: "18px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: color }} />
+          <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>If Invested — 30 Years</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "32px", fontWeight: 700, color, lineHeight: 1 }}>{fmt(fv(monthly, inv.return, 30))}</div>
+          <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>At {inv.return}% annual return</div>
+        </div>
+        {[[10, "10 Years"], [20, "20 Years"], [30, "30 Years"]].map(([y, l]) => (
+          <StatCard key={y} label={`Invested over ${l}`} value={fmt(fv(monthly, inv.return, y))} sub={`vs. ${fmt(monthly * 12 * y)} spent`} color={y === 30 ? color : "#e2e8f0"} />
+        ))}
+        <div style={{ background: "rgba(241,192,64,0.05)", border: "1px solid rgba(241,192,64,0.15)", borderRadius: "10px", padding: "12px 14px" }}>
+          <div style={{ fontSize: "11px", color: "#f1c040", fontWeight: 700, marginBottom: "4px" }}>💡 The Insight</div>
+          <div style={{ fontSize: "11px", color: "#64748b", lineHeight: 1.6 }}>Not about never enjoying coffee. It's about seeing the real price of each habit in future wealth — and deciding which ones are truly worth it.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DieWithZeroCalc({ color, inv, annualExpenses, setAnnualExpenses, currentSavings, setCurrentSavings }) {
+  const [curAge, setCurAge] = useState(35);
+  const [deathAge, setDeathAge] = useState(90);
+  const DECADES = [{ r: "30s", m: 1.3, label: "Peak Experience" }, { r: "40s", m: 1.2, label: "Family & Travel" }, { r: "50s", m: 1.0, label: "Wind-Down" }, { r: "60s", m: 0.9, label: "Active Retirement" }, { r: "70s", m: 0.75, label: "Slower Pace" }, { r: "80s+", m: 0.5, label: "Late Stage" }];
+  const yrsLeft = deathAge - curAge;
+  const totalNeeded = DECADES.reduce((s, d, i) => s + annualExpenses * d.m * Math.min(10, Math.max(0, deathAge - (30 + i * 10))), 0);
+  const projected = currentSavings * Math.pow(1 + inv.return / 100, yrsLeft);
+  const surplus = projected - totalNeeded;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+      <div>
+        <Slider label="Base Annual Expenses" sublabel="Today's baseline" value={annualExpenses} onChange={setAnnualExpenses} min={20000} max={300000} step={1000} format={fmt} color={color} />
+        <Slider label="Current Savings" value={currentSavings} onChange={setCurrentSavings} min={0} max={2000000} step={5000} format={fmt} color={color} />
+        <Slider label="Current Age" value={curAge} onChange={setCurAge} min={20} max={70} step={1} format={v => `${v}`} color={color} />
+        <Slider label="Life Expectancy" value={deathAge} onChange={setDeathAge} min={curAge + 10} max={100} step={1} format={v => `${v}`} color={color} />
+        <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: "10px", padding: "12px 14px" }}>
+          <div style={{ fontSize: "11px", color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "8px" }}>Spending by Decade</div>
+          {DECADES.map(d => (
+            <div key={d.r} style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+              <div><span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 600 }}>{d.r}</span><span style={{ fontSize: "10px", color: "#475569", marginLeft: "6px" }}>{d.label}</span></div>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "11px", color }}>{fmt(annualExpenses * d.m)}/yr</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{ background: `${color}0d`, border: `1px solid ${color}30`, borderRadius: "14px", padding: "18px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: color }} />
+          <div style={{ fontSize: "10px", color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>Total Life Spending Target</div>
+          <div style={{ fontFamily: "'DM Mono', monospace", fontSize: "32px", fontWeight: 700, color, lineHeight: 1 }}>{fmt(totalNeeded)}</div>
+          <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Optimized across {yrsLeft} years</div>
+        </div>
+        <StatCard label="Projected Lifetime Wealth" value={fmt(projected)} sub={`Savings compounded ${yrsLeft} years`} color="#e2e8f0" />
+        <StatCard label={surplus >= 0 ? "Surplus — Spend More!" : "Funding Gap"} value={fmt(Math.abs(surplus))} sub={surplus >= 0 ? "You're leaving this unlived" : "Need to save more"} color={surplus >= 0 ? "#4ade80" : "#f87171"} accent accentColor={surplus >= 0 ? "#4ade80" : "#f87171"} />
+        <div style={{ background: `${color}06`, border: `1px solid ${color}20`, borderRadius: "10px", padding: "12px 14px" }}>
+          <div style={{ fontSize: "11px", color, fontWeight: 700, marginBottom: "4px" }}>⏳ The Principle</div>
+          <div style={{ fontSize: "11px", color: "#64748b", lineHeight: 1.6 }}>Every dollar you die with is a day of life you didn't fully live. Maximum wealth isn't the goal — maximum life is.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Share Card Generator ────────────────────────────────────────────────────
+function generateShareCard({ fireModel, invModel, fireNumber, yearsToFire, currentSavings, monthlySavings, velocityScore, progressPct }) {
+  const W = 800, H = 440;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const fc = fireModel.color;
+  const ic = invModel.color;
+
+  // ── Background
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, "#080f1a");
+  bg.addColorStop(1, "#0d1a2e");
+  ctx.fillStyle = bg;
+  ctx.roundRect(0, 0, W, H, 20);
+  ctx.fill();
+
+  // ── Subtle grid overlay
+  ctx.strokeStyle = "rgba(255,255,255,0.03)";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  // ── Glow
+  const glow = ctx.createRadialGradient(W * 0.25, H * 0.3, 0, W * 0.25, H * 0.3, 280);
+  glow.addColorStop(0, fc + "18");
+  glow.addColorStop(1, "transparent");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Top accent bar
+  const bar = ctx.createLinearGradient(0, 0, W, 0);
+  bar.addColorStop(0, fc);
+  bar.addColorStop(0.5, ic);
+  bar.addColorStop(1, fc);
+  ctx.fillStyle = bar;
+  ctx.roundRect(0, 0, W, 4, [4, 4, 0, 0]);
+  ctx.fill();
+
+  // ── Border
+  ctx.strokeStyle = fc + "35";
+  ctx.lineWidth = 1.5;
+  ctx.roundRect(1, 1, W - 2, H - 2, 20);
+  ctx.stroke();
+
+  // ── Brand pill top-left
+  ctx.fillStyle = "rgba(241,192,64,0.1)";
+  ctx.roundRect(28, 24, 220, 26, 13);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(241,192,64,0.25)";
+  ctx.lineWidth = 1;
+  ctx.roundRect(28, 24, 220, 26, 13);
+  ctx.stroke();
+  ctx.fillStyle = "#f1c040";
+  ctx.font = "600 10px sans-serif";
+  ctx.letterSpacing = "0.1em";
+  ctx.fillText("SCALEDMONEY|OS™  ·  THE LEAN DOLLAR", 42, 41);
+
+  // ── FIRE type badge top-right
+  ctx.fillStyle = fc + "18";
+  ctx.roundRect(W - 180, 20, 155, 34, 10);
+  ctx.fill();
+  ctx.strokeStyle = fc + "35";
+  ctx.lineWidth = 1;
+  ctx.roundRect(W - 180, 20, 155, 34, 10);
+  ctx.stroke();
+  ctx.fillStyle = fc;
+  ctx.font = "700 12px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(fireModel.emoji + "  " + fireModel.name.toUpperCase(), W - 103, 42);
+  ctx.textAlign = "left";
+
+  // ── FIRE Number — hero
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "600 12px sans-serif";
+  ctx.letterSpacing = "0.12em";
+  ctx.fillText("MY FIRE NUMBER", 28, 96);
+
+  const fireStr = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(fireNumber);
+  ctx.font = "800 62px sans-serif";
+  const grad = ctx.createLinearGradient(28, 100, 400, 160);
+  grad.addColorStop(0, "#f8f4e8");
+  grad.addColorStop(1, fc);
+  ctx.fillStyle = grad;
+  ctx.fillText(fireStr, 28, 162);
+
+  // ── Tagline
+  ctx.fillStyle = "#475569";
+  ctx.font = "400 14px sans-serif";
+  ctx.letterSpacing = "0";
+  ctx.fillText(fireModel.tagline, 28, 188);
+
+  // ── Progress bar
+  const barY = 212, barH = 10, barW = W - 56;
+  ctx.fillStyle = "#0f172a";
+  ctx.roundRect(28, barY, barW, barH, 5);
+  ctx.fill();
+  const progGrad = ctx.createLinearGradient(28, 0, 28 + barW, 0);
+  progGrad.addColorStop(0, fc);
+  progGrad.addColorStop(1, ic);
+  ctx.fillStyle = progGrad;
+  ctx.roundRect(28, barY, Math.max(12, barW * (progressPct / 100)), barH, 5);
+  ctx.fill();
+
+  ctx.fillStyle = fc;
+  ctx.font = "700 11px sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText(`${progressPct}% TO FIRE`, W - 28, barY + 9);
+  ctx.textAlign = "left";
+
+  // ── Stat cards row
+  const stats = [
+    { label: "YEARS TO FIRE", value: yearsToFire >= 99 ? "∞" : yearsToFire === 0 ? "NOW 🎉" : fmtN(yearsToFire), color: fc },
+    { label: "TARGET YEAR", value: fireYear(yearsToFire), color: "#e2e8f0" },
+    { label: "SPRINT VELOCITY", value: `${velocityScore}%`, color: "#e2e8f0" },
+    { label: "INVESTMENT MODEL", value: invModel.investor.split(" ").slice(-1)[0].toUpperCase(), color: ic },
+  ];
+
+  const cardW = (W - 56 - 30) / 4, cardY = 240, cardH = 80;
+  stats.forEach((s, i) => {
+    const x = 28 + i * (cardW + 10);
+    ctx.fillStyle = i === 0 ? fc + "12" : "rgba(15,23,42,0.6)";
+    ctx.roundRect(x, cardY, cardW, cardH, 10);
+    ctx.fill();
+    ctx.strokeStyle = i === 0 ? fc + "35" : "rgba(255,255,255,0.05)";
+    ctx.lineWidth = 1;
+    ctx.roundRect(x, cardY, cardW, cardH, 10);
+    ctx.stroke();
+    ctx.fillStyle = "#475569";
+    ctx.font = "600 9px sans-serif";
+    ctx.letterSpacing = "0.08em";
+    ctx.fillText(s.label, x + 12, cardY + 20);
+    ctx.fillStyle = s.color;
+    ctx.font = "700 20px sans-serif";
+    ctx.letterSpacing = "0";
+    ctx.fillText(s.value, x + 12, cardY + 52);
+  });
+
+  // ── Investment model strip
+  const stripY = 340;
+  ctx.fillStyle = ic + "10";
+  ctx.roundRect(28, stripY, W - 56, 52, 10);
+  ctx.fill();
+  ctx.strokeStyle = ic + "25";
+  ctx.lineWidth = 1;
+  ctx.roundRect(28, stripY, W - 56, 52, 10);
+  ctx.stroke();
+
+  ctx.fillStyle = "#475569";
+  ctx.font = "600 10px sans-serif";
+  ctx.letterSpacing = "0.08em";
+  ctx.fillText("INVESTMENT PHILOSOPHY", 44, stripY + 18);
+
+  ctx.fillStyle = ic;
+  ctx.font = "700 15px sans-serif";
+  ctx.letterSpacing = "0";
+  ctx.fillText(invModel.name + "  ·  " + invModel.investor, 44, stripY + 38);
+
+  // allocation bar inside strip
+  let ax = W - 200;
+  invModel.allocation.forEach(a => {
+    const aw = (a.pct / 100) * 160;
+    ctx.fillStyle = a.color;
+    ctx.roundRect(ax, stripY + 20, aw, 14, 2);
+    ctx.fill();
+    ax += aw;
+  });
+
+  // ── Footer
+  const footY = H - 28;
+  ctx.fillStyle = "#1e293b";
+  ctx.roundRect(28, footY - 2, W - 56, 1, 1);
+  ctx.fill();
+
+  ctx.fillStyle = "#334155";
+  ctx.font = "400 11px sans-serif";
+  ctx.letterSpacing = "0";
+  ctx.fillText("scaledmoney.com/freetools  ·  What's your number?", 28, footY + 16);
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#475569";
+  ctx.fillText("ScaledMoney|OS™  ·  For educational purposes only", W - 28, footY + 16);
+  ctx.textAlign = "left";
+
+  return canvas.toDataURL("image/png");
+}
+
+function ShareCardModal({ isOpen, onClose, fireModel, invModel, fireNumber, yearsToFire, velocityScore, progressPct, currentSavings, monthlySavings }) {
+  const [imgSrc, setImgSrc] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  useState(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        try {
+          const src = generateShareCard({ fireModel, invModel, fireNumber, yearsToFire, currentSavings, monthlySavings, velocityScore, progressPct });
+          setImgSrc(src);
+        } catch(e) { console.error(e); }
+      }, 100);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const download = () => {
+    if (!imgSrc) return;
+    const a = document.createElement("a");
+    a.href = imgSrc;
+    a.download = `my-fire-card-${fireModel.id}.png`;
+    a.click();
+  };
+
+  const tweetText = `🔥 My FIRE Number: ${new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(fireNumber)} | ${yearsToFire >= 99 ? "∞" : fmtN(yearsToFire)} years to ${fireModel.name} | ${progressPct}% there\n\nInvesting: ${invModel.name} — ${invModel.return}% return\n\nCalculate yours 👇 #FIRE #FinancialIndependence #ScaledMoneyOS`;
+  const tweetUrl = `https://scaledmoney.com/freetools?utm_source=twitter&utm_medium=share_card&utm_campaign=fire_identity`;
+  const twitterIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(tweetUrl)}`;
+
+  const copyText = () => {
+    navigator.clipboard.writeText(tweetText + "\n\n" + tweetUrl).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: "20px" }} onClick={onClose}>
+      <div style={{ background: "#0d1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "24px", padding: "32px", maxWidth: "860px", width: "100%", position: "relative" }} onClick={e => e.stopPropagation()}>
+
+        {/* Close */}
+        <button onClick={onClose} style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#64748b", cursor: "pointer", fontSize: "16px", width: "32px", height: "32px" }}>✕</button>
+
+        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 700, color: "#f8f4e8", marginBottom: "6px" }}>Your FIRE Identity Card</div>
+        <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "24px" }}>Download and share anywhere — Reddit, Twitter/X, LinkedIn, Facebook, or your favorite FIRE community.</div>
+
+        {/* Card preview */}
+        <div style={{ borderRadius: "16px", overflow: "hidden", marginBottom: "20px", border: "1px solid rgba(255,255,255,0.08)" }}>
+          {imgSrc
+            ? <img src={imgSrc} alt="FIRE Identity Card" style={{ width: "100%", display: "block" }} />
+            : <div style={{ height: "220px", display: "flex", alignItems: "center", justifyContent: "center", background: "#080f1a", color: "#475569", fontSize: "14px" }}>Generating your card...</div>
+          }
+        </div>
+
+        {/* Action buttons */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "10px" }}>
+          <button onClick={download} style={{ background: `linear-gradient(135deg, ${fireModel.color}, ${invModel.color})`, border: "none", borderRadius: "12px", padding: "14px 10px", fontSize: "13px", fontWeight: 700, color: "#0f172a", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
+            ⬇️ Download PNG
+          </button>
+          <button
+            onClick={() => window.open(twitterIntent, "_blank")}
+            style={{ background: "rgba(29,161,242,0.1)", border: "1px solid rgba(29,161,242,0.3)", borderRadius: "12px", padding: "14px 10px", fontSize: "13px", fontWeight: 700, color: "#1da1f2", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
+          >
+            🐦 Tweet This
+          </button>
+          <button onClick={copyText} style={{ background: copied ? "rgba(74,222,128,0.12)" : "rgba(255,255,255,0.06)", border: `1px solid ${copied ? "#4ade80" : "rgba(255,255,255,0.1)"}`, borderRadius: "12px", padding: "14px 10px", fontSize: "13px", fontWeight: 600, color: copied ? "#4ade80" : "#e2e8f0", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s" }}>
+            {copied ? "✓ Copied!" : "📋 Copy Text"}
+          </button>
+          <button onClick={onClose} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "14px 10px", fontSize: "13px", fontWeight: 600, color: "#64748b", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
+            Close
+          </button>
+        </div>
+
+        {/* Caption preview */}
+        <div style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 16px", marginTop: "14px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <div style={{ fontSize: "11px", color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Pre-filled tweet · attach your PNG to complete</div>
+            <div style={{ fontSize: "10px", color: "#334155" }}>Opens Twitter/X in new tab</div>
+          </div>
+          <div style={{ fontSize: "12px", color: "#94a3b8", lineHeight: 1.8, fontStyle: "italic" }}>
+            🔥 My FIRE Number: <span style={{ color: fireModel.color, fontWeight: 700 }}>{new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(fireNumber)}</span> | {yearsToFire >= 99 ? "∞" : fmtN(yearsToFire)} years to {fireModel.name} | {progressPct}% there<br />
+            <br />
+            Investing: {invModel.name} — {invModel.return}% return<br />
+            <br />
+            Calculate yours 👇 <span style={{ color: "#38bdf8" }}>scaledmoney.com/freetools</span><br />
+            <span style={{ color: "#475569" }}>#FIRE #FinancialIndependence #ScaledMoneyOS</span>
+          </div>
+        </div>
+
+        <div style={{ fontSize: "11px", color: "#334155", marginTop: "14px", textAlign: "center" }}>
+          For educational purposes only. Not financial advice.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main App ────────────────────────────────────────────────────────────────
+function FireSuiteComplete() {
+  const [activeFireId, setActiveFireId] = useState("classic");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [activeInvId, setActiveInvId] = useState("bogle");
+  const [compareIds, setCompareIds] = useState(["bogle", "buffett"]);
+  const [invTab, setInvTab] = useState("select");
+  const [riskFilter, setRiskFilter] = useState("all");
+  const [showShareCard, setShowShareCard] = useState(false);
+  const [annualExpenses, setAnnualExpenses] = useState(60000);
+  const [currentSavings, setCurrentSavings] = useState(25000);
+  const [monthlySavings, setMonthlySavings] = useState(1500);
+
+  const fireModel = FIRE_MODELS.find(m => m.id === activeFireId);
+  const invModel = INV_MODELS.find(m => m.id === activeInvId);
+  const fireTarget = annualExpenses * 25;
+  const fireYearsActive = calcYears(currentSavings, monthlySavings, invModel.return, fireTarget);
+  const progressPct = Math.min(100, Math.round((currentSavings / fireTarget) * 100));
+  const velocityScore = Math.min(100, Math.round((monthlySavings / (annualExpenses / 12)) * 100));
+
+  const toggleCompare = (id) => setCompareIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const activateInv = (id) => setActiveInvId(id);
+
+  const fireYearsMap = useMemo(() => {
+    const map = {};
+    INV_MODELS.forEach(m => { map[m.id] = calcYears(currentSavings, monthlySavings, m.return, fireTarget); });
+    return map;
+  }, [currentSavings, monthlySavings, fireTarget]);
+
+  const filteredInv = INV_MODELS.filter(m => {
+    if (riskFilter === "low") return m.volatility <= 2;
+    if (riskFilter === "medium") return m.volatility === 3;
+    if (riskFilter === "high") return m.volatility >= 4;
+    return true;
+  });
+
+  const sharedCalcProps = { color: fireModel.color, inv: invModel, annualExpenses, setAnnualExpenses, currentSavings, setCurrentSavings, monthlySavings, setMonthlySavings };
+
+  const renderCalc = () => {
+    switch (activeFireId) {
+      case "classic": case "lean": case "fat": return <ClassicCalc {...sharedCalcProps} />;
+      case "coast": return <CoastCalc {...sharedCalcProps} />;
+      case "barista": return <BaristaCalc {...sharedCalcProps} />;
+      case "latte": return <LatteCalc {...sharedCalcProps} />;
+      case "diewithzero": return <DieWithZeroCalc {...sharedCalcProps} />;
+      default: return <ClassicCalc {...sharedCalcProps} />;
+    }
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#080f1a", color: "#e2e8f0", fontFamily: "'DM Sans', sans-serif" }}>
+      <ShareCardModal
+        isOpen={showShareCard}
+        onClose={() => setShowShareCard(false)}
+        fireModel={fireModel}
+        invModel={invModel}
+        fireNumber={fireTarget}
+        yearsToFire={fireYearsActive}
+        velocityScore={velocityScore}
+        progressPct={progressPct}
+        currentSavings={currentSavings}
+        monthlySavings={monthlySavings}
+      />
+
+      {/* Header */}
+      <div style={{ background: "linear-gradient(180deg, #0d1a2e 0%, #080f1a 100%)", borderBottom: `1px solid ${fireModel.color}20`, padding: "32px 24px 28px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: "-80px", left: "50%", transform: "translateX(-50%)", width: "500px", height: "220px", background: `radial-gradient(ellipse, ${fireModel.color}07 0%, transparent 70%)`, pointerEvents: "none" }} />
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(241,192,64,0.08)", border: "1px solid rgba(241,192,64,0.2)", borderRadius: "100px", padding: "5px 14px", marginBottom: "14px" }}>
+          <span style={{ fontSize: "10px", fontWeight: 700, color: "#f1c040", textTransform: "uppercase", letterSpacing: "0.12em" }}>ScaledMoney|OS™ · The Lean Dollar</span>
+        </div>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(28px, 5vw, 44px)", fontWeight: 900, margin: "0 0 8px", background: `linear-gradient(135deg, #f8f4e8 30%, ${fireModel.color} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1.1 }}>
+          FIRE Planning Suite
+        </h1>
+        <p style={{ fontSize: "14px", color: "#64748b", margin: "0 auto", lineHeight: 1.5 }}>Choose your philosophy. Pick your investment model. Build your path.</p>
+      </div>
+
+      <div style={{ maxWidth: "960px", margin: "0 auto", padding: "24px 20px 60px" }}>
+
+        {/* FIRE Model Dropdown */}
+        <div style={{ position: "relative", marginBottom: "16px", zIndex: 100 }}>
+          <button onClick={() => setShowDropdown(!showDropdown)} style={{ width: "100%", background: `${fireModel.color}0d`, border: `2px solid ${fireModel.color}40`, borderRadius: "16px", padding: "16px 20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <span style={{ fontSize: "26px" }}>{fireModel.emoji}</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 700, color: fireModel.color }}>{fireModel.name}</div>
+                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "1px" }}>{fireModel.tagline}</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "11px", color: "#475569", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>Switch Model</span>
+              <span style={{ fontSize: "16px", color: fireModel.color, transform: showDropdown ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s" }}>▾</span>
+            </div>
+          </button>
+          {showDropdown && (
+            <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: "#0d1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.7)" }}>
+              {FIRE_MODELS.map((m, i) => (
+                <div key={m.id} onClick={() => { setActiveFireId(m.id); setShowDropdown(false); }} style={{ padding: "14px 18px", cursor: "pointer", background: m.id === activeFireId ? `${m.color}0a` : "transparent", borderBottom: i < FIRE_MODELS.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", display: "grid", gridTemplateColumns: "auto 1fr", gap: "12px", alignItems: "start" }}>
+                  <span style={{ fontSize: "20px", marginTop: "2px" }}>{m.emoji}</span>
+                  <div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: m.id === activeFireId ? m.color : "#e2e8f0", marginBottom: "2px" }}>{m.name}</div>
+                    <div style={{ fontSize: "12px", color: "#64748b", lineHeight: 1.5 }}>{m.summary}</div>
+                    <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}><span style={{ color: m.color, fontWeight: 600 }}>Best for: </span>{m.bestFor}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Objective badge */}
+        <div style={{ background: "rgba(13,26,46,0.4)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "10px", padding: "10px 14px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ fontSize: "13px" }}>🎯</span>
+          <span style={{ fontSize: "11px", fontWeight: 700, color: fireModel.color, textTransform: "uppercase", letterSpacing: "0.08em" }}>Objective: </span>
+          <span style={{ fontSize: "12px", color: "#64748b" }}>{fireModel.objective}</span>
+        </div>
+
+        {/* Calculator */}
+        <div style={{ background: "rgba(13,26,46,0.6)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "20px", padding: "26px", marginBottom: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            <span style={{ fontSize: "16px" }}>{fireModel.emoji}</span>
+            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 700, color: fireModel.color }}>{fireModel.name} Calculator</div>
+            <div style={{ marginLeft: "auto", fontSize: "12px", color: "#475569" }}>Using: <span style={{ color: invModel.color, fontWeight: 600 }}>{invModel.name}</span> ({invModel.return}%)</div>
+            <button onClick={() => setShowShareCard(true)} style={{ background: `${fireModel.color}15`, border: `1px solid ${fireModel.color}40`, borderRadius: "10px", padding: "8px 16px", fontSize: "12px", fontWeight: 700, color: fireModel.color, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+              <span>🪪</span> Share My Card
+            </button>
+          </div>
+          {renderCalc()}
+        </div>
+
+        {/* Investment Models Section */}
+        <div style={{ background: "rgba(13,26,46,0.5)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "20px", padding: "24px", marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 700, color: "#e2e8f0" }}>Investment Models</div>
+              <div style={{ fontSize: "12px", color: "#475569", marginTop: "2px" }}>✓ activates a model · ⚖️ adds to comparison</div>
+            </div>
+            <div style={{ display: "flex", gap: "6px" }}>
+              {[["select", "📊 Models"], ["compare", "⚖️ Compare"]].map(([tab, label]) => (
+                <button key={tab} onClick={() => setInvTab(tab)} style={{ background: invTab === tab ? "rgba(241,192,64,0.12)" : "rgba(13,26,46,0.6)", border: `1px solid ${invTab === tab ? "rgba(241,192,64,0.3)" : "rgba(255,255,255,0.06)"}`, borderRadius: "10px", padding: "8px 14px", color: invTab === tab ? "#f1c040" : "#64748b", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>{label}</button>
+              ))}
+            </div>
+          </div>
+
+          {invTab === "select" && (
+            <>
+              <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
+                {[["all", "All"], ["low", "Low Risk"], ["medium", "Medium"], ["high", "High Risk"]].map(([f, l]) => (
+                  <button key={f} onClick={() => setRiskFilter(f)} style={{ background: riskFilter === f ? "rgba(255,255,255,0.08)" : "transparent", border: `1px solid ${riskFilter === f ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.05)"}`, borderRadius: "8px", padding: "5px 12px", color: riskFilter === f ? "#e2e8f0" : "#475569", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>{l}</button>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "12px" }}>
+                {filteredInv.map(m => (
+                  <InvModelCard key={m.id} model={m} isActive={activeInvId === m.id} isCompare={compareIds.includes(m.id)} onActivate={activateInv} onToggleCompare={toggleCompare} fireYears={fireYearsMap[m.id]} />
+                ))}
+              </div>
+            </>
+          )}
+
+          {invTab === "compare" && (
+            <ComparePanel compareIds={compareIds} models={INV_MODELS} fireTarget={fireTarget} currentSavings={currentSavings} monthlySavings={monthlySavings} />
+          )}
+
+          {/* Metric Explainer */}
+          <div style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: "12px", padding: "16px 20px", marginTop: "16px" }}>
+            <div style={{ fontSize: "11px", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px" }}>Understanding the Metrics</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "14px" }}>
+              {[
+                { label: "Sharpe Ratio", desc: "Return earned per unit of risk. Above 0.5 is solid; above 0.7 is excellent. Tells you if the returns are worth the ride." },
+                { label: "Max Drawdown", desc: "The largest peak-to-trough portfolio decline in history. A -50% drawdown on a $1M portfolio means you'd have watched it drop to $500K in the worst crash." },
+                { label: "Volatility Score", desc: "A 1–5 scale of how bumpy the journey is. 1 = smooth (Permanent Portfolio). 5 = wild swings (ARK, 100% stocks). Higher returns almost always mean higher volatility." },
+              ].map(({ label, desc }) => (
+                <div key={label}>
+                  <div style={{ fontSize: "12px", fontWeight: 700, color: "#f1c040", marginBottom: "5px" }}>{label}</div>
+                  <div style={{ fontSize: "11px", color: "#475569", lineHeight: 1.7 }}>{desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div style={{ background: "linear-gradient(135deg, rgba(241,192,64,0.06), rgba(249,115,22,0.06))", border: "1px solid rgba(241,192,64,0.15)", borderRadius: "20px", padding: "28px", textAlign: "center" }}>
+          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "20px", fontWeight: 700, color: "#f8f4e8", marginBottom: "8px" }}>Ready to build your sprint plan?</div>
+          <div style={{ fontSize: "13px", color: "#475569", marginBottom: "20px", lineHeight: 1.7, maxWidth: "460px", margin: "0 auto 20px" }}>
+            Get the full S.C.A.L.E. Framework™ and your personalized Sprint Budget inside ScaledMoney|OS™.<br />
+            <span style={{ fontSize: "11px", color: "#334155" }}>Educational purposes only. Not financial advice. Past returns do not guarantee future results.</span>
+          </div>
+          <button
+            onClick={() => window.open("https://scaledmoney.com/framework?utm_source=fire_suite&utm_medium=tool_cta&utm_campaign=freetools", "_blank")}
+            style={{ background: "linear-gradient(135deg, #f1c040, #f97316)", border: "none", borderRadius: "10px", padding: "14px 36px", fontSize: "14px", fontWeight: 700, color: "#0f172a", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>
+            Explore ScaledMoney|OS™ →
+          </button>
+        </div>
+
+        <div style={{ textAlign: "center", marginTop: "24px" }}>
+          <div style={{ fontSize: "11px", color: "#334155" }}>
+            Free tool at <span style={{ color: "#f1c040", cursor: "pointer" }} onClick={() => window.open("https://scaledmoney.com/freetools", "_blank")}>scaledmoney.com/freetools</span> · <span style={{ color: "#64748b", cursor: "pointer" }} onClick={() => window.open("https://scaledmoney.com/framework", "_blank")}>ScaledMoney|OS™ Framework</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<FireSuiteComplete />);
+  </script>
+</body>
+</html>
