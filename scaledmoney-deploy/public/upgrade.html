@@ -200,8 +200,8 @@
     currentUser = user;
     if (user) {
       // Check if user is on free tier and show upgrade banner
-      const { data: tier } = await supabase.from('member_tiers').select('current_tier').eq('user_id', user.id).single();
-      if (!tier || tier.current_tier === 'free') { document.getElementById('freeBanner').style.display = 'block'; }
+      const { data: tier } = await supabase.from('member_tiers').select('tier').eq('user_id', user.id).single();
+      if (!tier || tier.tier === 'free') { document.getElementById('freeBanner').style.display = 'block'; }
     } else {
       document.getElementById('authBanner').style.display = 'block';
       document.getElementById('upgradeBtn').disabled = true;
@@ -239,7 +239,7 @@
       console.error('Upgrade error:', err);
       btn.disabled = false;
       btn.textContent = 'Upgrade to Pro \u2192';
-      alert('Something went wrong. Please try again.');
+      alert('Upgrade error: ' + (err.message || 'Something went wrong. Please try again.'));
     }
   };
 </script>
