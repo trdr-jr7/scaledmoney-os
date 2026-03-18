@@ -190,32 +190,59 @@
     <p>ScaledMoney|OS™ · <a href="/framework">Framework</a> · <a href="/freetools">Free Tools</a> · <a href="/dashboard">Dashboard</a></p>
     <p style="margin-top:8px;">Payments secured by Stripe. Cancel anytime.</p>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script>
-    let isAnnual=false,currentUser=null;
-    const SB_URL='https://qkdnkighxqnxswemjvrb.supabase.co';
-    const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrZG5raWdoeHFueHN3ZW1qdnJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1MTQyNTIsImV4cCI6MjA1NjA5MDI1Mn0.r6VJkkPXFINMNIxuzwM0nZPaWDaVGOPzFDGE8v9GRLY';
-    const sb=window.supabase.createClient(SB_URL,SB_ANON);
-    (async()=>{
-      const{data:{user}}=await sb.auth.getUser();
-      currentUser=user;
-      if(user){
-        // User is logged in — toggle LOGIN/JOIN to LOGOUT
-        const authLink=document.getElementById('authLink');
-        if(authLink){authLink.href='/logout';authLink.textContent='LOGOUT';}
-        // Check if user is on free tier and show upgrade banner
-        const{data:tier}=await sb.from('member_tiers').select('current_tier').eq('user_id',user.id).single();
-        if(!tier||tier.current_tier==='free'){document.getElementById('freeBanner').style.display='block';}
-      }else{
-        document.getElementById('authBanner').style.display='block';
-        document.getElementById('upgradeBtn').disabled=true;
-        document.getElementById('upgradeBtn').textContent='Log in to Upgrade';
-      }
-    })();
-    if(new URLSearchParams(window.location.search).get('cancelled')==='1'){document.getElementById('cancelledBanner').style.display='block';}
-    function toggleBilling(){isAnnual=!isAnnual;document.getElementById('billingToggle').classList.toggle('annual',isAnnual);document.getElementById('lblMonthly').classList.toggle('active',!isAnnual);document.getElementById('lblAnnual').classList.toggle('active',isAnnual);document.getElementById('proPrice').textContent=isAnnual?'$79':'$9.99';document.getElementById('proPeriod').textContent=isAnnual?'/ year':'/ month';document.getElementById('proNote').textContent=isAnnual?'Billed annually ($6.58/mo). Cancel anytime.':'Billed monthly. Cancel anytime.';}
-    async function handleUpgrade(){if(!currentUser){window.location.href='/login';return;}const btn=document.getElementById('upgradeBtn');btn.disabled=true;btn.textContent='Redirecting to checkout...';try{const res=await fetch('/api/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:currentUser.id,plan:isAnnual?'pro_annual':'pro_monthly'})});const data=await res.json();if(data.url){window.location.href=data.url;}else{throw new Error(data.error||'Checkout failed');}}catch(err){console.error('Upgrade error:',err);btn.disabled=false;btn.textContent='Upgrade to Pro \u2192';alert('Something went wrong. Please try again.');}}
-  </script>
+  <script type="module">
+  import { supabase, getUser, getUserTier } from '/lib/supabase-client.js';
+
+  let isAnnual = false, currentUser = null;
+
+  (async () => {
+    const user = await getUser();
+    currentUser = user;
+    if (user) {
+      // Check if user is on free tier and show upgrade banner
+      const { data: tier } = await supabase.from('member_tiers').select('current_tier').eq('user_id', user.id).single();
+      if (!tier || tier.current_tier === 'free') { document.getElementById('freeBanner').style.display = 'block'; }
+    } else {
+      document.getElementById('authBanner').style.display = 'block';
+      document.getElementById('upgradeBtn').disabled = true;
+      document.getElementById('upgradeBtn').textContent = 'Log in to Upgrade';
+    }
+  })();
+
+  if (new URLSearchParams(window.location.search).get('cancelled') === '1') { document.getElementById('cancelledBanner').style.display = 'block'; }
+
+  window.toggleBilling = function() {
+    isAnnual = !isAnnual;
+    document.getElementById('billingToggle').classList.toggle('annual', isAnnual);
+    document.getElementById('lblMonthly').classList.toggle('active', !isAnnual);
+    document.getElementById('lblAnnual').classList.toggle('active', isAnnual);
+    document.getElementById('proPrice').textContent = isAnnual ? '$79' : '$9.99';
+    document.getElementById('proPeriod').textContent = isAnnual ? '/ year' : '/ month';
+    document.getElementById('proNote').textContent = isAnnual ? 'Billed annually ($6.58/mo). Cancel anytime.' : 'Billed monthly. Cancel anytime.';
+  };
+
+  window.handleUpgrade = async function() {
+    if (!currentUser) { window.location.href = '/login'; return; }
+    const btn = document.getElementById('upgradeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Redirecting to checkout...';
+    try {
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id, plan: isAnnual ? 'pro_annual' : 'pro_monthly' })
+      });
+      const data = await res.json();
+      if (data.url) { window.location.href = data.url; }
+      else { throw new Error(data.error || 'Checkout failed'); }
+    } catch (err) {
+      console.error('Upgrade error:', err);
+      btn.disabled = false;
+      btn.textContent = 'Upgrade to Pro \u2192';
+      alert('Something went wrong. Please try again.');
+    }
+  };
+</script>
     <script type="module" src="/lib/auth-nav.js"></script>
 </body>
 </html>
