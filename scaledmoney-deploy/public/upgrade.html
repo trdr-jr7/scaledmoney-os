@@ -216,5 +216,6 @@
     function toggleBilling(){isAnnual=!isAnnual;document.getElementById('billingToggle').classList.toggle('annual',isAnnual);document.getElementById('lblMonthly').classList.toggle('active',!isAnnual);document.getElementById('lblAnnual').classList.toggle('active',isAnnual);document.getElementById('proPrice').textContent=isAnnual?'$79':'$9.99';document.getElementById('proPeriod').textContent=isAnnual?'/ year':'/ month';document.getElementById('proNote').textContent=isAnnual?'Billed annually ($6.58/mo). Cancel anytime.':'Billed monthly. Cancel anytime.';}
     async function handleUpgrade(){if(!currentUser){window.location.href='/login';return;}const btn=document.getElementById('upgradeBtn');btn.disabled=true;btn.textContent='Redirecting to checkout...';try{const res=await fetch('/api/create-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:currentUser.id,plan:isAnnual?'pro_annual':'pro_monthly'})});const data=await res.json();if(data.url){window.location.href=data.url;}else{throw new Error(data.error||'Checkout failed');}}catch(err){console.error('Upgrade error:',err);btn.disabled=false;btn.textContent='Upgrade to Pro \u2192';alert('Something went wrong. Please try again.');}}
   </script>
+    <script type="module" src="/lib/auth-nav.js"></script>
 </body>
 </html>
