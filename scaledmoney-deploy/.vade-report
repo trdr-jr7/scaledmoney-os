@@ -1,0 +1,81 @@
+# Vercel Web Analytics Implementation
+
+## Summary
+Successfully implemented Vercel Web Analytics across the entire ScaledMoney|OS™ project using the HTML implementation approach.
+
+## Changes Made
+
+### 1. Added @vercel/analytics package
+**File:** `package.json`
+- Added `"@vercel/analytics": "^1.4.0"` to dependencies
+- This package provides the analytics functionality for Vercel projects
+
+### 2. Added analytics script to all HTML files
+The following analytics script was added to the `<head>` section of all HTML files (just before the closing `</head>` tag):
+
+```html
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+```
+
+**Modified files (11 total):**
+- `public/newsletter.html` - Landing page for newsletter signup
+- `public/login.html` - User authentication page
+- `public/logout.html` - Logout page
+- `public/dashboard.html` - Main dashboard
+- `public/graduation.html` - Graduation page
+- `public/scaledmoney-os-level1.html` - Core framework page
+- `public/tools/dollar-standup.html` - Daily standup tool
+- `public/tools/lean-dollar-gap-audit.html` - Gap audit tool
+- `public/tools/lean-dollar-sprint-budget-planner.html` - Sprint budget planner
+- `public/tools/lean-dollar-sprint-retro.html` - Sprint retrospective tool
+- `public/tools/lean-dollar-true-cost-engine-v2.html` - True cost calculator
+
+### 3. Updated Content Security Policy
+**File:** `vercel.json`
+- Updated the `Content-Security-Policy` header to allow analytics connections
+- Added `https://vitals.vercel-insights.com` to the `connect-src` directive
+- This enables the analytics script to send data to Vercel's analytics endpoints
+
+### 4. Installed dependencies
+- Ran `npm install` to install the @vercel/analytics package
+- Created `package-lock.json` to lock dependency versions
+- All 34 packages installed successfully with 0 vulnerabilities
+
+## Implementation Approach
+
+Since this is a plain HTML site (not using a framework like Next.js, React, etc.), I used the HTML implementation approach as recommended in the Vercel Web Analytics documentation. This approach:
+
+1. Uses inline script tags instead of importing JavaScript modules
+2. Loads the analytics script from `/_vercel/insights/script.js` which is automatically served by Vercel
+3. Requires no build step or bundler configuration
+4. Works seamlessly with static HTML pages
+
+## Next Steps
+
+After deployment to Vercel:
+
+1. **Enable Web Analytics** in the Vercel dashboard:
+   - Go to Project → Analytics tab
+   - Click "Enable"
+   - This will activate the `/_vercel/insights/*` routes
+
+2. **Verify tracking** is working:
+   - Visit any page after deployment
+   - Open browser DevTools → Network tab
+   - Look for a fetch/XHR request to `/_vercel/insights/view`
+   - If you see this request, analytics is working correctly
+
+3. **View analytics data**:
+   - Data will appear in the Vercel dashboard under Analytics
+   - Metrics include page views, visitors, top pages, referrers, etc.
+   - Pro and Enterprise plans can also track custom events
+
+## Technical Notes
+
+- The analytics script is loaded with the `defer` attribute for optimal performance
+- The inline script stub ensures the analytics queue is initialized even if the main script loads slowly
+- The CSP update allows the script to communicate with Vercel's analytics backend
+- No changes were needed to the existing Supabase or Stripe integrations
